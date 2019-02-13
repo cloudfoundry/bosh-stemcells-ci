@@ -12,4 +12,4 @@ inputs:
   - name: bosh-cli
 
 run:
-  path: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/teardown.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/teardown.sh

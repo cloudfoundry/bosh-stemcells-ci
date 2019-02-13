@@ -59,7 +59,7 @@ shared:
   - &deploy-director
     task: deploy-director
     tags: [vsphere-v6.5]
-    file: bosh-stemcells-ci/pipelines/trusty/3586.x/bats/tasks/deploy-director.yml
+    file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/bats/tasks/deploy-director.yml
     params:
       BAT_INFRASTRUCTURE: vsphere
       BOSH_CLIENT:                          ((stemcell-test-director-username))
@@ -80,7 +80,7 @@ shared:
   - &prepare-bats-config
     task: prepare-bats
     tags: [vsphere-v6.5]
-    file: bosh-stemcells-ci/pipelines/trusty/3586.x/bats/iaas/vsphere/prepare-bats-config.yml
+    file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/bats/iaas/vsphere/prepare-bats-config.yml
 
   - &run-bats
     task: run-bats
@@ -90,7 +90,7 @@ shared:
   - &teardown
     task: teardown
     tags: [vsphere-v6.5]
-    file: bosh-stemcells-ci/pipelines/trusty/3586.x/bats/tasks/destroy-director.yml
+    file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/bats/tasks/destroy-director.yml
 
   - &stemcell_bucket
     bucket: ((candidate_stemcell_bucket))
@@ -117,7 +117,7 @@ jobs:
         - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
       - task: create-story
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/create-story.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/create-story.yml
         params:
           BRANCH: master
           PROJECT_ID: ((story_creator_tracker_project_id))
@@ -177,7 +177,7 @@ jobs:
         - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
       - task: create-story
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/create-story.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/create-story.yml
         params:
           BRANCH: master
           PROJECT_ID: ((story_creator_private_tracker_project_id))
@@ -196,7 +196,7 @@ jobs:
         passed:
           - start-job
       - task: build
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/os-images/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/os-images/tasks/build.yml
         privileged: true
         params:
           OPERATING_SYSTEM_NAME:      ubuntu
@@ -218,7 +218,7 @@ jobs:
             passed:
               - build-ubuntu-trusty-image
       - task: bump-os-image
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/os-images/tasks/bump-os-image.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/os-images/tasks/bump-os-image.yml
       - put: bosh-linux-stemcell-builder-push
         params:
           repository: bosh-linux-stemcell-builder-push
@@ -231,7 +231,7 @@ jobs:
       - get: bosh-linux-stemcell-builder
         trigger: true
       - task: test-unit
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/test-unit.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/test-unit.yml
 
   - name: build-stemcell
     serial: true
@@ -281,7 +281,7 @@ jobs:
         - do:
           - task: deploy-director
             tags: [vsphere-v6.5]
-            file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/deploy-director.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/deploy-director.yml
             params:
               BOSH_vcenter_ip:          ((vcenter-ip))
               BOSH_vcenter_user:        ((vcenter-user))
@@ -295,7 +295,7 @@ jobs:
               BOSH_vcenter_rp:          ((vcenter-rp))
           - task: test-stemcell
             tags: [vsphere-v6.5]
-            file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/test-stemcell.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/test-stemcell.yml
             input_mapping:
               stemcell: vsphere-esxi-ubuntu-trusty
             params:
@@ -304,11 +304,11 @@ jobs:
           ensure:
             task: teardown-director
             tags: [vsphere-v6.5]
-            file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/teardown.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/teardown.yml
         - do:
           - task: deploy-director-ipv6
             tags: [vsphere-v6.5]
-            file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/deploy-director-ipv6.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/deploy-director-ipv6.yml
             params:
               BOSH_vcenter_ip:          ((vcenter-ip))
               BOSH_vcenter_user:        ((vcenter-user))
@@ -322,7 +322,7 @@ jobs:
               BOSH_vcenter_rp:          ((vcenter-rp))
           - task: test-stemcell-ipv6
             tags: [vsphere-v6.5]
-            file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/test-stemcell.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/test-stemcell.yml
             input_mapping:
               stemcell: vsphere-esxi-ubuntu-trusty
             params:
@@ -330,7 +330,7 @@ jobs:
           ensure:
             task: teardown-director-ipv6
             tags: [vsphere-v6.5]
-            file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/teardown.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/teardown.yml
         ensure:
           put: environment
           params:
@@ -352,7 +352,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         warden
@@ -386,7 +386,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         aws
@@ -420,7 +420,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         azure
@@ -454,7 +454,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         google
@@ -488,7 +488,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         openstack
@@ -526,7 +526,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         vsphere
@@ -560,7 +560,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         vcloud

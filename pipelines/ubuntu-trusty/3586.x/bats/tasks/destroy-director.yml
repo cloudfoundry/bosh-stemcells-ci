@@ -12,4 +12,4 @@ inputs:
   - name: bosh-linux-stemcell-builder
 
 run:
-  path: bosh-stemcells-ci/pipelines/trusty/3586.x/bats/tasks/destroy-director.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/bats/tasks/destroy-director.sh

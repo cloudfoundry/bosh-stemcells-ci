@@ -23,4 +23,4 @@ outputs:
 - name: director-state
 
 run:
-  path: bosh-stemcells-ci/pipelines/trusty/3586.x/bats/tasks/deploy-director.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/bats/tasks/deploy-director.sh

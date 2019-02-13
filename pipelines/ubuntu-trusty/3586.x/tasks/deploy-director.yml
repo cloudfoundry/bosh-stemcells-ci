@@ -16,4 +16,4 @@ outputs:
   - name: director-state
 
 run:
-  path: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/deploy-director-ipv6.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/deploy-director.sh
