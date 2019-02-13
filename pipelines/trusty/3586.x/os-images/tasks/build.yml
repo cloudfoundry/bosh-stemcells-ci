@@ -14,7 +14,7 @@ outputs:
 - name: os-image
 
 run:
-  path: bosh-stemcells-ci/pipelines/3586.x/os-images/tasks/build.sh
+  path: bosh-stemcells-ci/pipelines/trusty/3586.x/os-images/tasks/build.sh
 
 params:
   OPERATING_SYSTEM_NAME:      replace-me

@@ -15,4 +15,4 @@ outputs:
   - name: bosh-linux-stemcell-builder-push
 
 run:
-  path: bosh-stemcells-ci/pipelines/3586.x/os-images/tasks/bump-os-image.sh
+  path: bosh-stemcells-ci/pipelines/trusty/3586.x/os-images/tasks/bump-os-image.sh

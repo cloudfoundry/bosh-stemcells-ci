@@ -15,4 +15,4 @@ inputs:
   - name: bosh-stemcells-ci
 
 run:
-  path: bosh-stemcells-ci/pipelines/3586.x/tasks/create-story.sh
+  path: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/create-story.sh

@@ -19,9 +19,9 @@
             - bats-ubuntu
         - get: stemcells-index
       - task: assert-version-aligns
-        file: bosh-stemcells-ci/pipelines/3586.x/tasks/assert-version-aligns.yml
+        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/assert-version-aligns.yml
       - task: copy-ubuntu-trusty-artifacts
-        file: bosh-stemcells-ci/pipelines/3586.x/tasks/publish.yml
+        file: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/publish.yml
         params:
           AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
           AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))

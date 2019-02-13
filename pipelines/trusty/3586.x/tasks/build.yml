@@ -18,7 +18,7 @@ outputs:
     path: stemcells-index-output
 
 run:
-  path: bosh-stemcells-ci/pipelines/3586.x/tasks/build.sh
+  path: bosh-stemcells-ci/pipelines/trusty/3586.x/tasks/build.sh
 
 params:
   IAAS:         replace-me
