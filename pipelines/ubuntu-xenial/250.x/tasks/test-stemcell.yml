@@ -6,6 +6,7 @@ image_resource:
 
 inputs:
 - name: bosh-linux-stemcell-builder
+- name: bosh-stemcells-ci
 - name: bosh-cli
 - name: stemcell
 - name: syslog-release
@@ -17,4 +18,4 @@ params:
   package: .
 
 run:
-  path: bosh-linux-stemcell-builder/ci/tasks/test-stemcell.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/250.x/tasks/test-stemcell.sh

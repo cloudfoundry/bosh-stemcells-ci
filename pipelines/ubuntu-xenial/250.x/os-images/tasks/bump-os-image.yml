@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
   - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
   - name: image-tarball
 
 outputs:
@@ -18,4 +19,4 @@ params:
   OS_VERSION: ~
 
 run:
-  path: bosh-linux-stemcell-builder/ci/os-images/tasks/bump-os-image.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/250.x/os-images/tasks/bump-os-image.sh

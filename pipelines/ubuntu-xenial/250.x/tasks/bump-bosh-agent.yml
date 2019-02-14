@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
 - name: bosh-linux-stemcell-builder
+- name: bosh-stemcells-ci
 - name: bosh-agent
 
 outputs:
@@ -15,4 +16,4 @@ outputs:
   path: bosh-linux-stemcell-builder-out
 
 run:
-  path: bosh-linux-stemcell-builder/ci/tasks/bump-bosh-agent.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/250.x/tasks/bump-bosh-agent.sh

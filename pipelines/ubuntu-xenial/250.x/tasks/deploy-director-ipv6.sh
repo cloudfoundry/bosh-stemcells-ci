@@ -34,7 +34,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/ipv6/bosh.yml \
   -o bosh-deployment/misc/second-network.yml \
   -o bosh-deployment/vsphere/second-network.yml \
-  -o bosh-linux-stemcell-builder/ci/assets/ipv6-director.yml \
+  -o bosh-stemcells-ci/pipelines/ubuntu-xenial/250.x/assets/ipv6-director.yml \
   --vars-store director-creds.yml \
   -v director_name=stemcell-smoke-tests-director \
   --vars-env "BOSH" > director.yml
@@ -51,8 +51,8 @@ export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_password`
 
 $bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
-          --ops-file bosh-linux-stemcell-builder/ci/assets/reserve-ips.yml \
-          --ops-file bosh-linux-stemcell-builder/ci/assets/ipv6-cc.yml \
+          --ops-file bosh-stemcells-ci/pipelines/ubuntu-xenial/250.x/assets/reserve-ips.yml \
+          --ops-file bosh-stemcells-ci/pipelines/ubuntu-xenial/250.x/assets/ipv6-cc.yml \
           --vars-env "BOSH"
 
 mv $HOME/.bosh director-state/

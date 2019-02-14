@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
 - name: environment
+- name: bosh-stemcells-ci
 - name: bosh-linux-stemcell-builder
 - name: bosh-cli
 - name: bosh-deployment
@@ -21,4 +22,4 @@ outputs:
 - name: director-state
 
 run:
-  path: bosh-linux-stemcell-builder/ci/bats/tasks/deploy-director.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/250.x/bats/tasks/deploy-director.sh
