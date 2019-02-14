@@ -8,12 +8,13 @@ image_resource:
 
 inputs:
   - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
 
 outputs:
 - name: os-image
 
 run:
-  path: bosh-linux-stemcell-builder/ci/os-images/tasks/build.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/os-images/tasks/build.sh
 
 params:
   OPERATING_SYSTEM_NAME:      replace-me

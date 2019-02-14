@@ -26,6 +26,7 @@
   value:
     name: start-job-((group))
     plan:
+    - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
     - get: every-2-weeks-on-monday
@@ -41,10 +42,11 @@
       - aggregate:
         - get: every-2-weeks-on-monday
           trigger: true
+        - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
           resource: bosh-linux-stemcell-builder-((group))
       - task: create-story
-        file: bosh-linux-stemcell-builder/ci/tasks/create-story.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/create-story.yml
         params:
           BRANCH: ubuntu-xenial/((group))
           PROJECT_ID: ((story_creator_tracker_project_id))
@@ -56,12 +58,13 @@
     name: create-story-usn-((group))
     plan:
       - aggregate:
+        - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
           resource: bosh-linux-stemcell-builder-((group))
         - get: xenial-usn
           trigger: true
       - task: create-story
-        file: bosh-linux-stemcell-builder/ci/tasks/create-story.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/create-story.yml
         params:
           BRANCH: ubuntu-xenial/((group))
           PROJECT_ID: ((story_creator_private_tracker_project_id))
@@ -72,6 +75,7 @@
   value:
     name: build-os-image-((group))
     plan:
+    - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
       passed:
@@ -81,7 +85,7 @@
       trigger: true
       passed:
       - start-job-((group))
-    - file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/os-images/tasks/build.yml
       params:
         OPERATING_SYSTEM_NAME: ubuntu
         OPERATING_SYSTEM_VERSION: xenial
@@ -97,6 +101,7 @@
     name: bump-os-image-((group))
     plan:
     - aggregate:
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -106,7 +111,7 @@
         passed:
         - build-os-image-((group))
     - task: bump-os-image
-      file: bosh-linux-stemcell-builder/ci/os-images/tasks/bump-os-image.yml
+      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/os-images/tasks/bump-os-image.yml
       params:
         OS_NAME: ubuntu
         OS_VERSION: xenial
@@ -125,9 +130,10 @@
       trigger: true
       params:
         skip_download: true
+    - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
-    - file: bosh-linux-stemcell-builder/ci/tasks/bump-bosh-agent.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/bump-bosh-agent.yml
       task: bump
     - put: bosh-linux-stemcell-builder-push-((group))
       params:
@@ -139,10 +145,11 @@
   value:
     name: test-unit-((group))
     plan:
+    - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
       trigger: true
-    - file: bosh-linux-stemcell-builder/ci/tasks/test-unit.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/test-unit.yml
       task: test-unit
     serial: true
 - path: /jobs/-
@@ -150,6 +157,7 @@
   value:
     name: build-stemcell-((group))
     plan:
+    - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
       passed:
@@ -181,6 +189,7 @@
           - build-vsphere-esxi-((group))
           - build-vcloud-esxi-((group))
           trigger: true
+        - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
           resource: bosh-linux-stemcell-builder-((group))
         - get: bosh-deployment
@@ -197,7 +206,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-linux-stemcell-builder/ci/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/deploy-director.yml
           params:
             BOSH_vcenter_ip:          ((vcenter-ip))
             BOSH_vcenter_user:        ((vcenter-user))
@@ -212,7 +221,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/test-stemcell.yml
           params:
             BOSH_os_name: ubuntu-xenial
             package: ipv4director
@@ -220,7 +229,7 @@
           - vsphere-v6.5
           task: test-stemcell
         ensure:
-          file: bosh-linux-stemcell-builder/ci/tasks/teardown.yml
+          file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/teardown.yml
           tags:
           - vsphere-v6.5
           task: teardown
@@ -240,12 +249,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: boshlite
         IAAS: warden
@@ -275,12 +285,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: xen-hvm
         IAAS: aws
@@ -310,12 +321,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: hyperv
         IAAS: azure
@@ -345,12 +357,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: kvm
         IAAS: alicloud
@@ -380,12 +393,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: kvm
         IAAS: google
@@ -415,12 +429,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: kvm
         IAAS: openstack
@@ -454,12 +469,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: esxi
         IAAS: vsphere
@@ -489,12 +505,13 @@
         passed:
         - build-stemcell-((group))
         trigger: true
+      - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
       params:
         HYPERVISOR: esxi
         IAAS: vcloud
@@ -531,6 +548,7 @@
         - get: bosh-cli
         - get: bats
         - get: bosh-deployment
+        - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
           resource: bosh-linux-stemcell-builder-((group))
           passed:
@@ -555,7 +573,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-linux-stemcell-builder/ci/bats/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/bats/tasks/deploy-director.yml
           params:
             BAT_INFRASTRUCTURE: vsphere
             BOSH_CLIENT: ((stemcell-test-director-username))
@@ -575,7 +593,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-linux-stemcell-builder/ci/bats/iaas/vsphere/prepare-bats-config.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/bats/iaas/vsphere/prepare-bats-config.yml
           params:
             STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-xenial-go_agent
           tags:
@@ -587,7 +605,7 @@
           task: run-bats
         ensure:
           do:
-          - file: bosh-linux-stemcell-builder/ci/bats/tasks/destroy-director.yml
+          - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/bats/tasks/destroy-director.yml
             tags:
             - vsphere-v6.5
             task: teardown

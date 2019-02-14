@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
   - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
   - name: version
   - name: stemcells-index
 outputs:
@@ -16,7 +17,7 @@ outputs:
     path: stemcells-index-output
 
 run:
-  path: bosh-linux-stemcell-builder/ci/tasks/publish.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/publish.sh
 
 params:
   AWS_ACCESS_KEY_ID:     required

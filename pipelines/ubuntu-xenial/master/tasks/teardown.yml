@@ -7,8 +7,9 @@ image_resource:
 
 inputs:
   - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
   - name: director-state
   - name: bosh-cli
 
 run:
-  path: bosh-linux-stemcell-builder/ci/tasks/teardown.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/teardown.sh
