@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
   - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
   - name: environment
   - name: director-state
 
@@ -18,4 +19,4 @@ outputs:
   - name: bats-config
 
 run:
-  path: bosh-linux-stemcell-builder/ci/bats/iaas/vsphere/prepare-bats-config.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/iaas/vsphere/prepare-bats-config.sh

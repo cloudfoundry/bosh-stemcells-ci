@@ -84,7 +84,7 @@ shared:
   - &deploy-director
     task: deploy-director
     tags: [vsphere-v6.5]
-    file: bosh-linux-stemcell-builder/ci/bats/tasks/deploy-director.yml
+    file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/tasks/deploy-director.yml
     params:
       BAT_INFRASTRUCTURE: vsphere
       BOSH_CLIENT:                          ((stemcell-test-director-username))
@@ -105,7 +105,7 @@ shared:
   - &prepare-bats-config
     task: prepare-bats
     tags: [vsphere-v6.5]
-    file: bosh-linux-stemcell-builder/ci/bats/iaas/vsphere/prepare-bats-config.yml
+    file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/iaas/vsphere/prepare-bats-config.yml
 
   - &run-bats
     task: run-bats
@@ -115,7 +115,7 @@ shared:
   - &teardown
     task: teardown
     tags: [vsphere-v6.5]
-    file: bosh-linux-stemcell-builder/ci/bats/tasks/destroy-director.yml
+    file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/tasks/destroy-director.yml
 
   - &stemcell_bucket
     bucket: ((candidate_stemcell_bucket))
@@ -140,7 +140,7 @@ jobs:
           trigger: true
         - get: bosh-linux-stemcell-builder
       - task: create-story
-        file: bosh-linux-stemcell-builder/ci/tasks/create-story.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/create-story.yml
         params:
           BRANCH: master
           PROJECT_ID: ((story_creator_tracker_project_id))
@@ -154,7 +154,7 @@ jobs:
           trigger: true
         - get: bosh-linux-stemcell-builder
       - task: create-story
-        file: bosh-linux-stemcell-builder/ci/tasks/create-story.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/create-story.yml
         params:
           BRANCH: master
           PROJECT_ID: ((story_creator_private_tracker_project_id))
@@ -172,7 +172,7 @@ jobs:
         passed:
           - start-job
       - task: build
-        file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/os-images/tasks/build.yml
         privileged: true
         params:
           OPERATING_SYSTEM_NAME:      ubuntu
@@ -193,7 +193,7 @@ jobs:
         passed:
           - start-job
       - task: build
-        file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/os-images/tasks/build.yml
         privileged: true
         params:
           OPERATING_SYSTEM_NAME:      centos
@@ -223,13 +223,13 @@ jobs:
             passed:
               - build-centos-7-image
       - task: bump-ubuntu-trusty-os-image
-        file: bosh-linux-stemcell-builder/ci/os-images/tasks/bump-os-image.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/os-images/tasks/bump-os-image.yml
         params:
           OS_NAME: ubuntu
           OS_VERSION: trusty
         input_mapping: { image-tarball: ubuntu-trusty-tarball }
       - task: bump-centos-7-os-image
-        file: bosh-linux-stemcell-builder/ci/os-images/tasks/bump-os-image.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/os-images/tasks/bump-os-image.yml
         params:
           OS_NAME: centos
           OS_VERSION: 7
@@ -247,7 +247,7 @@ jobs:
       - get: bosh-linux-stemcell-builder
         trigger: true
       - task: test-unit
-        file: bosh-linux-stemcell-builder/ci/tasks/test-unit.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/test-unit.yml
 
   - name: build-stemcell
     serial: true
@@ -302,7 +302,7 @@ jobs:
         - do:
           - task: deploy-director
             tags: [vsphere-v6.5]
-            file: bosh-linux-stemcell-builder/ci/tasks/deploy-director.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/deploy-director.yml
             params:
               BOSH_vcenter_ip:          ((vcenter-ip))
               BOSH_vcenter_user:        ((vcenter-user))
@@ -316,7 +316,7 @@ jobs:
               BOSH_vcenter_rp:          ((vcenter-rp))
           - task: test-stemcell
             tags: [vsphere-v6.5]
-            file: bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/test-stemcell.yml
             input_mapping:
               stemcell: vsphere-esxi-ubuntu-trusty
             params:
@@ -325,11 +325,11 @@ jobs:
           ensure:
             task: teardown-director
             tags: [vsphere-v6.5]
-            file: bosh-linux-stemcell-builder/ci/tasks/teardown.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/teardown.yml
         - do:
           - task: deploy-director-ipv6
             tags: [vsphere-v6.5]
-            file: bosh-linux-stemcell-builder/ci/tasks/deploy-director-ipv6.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/deploy-director-ipv6.yml
             params:
               BOSH_vcenter_ip:          ((vcenter-ip))
               BOSH_vcenter_user:        ((vcenter-user))
@@ -343,7 +343,7 @@ jobs:
               BOSH_vcenter_rp:          ((vcenter-rp))
           - task: test-stemcell-ipv6
             tags: [vsphere-v6.5]
-            file: bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/test-stemcell.yml
             input_mapping:
               stemcell: vsphere-esxi-ubuntu-trusty
             params:
@@ -351,7 +351,7 @@ jobs:
           ensure:
             task: teardown-director-ipv6
             tags: [vsphere-v6.5]
-            file: bosh-linux-stemcell-builder/ci/tasks/teardown.yml
+            file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/teardown.yml
         ensure:
           put: environment
           params:
@@ -371,7 +371,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         warden
@@ -397,7 +397,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         warden
@@ -427,7 +427,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         aws
@@ -453,7 +453,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         aws
@@ -483,7 +483,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         azure
@@ -509,7 +509,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         azure
@@ -539,7 +539,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         google
@@ -565,7 +565,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         google
@@ -595,7 +595,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         openstack
@@ -624,7 +624,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         openstack
@@ -657,7 +657,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         vsphere
@@ -683,7 +683,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         vsphere
@@ -713,7 +713,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         alicloud
@@ -743,7 +743,7 @@ jobs:
             passed: [build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
-        file: bosh-linux-stemcell-builder/ci/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/build.yml
         privileged: true
         params:
           IAAS:         vcloud

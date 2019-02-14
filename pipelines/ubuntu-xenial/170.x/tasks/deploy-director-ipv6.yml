@@ -7,6 +7,7 @@ image_resource:
 
 inputs:
   - name: bosh-deployment
+  - name: bosh-stemcells-ci
   - name: bosh-linux-stemcell-builder
   - name: bosh-cli
   - name: environment
@@ -15,4 +16,4 @@ outputs:
   - name: director-state
 
 run:
-  path: bosh-linux-stemcell-builder/ci/tasks/deploy-director-ipv6.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/deploy-director-ipv6.sh

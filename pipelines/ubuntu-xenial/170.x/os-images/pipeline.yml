@@ -20,7 +20,7 @@ jobs:
         passed:
           - start-job
       - task: build
-        file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/os-images/tasks/build.yml
         privileged: true
         params:
           OPERATING_SYSTEM_NAME:      ubuntu
@@ -37,7 +37,7 @@ jobs:
         passed:
           - start-job
       - task: build
-        file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/os-images/tasks/build.yml
         privileged: true
         params:
           OPERATING_SYSTEM_NAME:      ubuntu
@@ -54,7 +54,7 @@ jobs:
         passed:
           - start-job
       - task: build
-        file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/os-images/tasks/build.yml
         privileged: true
         params:
           OPERATING_SYSTEM_NAME:      centos

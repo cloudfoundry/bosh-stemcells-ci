@@ -13,6 +13,7 @@ params:
 
 inputs:
   - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
 
 run:
-  path: bosh-linux-stemcell-builder/ci/tasks/create-story.sh
+  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/create-story.sh

@@ -22,10 +22,10 @@ bosh-cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/$BAT_INFRASTRUCTURE/resource-pool.yml \
   -o bosh-deployment/misc/powerdns.yml \
   -o bosh-deployment/jumpbox-user.yml \
-  -o bosh-linux-stemcell-builder/ci/bats/ops/remove-health-monitor.yml \
+  -o bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/ops/remove-health-monitor.yml \
   -v dns_recursor_ip=8.8.8.8 \
   -v director_name=bats-director \
-  --vars-file <( bosh-linux-stemcell-builder/ci/bats/iaas/$BAT_INFRASTRUCTURE/director-vars ) \
+  --vars-file <( bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/iaas/$BAT_INFRASTRUCTURE/director-vars ) \
   > director.yml
 
 bosh-cli create-env \
