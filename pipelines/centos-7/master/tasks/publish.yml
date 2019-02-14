@@ -1,0 +1,30 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: bosh/os-image-stemcell-publisher
+
+inputs:
+  - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
+  - name: version
+  - name: stemcells-index
+outputs:
+  - name: version-tag
+  - name: stemcells-index
+    path: stemcells-index-output
+
+run:
+  path: bosh-stemcells-ci/pipelines/centos-7/master/tasks/publish.sh
+
+params:
+  AWS_ACCESS_KEY_ID:     required
+  AWS_SECRET_ACCESS_KEY: required
+  AWS_DEFAULT_REGION:    us-east-1
+  CANDIDATE_BUCKET_NAME: required
+  PUBLISHED_BUCKET_NAME: required
+  COPY_KEYS:             required
+  OS_NAME:               required
+  OS_VERSION:            required
