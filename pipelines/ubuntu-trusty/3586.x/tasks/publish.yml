@@ -7,14 +7,15 @@ image_resource:
     repository: bosh/os-image-stemcell-publisher
 
 inputs:
-  - name: bosh-linux-stemcell-builder
-  - name: bosh-stemcells-ci
-  - name: version
-  - name: stemcells-index
+- name: bosh-stemcells-ci
+- name: bosh-linux-stemcell-builder
+- name: version
+- name: stemcells-index
+
 outputs:
-  - name: version-tag
-  - name: stemcells-index
-    path: stemcells-index-output
+- name: version-tag
+- name: stemcells-index
+  path: stemcells-index-output
 
 run:
   path: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/publish.sh
@@ -23,8 +24,11 @@ params:
   AWS_ACCESS_KEY_ID:     required
   AWS_SECRET_ACCESS_KEY: required
   AWS_DEFAULT_REGION:    us-east-1
-  CANDIDATE_BUCKET_NAME: required
-  PUBLISHED_BUCKET_NAME: required
+  FROM_BUCKET_NAME:      required
+  TO_BUCKET_NAME:        required
+  FROM_INDEX:            required
+  TO_INDEX:              required
+  COMMIT_PREFIX:         publish
   COPY_KEYS:             required
   OS_NAME:               required
   OS_VERSION:            required
