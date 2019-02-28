@@ -18,7 +18,7 @@ outputs:
   path: stemcells-index-output
 
 run:
-  path: bosh-stemcells-ci/publish.sh
+  path: bosh-stemcells-ci/tasks/publish.sh
 
 params:
   AWS_ACCESS_KEY_ID:     required
@@ -32,3 +32,4 @@ params:
   COPY_KEYS:             required
   OS_NAME:               required
   OS_VERSION:            required
+  VERSION_PREFIX:        stable-

@@ -51,6 +51,6 @@ else
   done
 fi
 
-echo "stable-${VERSION}" > version-tag/tag
+echo "${VERSION_PREFIX}${VERSION}" > version-tag/tag
 
 echo "Done"
