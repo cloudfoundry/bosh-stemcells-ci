@@ -68,9 +68,9 @@ sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
   bundle install --local
 
   if [ "$OS_VERSION" == "trusty" ]; then
-    bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,bosh-os-images,bosh-$OS_NAME-$OS_VERSION-os-image.tgz,$build_number]
+    bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,bosh-os-images,bosh-$OS_NAME-$OS_VERSION-os-image.tgz,$CANDIDATE_BUILD_NUMBER]
   else
-    bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,$build_number]
+    bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,$CANDIDATE_BUILD_NUMBER]
   fi
   rm -f ./tmp/base_os_image.tgz
 SUDO
