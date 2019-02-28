@@ -353,7 +353,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
           IAAS:         warden
@@ -387,7 +387,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
           IAAS:         aws
@@ -421,7 +421,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
           IAAS:         azure
@@ -455,7 +455,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
           IAAS:         google
@@ -489,7 +489,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
           IAAS:         openstack
@@ -527,7 +527,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
           IAAS:         vsphere
@@ -561,7 +561,7 @@ jobs:
           - get: stemcells-index
       - task: create-stemcell
         attempts: 3
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/build.yml
+        file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
           IAAS:         vcloud

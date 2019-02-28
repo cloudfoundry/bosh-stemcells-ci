@@ -137,7 +137,7 @@
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/build.yml
       params:
         HYPERVISOR: boshlite
         IAAS: warden
@@ -172,7 +172,7 @@
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/build.yml
       params:
         HYPERVISOR: xen-hvm
         IAAS: aws
@@ -207,7 +207,7 @@
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/build.yml
       params:
         HYPERVISOR: hyperv
         IAAS: azure
@@ -242,7 +242,7 @@
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/build.yml
       params:
         HYPERVISOR: kvm
         IAAS: google
@@ -277,7 +277,7 @@
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/build.yml
       params:
         HYPERVISOR: kvm
         IAAS: openstack
@@ -316,7 +316,7 @@
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/build.yml
       params:
         HYPERVISOR: esxi
         IAAS: vsphere
@@ -351,7 +351,7 @@
         passed:
         - build-stemcell-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/build.yml
       params:
         HYPERVISOR: esxi
         IAAS: vcloud

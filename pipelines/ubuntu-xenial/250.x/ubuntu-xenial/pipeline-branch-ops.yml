@@ -49,6 +49,11 @@
           vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-xenial-go_agent.tgz
           azure/bosh-stemcell-%s-azure-hyperv-ubuntu-xenial-go_agent.tgz
       task: copy-artifacts
+    - params:
+        rebase: true
+        repository: stemcells-index
+      put: stemcells-index
+    serial: true
 
 - path: /jobs/-
   type: replace

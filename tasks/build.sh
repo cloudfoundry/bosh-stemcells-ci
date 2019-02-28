@@ -17,7 +17,7 @@ check_param OS_NAME
 check_param OS_VERSION
 
 export TASK_DIR=$PWD
-build_number=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
+export CANDIDATE_BUILD_NUMBER=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
 
 git clone stemcells-index stemcells-index-output
 
@@ -66,7 +66,7 @@ sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
   cd bosh-linux-stemcell-builder
 
   bundle install --local
-  bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,$build_number]
+  bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,bosh-os-images,bosh-$OS_NAME-$OS_VERSION-os-image.tgz]
   rm -f ./tmp/base_os_image.tgz
 SUDO
 
@@ -74,8 +74,8 @@ SUDO
 # Output and checksum the stemcell artifacts
 #
 
-stemcell_name="bosh-stemcell-$build_number-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION-go_agent"
-meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$build_number/$IAAS-$HYPERVISOR-go_agent.meta4
+stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION-go_agent"
+meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR-go_agent.meta4
 
 mkdir -p "$( dirname "$meta4_path" )"
 meta4 create --metalink="$meta4_path"
@@ -85,15 +85,15 @@ if [ -e bosh-linux-stemcell-builder/tmp/*-raw.tgz ] ; then
   raw_stemcell_filename="${stemcell_name}-raw.tgz"
   mv bosh-linux-stemcell-builder/tmp/*-raw.tgz "stemcell/${raw_stemcell_filename}"
 
-  meta4 import-file --metalink="$meta4_path" --version="$build_number" "stemcell/${raw_stemcell_filename}"
-  meta4 file-set-url --metalink="$meta4_path" --file="${raw_stemcell_filename}" "https://s3.amazonaws.com/bosh-core-stemcells/${IAAS}/${raw_stemcell_filename}"
+  meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "stemcell/${raw_stemcell_filename}"
+  meta4 file-set-url --metalink="$meta4_path" --file="${raw_stemcell_filename}" "https://s3.amazonaws.com/${STEMCELL_BUCKET}/${IAAS}/${raw_stemcell_filename}"
 fi
 
 stemcell_filename="${stemcell_name}.tgz"
 mv "bosh-linux-stemcell-builder/tmp/${stemcell_filename}" "stemcell/${stemcell_filename}"
 
-meta4 import-file --metalink="$meta4_path" --version="$build_number" "stemcell/${stemcell_filename}"
-meta4 file-set-url --metalink="$meta4_path" --file="${stemcell_filename}" "https://s3.amazonaws.com/bosh-core-stemcells/${IAAS}/${stemcell_filename}"
+meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "stemcell/${stemcell_filename}"
+meta4 file-set-url --metalink="$meta4_path" --file="${stemcell_filename}" "https://s3.amazonaws.com/${STEMCELL_BUCKET}/${IAAS}/${stemcell_filename}"
 
 # just in case we need to debug/verify the live results
 cat "$meta4_path"
@@ -103,4 +103,4 @@ cd stemcells-index-output
 git add -A
 git config --global user.email "ci@localhost"
 git config --global user.name "CI Bot"
-git commit -m "dev: $OS_NAME-$OS_VERSION/$build_number ($IAAS-$HYPERVISOR)"
+git commit -m "dev: $OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER ($IAAS-$HYPERVISOR)"

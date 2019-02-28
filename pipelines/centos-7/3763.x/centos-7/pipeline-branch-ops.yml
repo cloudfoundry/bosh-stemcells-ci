@@ -35,8 +35,8 @@
         FROM_INDEX: dev
         TO_BUCKET_NAME: bosh-core-stemcells-candidate
         TO_INDEX: candidate
-        OS_NAME: ubuntu
-        OS_VERSION: xenial
+        OS_NAME: centos
+        OS_VERSION: 7
         VERSION_PREFIX: centos-7/v
         COPY_KEYS: |
           aws/bosh-stemcell-%s-aws-xen-hvm-centos-7-go_agent.tgz
@@ -48,6 +48,11 @@
           vcloud/bosh-stemcell-%s-vcloud-esxi-centos-7-go_agent.tgz
           azure/bosh-stemcell-%s-azure-hyperv-centos-7-go_agent.tgz
       task: copy-artifacts
+    - params:
+        rebase: true
+        repository: stemcells-index
+      put: stemcells-index
+    serial: true
 
 - path: /jobs/-
   type: replace
