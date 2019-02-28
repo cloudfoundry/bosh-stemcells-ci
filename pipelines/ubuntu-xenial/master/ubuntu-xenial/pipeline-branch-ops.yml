@@ -21,7 +21,7 @@
       - get: stemcells-index
     - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/assert-version-aligns.yml
       task: assert-version-aligns
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/publish.yml
+    - file: bosh-stemcells-ci/tasks/publish.yml
       params:
         AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
         AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))

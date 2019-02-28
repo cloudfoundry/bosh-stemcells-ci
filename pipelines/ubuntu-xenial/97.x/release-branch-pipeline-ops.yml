@@ -2,6 +2,10 @@
   path: /groups/name=all/jobs/-
   value: publish-stemcells
 
+- path: /groups/name=((group))/jobs/-
+  type: replace
+  value: aggregate-candidate-stemcells-((group))
+
 - type: replace
   path: /jobs/name=publish-stemcells?
   value:
@@ -10,6 +14,7 @@
     plan:
       - aggregate:
         - get: version
+          trigger: true
           passed:
             - test-stemcells
             - bats-centos
@@ -22,7 +27,7 @@
       - task: assert-version-aligns
         file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/assert-version-aligns.yml
       - task: copy-ubuntu-trusty-artifacts
-        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/publish.yml
+        file: bosh-stemcells-ci/tasks/publish.yml
         params:
           AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
           AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
@@ -40,7 +45,7 @@
             vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-trusty-go_agent.tgz
             azure/bosh-stemcell-%s-azure-hyperv-ubuntu-trusty-go_agent.tgz
       - task: copy-centos-7-artifacts
-        file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/publish.yml
+        file: bosh-stemcells-ci/tasks/publish.yml
         params:
           AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
           AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
