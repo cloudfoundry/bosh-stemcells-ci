@@ -51,6 +51,6 @@ else
   done
 fi
 
-echo "${VERSION_PREFIX}${VERSION}" > version-tag/tag
+echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > version-tag/tag
 
 echo "Done"

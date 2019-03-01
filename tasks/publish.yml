@@ -32,4 +32,3 @@ params:
   COPY_KEYS:             required
   OS_NAME:               required
   OS_VERSION:            required
-  VERSION_PREFIX:        stable-
