@@ -150,6 +150,7 @@
         IAAS: warden
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -186,6 +187,7 @@
         IAAS: aws
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -222,6 +224,7 @@
         IAAS: azure
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -258,6 +261,7 @@
         IAAS: google
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -370,6 +374,7 @@
         IAAS: vcloud
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3

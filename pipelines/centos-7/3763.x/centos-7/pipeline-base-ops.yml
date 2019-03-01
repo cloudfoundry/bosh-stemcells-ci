@@ -154,6 +154,7 @@
         IAAS: warden
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
     - aggregate:
@@ -187,6 +188,7 @@
         IAAS: aws
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
     - aggregate:
@@ -220,6 +222,7 @@
         IAAS: azure
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
     - aggregate:
@@ -253,6 +256,7 @@
         IAAS: google
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
     - aggregate:
@@ -286,6 +290,7 @@
         IAAS: openstack
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
     - aggregate:
@@ -322,6 +327,7 @@
         IAAS: vsphere
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
     - aggregate:
@@ -355,6 +361,7 @@
         IAAS: vcloud
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
     - aggregate:

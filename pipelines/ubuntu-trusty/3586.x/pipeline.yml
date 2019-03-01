@@ -356,10 +356,11 @@ jobs:
         file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
-          IAAS:         warden
-          HYPERVISOR:   boshlite
-          OS_NAME:      ubuntu
-          OS_VERSION:   trusty
+          IAAS:            warden
+          HYPERVISOR:      boshlite
+          OS_NAME:         ubuntu
+          OS_VERSION:      trusty
+          STEMCELL_BUCKET: bosh-core-stemcells-candidate
       - aggregate:
         - put: warden-boshlite-ubuntu-trusty
           attempts: 3
@@ -390,10 +391,11 @@ jobs:
         file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
-          IAAS:         aws
-          HYPERVISOR:   xen-hvm
-          OS_NAME:      ubuntu
-          OS_VERSION:   trusty
+          IAAS:            aws
+          HYPERVISOR:      xen-hvm
+          OS_NAME:         ubuntu
+          OS_VERSION:      trusty
+          STEMCELL_BUCKET: bosh-core-stemcells-candidate
       - aggregate:
         - put: aws-xen-hvm-ubuntu-trusty
           attempts: 3
@@ -424,10 +426,11 @@ jobs:
         file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
-          IAAS:         azure
-          HYPERVISOR:   hyperv
-          OS_NAME:      ubuntu
-          OS_VERSION:   trusty
+          IAAS:            azure
+          HYPERVISOR:      hyperv
+          OS_NAME:         ubuntu
+          OS_VERSION:      trusty
+          STEMCELL_BUCKET: bosh-core-stemcells-candidate
       - aggregate:
         - put: azure-hyperv-ubuntu-trusty
           attempts: 3
@@ -458,10 +461,11 @@ jobs:
         file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
-          IAAS:         google
-          HYPERVISOR:   kvm
-          OS_NAME:      ubuntu
-          OS_VERSION:   trusty
+          IAAS:            google
+          HYPERVISOR:      kvm
+          OS_NAME:         ubuntu
+          OS_VERSION:      trusty
+          STEMCELL_BUCKET: bosh-core-stemcells-candidate
       - aggregate:
         - put: google-kvm-ubuntu-trusty
           attempts: 3
@@ -492,10 +496,11 @@ jobs:
         file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
-          IAAS:         openstack
-          HYPERVISOR:   kvm
-          OS_NAME:      ubuntu
-          OS_VERSION:   trusty
+          IAAS:            openstack
+          HYPERVISOR:      kvm
+          OS_NAME:         ubuntu
+          OS_VERSION:      trusty
+          STEMCELL_BUCKET: bosh-core-stemcells-candidate
       - aggregate:
         - put: openstack-kvm-ubuntu-trusty-raw
           attempts: 3
@@ -530,10 +535,11 @@ jobs:
         file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
-          IAAS:         vsphere
-          HYPERVISOR:   esxi
-          OS_NAME:      ubuntu
-          OS_VERSION:   trusty
+          IAAS:            vsphere
+          HYPERVISOR:      esxi
+          OS_NAME:         ubuntu
+          OS_VERSION:      trusty
+          STEMCELL_BUCKET: bosh-core-stemcells-candidate
       - aggregate:
         - put: vsphere-esxi-ubuntu-trusty
           attempts: 3
@@ -564,10 +570,11 @@ jobs:
         file: bosh-stemcells-ci/tasks/build.yml
         privileged: true
         params:
-          IAAS:         vcloud
-          HYPERVISOR:   esxi
-          OS_NAME:      ubuntu
-          OS_VERSION:   trusty
+          IAAS:            vcloud
+          HYPERVISOR:      esxi
+          OS_NAME:         ubuntu
+          OS_VERSION:      trusty
+          STEMCELL_BUCKET: bosh-core-stemcells-candidate
       - aggregate:
         - put: vcloud-esxi-ubuntu-trusty
           attempts: 3

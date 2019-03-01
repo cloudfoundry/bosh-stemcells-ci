@@ -261,6 +261,7 @@
         IAAS: warden
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -297,6 +298,7 @@
         IAAS: aws
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -333,6 +335,7 @@
         IAAS: azure
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -369,6 +372,7 @@
         IAAS: alicloud
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -405,6 +409,7 @@
         IAAS: google
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -441,6 +446,7 @@
         IAAS: openstack
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -481,6 +487,7 @@
         IAAS: vsphere
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -517,6 +524,7 @@
         IAAS: vcloud
         OS_NAME: ubuntu
         OS_VERSION: xenial
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
