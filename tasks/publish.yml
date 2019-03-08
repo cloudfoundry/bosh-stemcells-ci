@@ -11,7 +11,7 @@ inputs:
 - name: bosh-linux-stemcell-builder
 - name: version
 - name: stemcells-index
-- name: stemcells-trigger
+- name: stemcell-trigger
   optional: true
 
 outputs:
