@@ -51,6 +51,14 @@ else
   done
 fi
 
+# Import stemcells-trigger
+mkdir -p stemcells-trigger
+touch stemcells-trigger/stemcells-trigger
+
+meta4 import-file --metalink="$meta4_path" --version="$VERSION" "stemcells-trigger/stemcells-trigger"
+meta4 file-set-url --metalink="$meta4_path" --file="stemcells-index-${VERSION}" "https://s3.amazonaws.com/${TO_BUCKET_NAME}/stemcells-trigger-${VERSION}"
+aws s3 cp stemcells-trigger/stemcells-trigger "s3://${TO_BUCKET_NAME}/stemcells-trigger-${VERSION}"
+
 echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > version-tag/tag
 
 echo "Done"
