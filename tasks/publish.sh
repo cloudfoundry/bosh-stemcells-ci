@@ -56,7 +56,7 @@ mkdir -p stemcell-trigger
 touch stemcell-trigger/stemcell-trigger
 
 meta4 import-file --metalink="$meta4_path" --version="$VERSION" "stemcell-trigger/stemcell-trigger"
-meta4 file-set-url --metalink="$meta4_path" --file="stemcell-trigger-${VERSION}" "https://s3.amazonaws.com/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
+meta4 file-set-url --metalink="$meta4_path" --file="stemcell-trigger" "https://s3.amazonaws.com/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
 aws s3 cp stemcell-trigger/stemcell-trigger "s3://${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
 
 echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > version-tag/tag
