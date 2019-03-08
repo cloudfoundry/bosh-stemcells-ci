@@ -19,6 +19,13 @@ meta4 create --metalink="$meta4_path"
 find stemcells-index-output/$FROM_INDEX/$OS_NAME-$OS_VERSION/$VERSION -name *.meta4 \
   | xargs -n1 -- meta4 import-metalink --metalink="$meta4_path"
 
+# Import stemcell-trigger
+mkdir -p stemcell-trigger
+touch stemcell-trigger/stemcell-trigger
+
+meta4 import-file --metalink="$meta4_path" --version="$VERSION" "stemcell-trigger/stemcell-trigger"
+meta4 file-set-url --metalink="$meta4_path" --file="stemcell-trigger" "https://s3.amazonaws.com/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
+
 cd stemcells-index-output
 
 git add -A
@@ -51,12 +58,6 @@ else
   done
 fi
 
-# Import stemcell-trigger
-mkdir -p stemcell-trigger
-touch stemcell-trigger/stemcell-trigger
-
-meta4 import-file --metalink="$meta4_path" --version="$VERSION" "stemcell-trigger/stemcell-trigger"
-meta4 file-set-url --metalink="$meta4_path" --file="stemcell-trigger" "https://s3.amazonaws.com/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
 aws s3 cp stemcell-trigger/stemcell-trigger "s3://${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
 
 echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > version-tag/tag
