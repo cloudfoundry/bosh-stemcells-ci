@@ -888,7 +888,7 @@ resources:
       access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
       bucket: bosh-stemcell-triggers
       secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-      versioned_file: 3541.x/stemcell-trigger
+      versioned_file: 3586.x/stemcell-trigger
 
   - name: stemcells-index
     type: git
