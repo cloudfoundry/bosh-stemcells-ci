@@ -3,6 +3,7 @@ groups:
   - name: all
     jobs:
       - start-job
+      - manual-trigger
       - create-story
       - create-story-usn
       - notify-of-usn
@@ -21,6 +22,30 @@ groups:
       - bats-ubuntu
       - delivery
       - aggregate-candidate-stemcells
+  - name: triggers
+    jobs:
+    - create-story
+    - create-story-usn
+    - manual-trigger
+  - jobs:
+    - start-job
+    - build-ubuntu-trusty-image
+    - bump-os-image
+    name: os-images
+  - name: stemcells
+    jobs:
+    - test-unit
+    - build-stemcell
+    - test-stemcells
+    - build-warden-boshlite-ubuntu-trusty
+    - build-aws-xen-hvm-ubuntu-trusty
+    - build-azure-hyperv-ubuntu-trusty
+    - build-google-kvm-ubuntu-trusty
+    - build-openstack-kvm-ubuntu-trusty
+    - build-vsphere-esxi-ubuntu-trusty
+    - build-vcloud-esxi-ubuntu-trusty
+    - bats-ubuntu
+    - aggregate-candidate-stemcells
   - name: aws
     jobs:
       - build-aws-xen-hvm-ubuntu-trusty
@@ -102,28 +127,65 @@ jobs:
   - name: start-job
     serial: true
     plan:
-      - aggregate:
-        - get: bosh-stemcells-ci
-        - get: bosh-linux-stemcell-builder
-        - get: every-2-weeks-on-monday
-          trigger: true
-        - get: trusty-usn
-          trigger: true
+    - aggregate:
+      - get: bosh-stemcells-ci
+      - get: bosh-linux-stemcell-builder
+      - get: every-2-weeks-on-monday
+        trigger: true
+      - get: trusty-usn
+        trigger: true
+      - get: stemcell-trigger
+        trigger: true
+
+  - name: manual-trigger
+    plan:
+    - task: write-message
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: ubuntu}
+        outputs:
+        - name: message
+        run:
+          path: /bin/bash
+          args:
+          - -c
+          - 'echo "Manual bump ($(date "+%b %e, %Y"))" > message/message.txt'
+    - put: stemcell-trigger
+      params:
+        file: message/message.txt
 
   - name: create-story
     plan:
-      - aggregate:
-        - get: every-2-weeks-on-monday
-          trigger: true
-        - get: bosh-stemcells-ci
-        - get: bosh-linux-stemcell-builder
-      - task: create-story
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/create-story.yml
-        params:
-          BRANCH: master
-          PROJECT_ID: ((story_creator_tracker_project_id))
-          TOKEN: ((story_creator_tracker_token))
-          DESCRIPTION: "stemcell periodic bump"
+    - aggregate:
+      - get: every-2-weeks-on-monday
+        trigger: true
+      - get: bosh-stemcells-ci
+      - get: bosh-linux-stemcell-builder
+    - task: create-story
+      file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/create-story.yml
+      params:
+        BRANCH: master
+        PROJECT_ID: ((story_creator_tracker_project_id))
+        TOKEN: ((story_creator_tracker_token))
+        DESCRIPTION: "stemcell periodic bump"
+    - task: write-message
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: ubuntu}
+        outputs:
+        - name: message
+        run:
+          path: /bin/bash
+          args:
+          - -c
+          - 'echo "Periodic bump ($(date "+%b %e, %Y"))" > message/message.txt'
+    - put: stemcell-trigger
+      params:
+        file: message/message.txt
 
   - name: notify-of-usn
     plan:
@@ -184,6 +246,25 @@ jobs:
           PROJECT_ID: ((story_creator_private_tracker_project_id))
           TOKEN: ((story_creator_tracker_token))
           DESCRIPTION: "ubuntu *security* notice"
+      - task: write-message
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: stedolan/jq}
+          inputs:
+          - name: trusty-usn
+          outputs:
+          - name: message
+          run:
+            path: /bin/bash
+            args:
+            - -c
+            - |
+              echo 'Addresses "'$(jq -r .title < trusty-usn/usn.json)'"' > message/message.txt
+      - put: stemcell-trigger
+        params:
+          file: message/message.txt
 
   - name: build-ubuntu-trusty-image
     plan:
@@ -191,7 +272,11 @@ jobs:
       - get: bosh-linux-stemcell-builder
         trigger: true
         passed:
-          - start-job
+        - start-job
+      - get: stemcell-trigger
+        trigger: true
+        passed:
+        - start-job
       - get: every-2-weeks-on-monday
         trigger: true
         passed:
@@ -210,14 +295,18 @@ jobs:
   - name: bump-os-image
     plan:
       - aggregate:
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed:
-              - build-ubuntu-trusty-image
-          - get: ubuntu-trusty-tarball
-            trigger: true
-            passed:
-              - build-ubuntu-trusty-image
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed:
+          - build-ubuntu-trusty-image
+        - get: ubuntu-trusty-tarball
+          trigger: true
+          passed:
+            - build-ubuntu-trusty-image
+        - get: stemcell-trigger
+          trigger: true
+          passed:
+          - build-ubuntu-trusty-image
       - task: bump-os-image
         file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/os-images/tasks/bump-os-image.yml
       - put: bosh-linux-stemcell-builder-push
@@ -228,26 +317,34 @@ jobs:
   - name: test-unit
     serial: true
     plan:
-      - get: bosh-stemcells-ci
-      - get: bosh-linux-stemcell-builder
-        trigger: true
-      - task: test-unit
-        file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/test-unit.yml
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger
+      passed:
+      - bump-os-image
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      trigger: true
+    - task: test-unit
+      file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/test-unit.yml
 
   - name: build-stemcell
     serial: true
     plan:
-      - get: bosh-stemcells-ci
-      - get: bosh-linux-stemcell-builder
-        trigger: true
-        passed:
-          - test-unit
-      - get: version
-        params:
-          bump: ((stemcell_version_semver_bump))
-      - put: version
-        params:
-          file: version/number
+    - get: bosh-stemcells-ci
+    - get: bosh-linux-stemcell-builder
+      trigger: true
+      passed:
+      - test-unit
+    - get: stemcell-trigger
+      passed:
+      - test-unit
+      trigger: true
+    - get: version
+      params:
+        bump: ((stemcell_version_semver_bump))
+    - put: version
+      params:
+        file: version/number
 
   - name: test-stemcells
     serial: true
@@ -256,19 +353,29 @@ jobs:
         - get: version
           trigger: true
           passed:
-            - build-warden-boshlite-ubuntu-trusty
-            - build-aws-xen-hvm-ubuntu-trusty
-            - build-azure-hyperv-ubuntu-trusty
-            - build-google-kvm-ubuntu-trusty
-            - build-openstack-kvm-ubuntu-trusty
-            - build-vsphere-esxi-ubuntu-trusty
-            - build-vcloud-esxi-ubuntu-trusty
+          - build-warden-boshlite-ubuntu-trusty
+          - build-aws-xen-hvm-ubuntu-trusty
+          - build-azure-hyperv-ubuntu-trusty
+          - build-google-kvm-ubuntu-trusty
+          - build-openstack-kvm-ubuntu-trusty
+          - build-vsphere-esxi-ubuntu-trusty
+          - build-vcloud-esxi-ubuntu-trusty
         - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
         - get: bosh-deployment
         - get: bosh-cli
         - get: syslog-release
         - get: os-conf-release
+        - get: stemcell-trigger
+          passed:
+          - build-warden-boshlite-ubuntu-trusty
+          - build-aws-xen-hvm-ubuntu-trusty
+          - build-azure-hyperv-ubuntu-trusty
+          - build-google-kvm-ubuntu-trusty
+          - build-openstack-kvm-ubuntu-trusty
+          - build-vsphere-esxi-ubuntu-trusty
+          - build-vcloud-esxi-ubuntu-trusty
+          trigger: true
         - get: vsphere-esxi-ubuntu-trusty
           passed: [build-vsphere-esxi-ubuntu-trusty]
           tags:
@@ -344,13 +451,17 @@ jobs:
   - name: build-warden-boshlite-ubuntu-trusty
     plan:
       - aggregate:
-          - get: version
-            trigger: true
-            passed: [build-stemcell]
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
-          - get: stemcells-index
+        - get: version
+          trigger: true
+          passed: [build-stemcell]
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed: [build-stemcell]
+        - get: stemcells-index
+        - get: stemcell-trigger
+          passed:
+          - build-stemcell
+          trigger: true
       - task: create-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/build.yml
@@ -379,13 +490,17 @@ jobs:
   - name: build-aws-xen-hvm-ubuntu-trusty
     plan:
       - aggregate:
-          - get: version
-            trigger: true
-            passed: [build-stemcell]
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
-          - get: stemcells-index
+        - get: version
+          trigger: true
+          passed: [build-stemcell]
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed: [build-stemcell]
+        - get: stemcells-index
+        - get: stemcell-trigger
+          passed:
+          - build-stemcell
+          trigger: true
       - task: create-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/build.yml
@@ -414,13 +529,17 @@ jobs:
   - name: build-azure-hyperv-ubuntu-trusty
     plan:
       - aggregate:
-          - get: version
-            trigger: true
-            passed: [build-stemcell]
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
-          - get: stemcells-index
+        - get: version
+          trigger: true
+          passed: [build-stemcell]
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed: [build-stemcell]
+        - get: stemcells-index
+        - get: stemcell-trigger
+          passed:
+          - build-stemcell
+          trigger: true
       - task: create-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/build.yml
@@ -449,13 +568,17 @@ jobs:
   - name: build-google-kvm-ubuntu-trusty
     plan:
       - aggregate:
-          - get: version
-            trigger: true
-            passed: [build-stemcell]
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
-          - get: stemcells-index
+        - get: version
+          trigger: true
+          passed: [build-stemcell]
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed: [build-stemcell]
+        - get: stemcells-index
+        - get: stemcell-trigger
+          passed:
+          - build-stemcell
+          trigger: true
       - task: create-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/build.yml
@@ -484,13 +607,17 @@ jobs:
   - name: build-openstack-kvm-ubuntu-trusty
     plan:
       - aggregate:
-          - get: version
-            trigger: true
-            passed: [build-stemcell]
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
-          - get: stemcells-index
+        - get: version
+          trigger: true
+          passed: [build-stemcell]
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed: [build-stemcell]
+        - get: stemcells-index
+        - get: stemcell-trigger
+          passed:
+          - build-stemcell
+          trigger: true
       - task: create-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/build.yml
@@ -523,13 +650,17 @@ jobs:
   - name: build-vsphere-esxi-ubuntu-trusty
     plan:
       - aggregate:
-          - get: version
-            trigger: true
-            passed: [build-stemcell]
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
-          - get: stemcells-index
+        - get: version
+          trigger: true
+          passed: [build-stemcell]
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed: [build-stemcell]
+        - get: stemcells-index
+        - get: stemcell-trigger
+          passed:
+          - build-stemcell
+          trigger: true
       - task: create-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/build.yml
@@ -558,13 +689,17 @@ jobs:
   - name: build-vcloud-esxi-ubuntu-trusty
     plan:
       - aggregate:
-          - get: version
-            trigger: true
-            passed: [build-stemcell]
-          - get: bosh-stemcells-ci
-          - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
-          - get: stemcells-index
+        - get: version
+          trigger: true
+          passed: [build-stemcell]
+        - get: bosh-stemcells-ci
+        - get: bosh-linux-stemcell-builder
+          passed: [build-stemcell]
+        - get: stemcells-index
+        - get: stemcell-trigger
+          passed:
+          - build-stemcell
+          trigger: true
       - task: create-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/build.yml
@@ -605,22 +740,32 @@ jobs:
       - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         passed:
-          - build-warden-boshlite-ubuntu-trusty
-          - build-aws-xen-hvm-ubuntu-trusty
-          - build-azure-hyperv-ubuntu-trusty
-          - build-google-kvm-ubuntu-trusty
-          - build-openstack-kvm-ubuntu-trusty
-          - build-vsphere-esxi-ubuntu-trusty
-          - build-vcloud-esxi-ubuntu-trusty
+        - build-warden-boshlite-ubuntu-trusty
+        - build-aws-xen-hvm-ubuntu-trusty
+        - build-azure-hyperv-ubuntu-trusty
+        - build-google-kvm-ubuntu-trusty
+        - build-openstack-kvm-ubuntu-trusty
+        - build-vsphere-esxi-ubuntu-trusty
+        - build-vcloud-esxi-ubuntu-trusty
       - get: version
         passed:
-          - build-warden-boshlite-ubuntu-trusty
-          - build-aws-xen-hvm-ubuntu-trusty
-          - build-azure-hyperv-ubuntu-trusty
-          - build-google-kvm-ubuntu-trusty
-          - build-openstack-kvm-ubuntu-trusty
-          - build-vsphere-esxi-ubuntu-trusty
-          - build-vcloud-esxi-ubuntu-trusty
+        - build-warden-boshlite-ubuntu-trusty
+        - build-aws-xen-hvm-ubuntu-trusty
+        - build-azure-hyperv-ubuntu-trusty
+        - build-google-kvm-ubuntu-trusty
+        - build-openstack-kvm-ubuntu-trusty
+        - build-vsphere-esxi-ubuntu-trusty
+        - build-vcloud-esxi-ubuntu-trusty
+      - get: stemcell-trigger
+        passed:
+        - build-warden-boshlite-ubuntu-trusty
+        - build-aws-xen-hvm-ubuntu-trusty
+        - build-azure-hyperv-ubuntu-trusty
+        - build-google-kvm-ubuntu-trusty
+        - build-openstack-kvm-ubuntu-trusty
+        - build-vsphere-esxi-ubuntu-trusty
+        - build-vcloud-esxi-ubuntu-trusty
+        trigger: true
 
     - do:
       - {put: environment, params: {acquire: true}}
@@ -641,17 +786,17 @@ jobs:
 
   - name: delivery
     plan:
-      - aggregate:
-        - get: bosh-stemcells-ci
-        - get: bosh-linux-stemcell-builder
-          trigger: true
-          passed:
-          - bats-ubuntu
-          - test-stemcells
-      - put: tracker-output
-        params:
-          repos:
-          - bosh-linux-stemcell-builder
+    - aggregate:
+      - get: bosh-stemcells-ci
+      - get: bosh-linux-stemcell-builder
+        trigger: true
+        passed:
+        - bats-ubuntu
+        - test-stemcells
+    - put: tracker-output
+      params:
+        repos:
+        - bosh-linux-stemcell-builder
 
   - name: aggregate-candidate-stemcells
     plan:
@@ -666,6 +811,11 @@ jobs:
         passed:
         - bats-ubuntu
       - get: stemcells-index
+      - get: stemcell-trigger
+        passed:
+        - test-stemcells
+        - bats-ubuntu
+        trigger: true
     - file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/assert-version-aligns.yml
       task: assert-version-aligns
     - file: bosh-stemcells-ci/tasks/publish.yml
@@ -731,6 +881,14 @@ resources:
       uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
       branch: master
       private_key: ((bosh_src_key))
+
+  - name: stemcell-trigger
+    type: s3
+    source:
+      access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+      bucket: bosh-stemcell-triggers
+      secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+      versioned_file: 3541.x/stemcell-trigger
 
   - name: stemcells-index
     type: git
