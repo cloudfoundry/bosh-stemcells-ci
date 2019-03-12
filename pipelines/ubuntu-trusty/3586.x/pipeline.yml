@@ -2,7 +2,6 @@
 groups:
   - name: all
     jobs:
-      - start-job
       - manual-trigger
       - create-story
       - create-story-usn
@@ -28,7 +27,6 @@ groups:
     - create-story-usn
     - manual-trigger
   - jobs:
-    - start-job
     - build-ubuntu-trusty-image
     - bump-os-image
     name: os-images
@@ -77,7 +75,6 @@ groups:
       - bats-ubuntu
   - name: os-images
     jobs:
-      - start-job
       - build-ubuntu-trusty-image
       - bump-os-image
 
@@ -124,34 +121,13 @@ shared:
     secret_access_key: ((stemcell_aws_secret_key))
 
 jobs:
-  - name: start-job
-    serial: true
-    plan:
-    - aggregate:
-      - get: bosh-stemcells-ci
-      - get: bosh-linux-stemcell-builder
-      - get: every-2-weeks-on-monday
-        trigger: true
-      - get: trusty-usn
-        trigger: true
-      - get: stemcell-trigger
-        trigger: true
 
   - name: manual-trigger
     plan:
     - task: write-message
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: ubuntu}
-        outputs:
-        - name: message
-        run:
-          path: /bin/bash
-          args:
-          - -c
-          - 'echo "Manual bump ($(date "+%b %e, %Y"))" > message/message.txt'
+      file: bosh-stemcells-ci/tasks/write-bump-message.yml
+      params:
+        MESSAGE_PREFIX: "Manual bump"
     - put: stemcell-trigger
       params:
         file: message/message.txt
@@ -171,18 +147,9 @@ jobs:
         TOKEN: ((story_creator_tracker_token))
         DESCRIPTION: "stemcell periodic bump"
     - task: write-message
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: ubuntu}
-        outputs:
-        - name: message
-        run:
-          path: /bin/bash
-          args:
-          - -c
-          - 'echo "Periodic bump ($(date "+%b %e, %Y"))" > message/message.txt'
+      file: bosh-stemcells-ci/tasks/write-bump-message.yml
+      params:
+        MESSAGE_PREFIX: "Periodic bump"
     - put: stemcell-trigger
       params:
         file: message/message.txt
@@ -235,7 +202,8 @@ jobs:
   - name: create-story-usn
     plan:
       - aggregate:
-        - get: trusty-usn
+        - get: usn
+          resource: trusty-usn
           trigger: true
         - get: bosh-stemcells-ci
         - get: bosh-linux-stemcell-builder
@@ -247,21 +215,9 @@ jobs:
           TOKEN: ((story_creator_tracker_token))
           DESCRIPTION: "ubuntu *security* notice"
       - task: write-message
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: stedolan/jq}
-          inputs:
-          - name: trusty-usn
-          outputs:
-          - name: message
-          run:
-            path: /bin/bash
-            args:
-            - -c
-            - |
-              echo 'Addresses "'$(jq -r .title < trusty-usn/usn.json)'"' > message/message.txt
+        file: bosh-stemcells-ci/tasks/write-bump-message.yml
+        params:
+          MESSAGE_PREFIX: "Addresses"
       - put: stemcell-trigger
         params:
           file: message/message.txt
@@ -270,17 +226,8 @@ jobs:
     plan:
       - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
-        trigger: true
-        passed:
-        - start-job
       - get: stemcell-trigger
         trigger: true
-        passed:
-        - start-job
-      - get: every-2-weeks-on-monday
-        trigger: true
-        passed:
-          - start-job
       - task: build
         file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/os-images/tasks/build.yml
         privileged: true
