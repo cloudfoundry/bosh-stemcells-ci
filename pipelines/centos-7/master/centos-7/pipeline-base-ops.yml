@@ -2,6 +2,7 @@
   type: replace
   value:
     jobs:
+    - manual-trigger-((group))
     - start-job-((group))
     - create-story-((group))
     - bats-((group))
@@ -31,21 +32,41 @@
 - path: /jobs/-
   type: replace
   value:
+    name: manual-trigger-((group))
+    plan:
+    - get: bosh-stemcells-ci
+    - task: write-message
+      file: bosh-stemcells-ci/tasks/write-bump-message.yml
+      params:
+        MESSAGE_PREFIX: "Manual bump"
+    - put: stemcell-trigger-((group))
+      params:
+        file: message/message.txt
+- path: /jobs/-
+  type: replace
+  value:
     name: create-story-((group))
     plan:
-      - aggregate:
-        - get: every-2-weeks-on-monday
-          trigger: true
-        - get: bosh-stemcells-ci
-        - get: bosh-linux-stemcell-builder
-          resource: bosh-linux-stemcell-builder-((group))
-      - task: create-story
-        file: bosh-stemcells-ci/pipelines/centos-7/master/tasks/create-story.yml
-        params:
-          BRANCH: centos-7/((group))
-          PROJECT_ID: ((story_creator_tracker_project_id))
-          TOKEN: ((story_creator_tracker_token))
-          DESCRIPTION: "periodic bump"
+    - aggregate:
+      - get: every-2-weeks-on-monday
+        trigger: true
+      - get: bosh-stemcells-ci
+      - get: bosh-linux-stemcell-builder
+        resource: bosh-linux-stemcell-builder-((group))
+    - task: create-story
+      file: bosh-stemcells-ci/pipelines/centos-7/((group))/tasks/create-story.yml
+      params:
+        BRANCH: centos-7/((group))
+        PROJECT_ID: ((story_creator_tracker_project_id))
+        TOKEN: ((story_creator_tracker_token))
+        DESCRIPTION: "periodic bump"
+    - task: write-message
+      file: bosh-stemcells-ci/tasks/write-bump-message.yml
+      params:
+        MESSAGE_PREFIX: "Periodic bump"
+    - put: stemcell-trigger-((group))
+      params:
+        file: message/message.txt
 - path: /jobs/-
   type: replace
   value:
@@ -54,13 +75,8 @@
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
-      passed:
-      - start-job-((group))
+    - get: stemcell-trigger-((group))
       trigger: true
-    - get: every-2-weeks-on-monday
-      trigger: true
-      passed:
-      - start-job-((group))
     - file: bosh-stemcells-ci/pipelines/centos-7/master/os-images/tasks/build.yml
       params:
         OPERATING_SYSTEM_NAME: centos
@@ -82,8 +98,11 @@
         resource: bosh-linux-stemcell-builder-((group))
         passed:
         - build-os-image-((group))
-      - get: os-image-tarball-((group))
+      - get: stemcell-trigger-((group))
         trigger: true
+        passed:
+        - build-os-image-((group))
+      - get: os-image-tarball-((group))
         passed:
         - build-os-image-((group))
     - task: bump-os-image
@@ -105,7 +124,11 @@
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
       trigger: true
-    - file: bosh-stemcells-ci/pipelines/centos-7/master/tasks/test-unit.yml
+    - get: stemcell-trigger-((group))
+      passed:
+      - bump-os-image-((group))
+      trigger: true
+    - file: bosh-stemcells-ci/pipelines/centos-7/((group))/tasks/test-unit.yml
       task: test-unit
     serial: true
 - path: /jobs/-
@@ -116,6 +139,10 @@
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
+      passed:
+      - test-unit-((group))
+      trigger: true
+    - get: stemcell-trigger-((group))
       passed:
       - test-unit-((group))
       trigger: true
@@ -139,6 +166,10 @@
         - build-stemcell-((group))
         trigger: true
       - get: bosh-stemcells-ci
+      - get: stemcell-trigger-((group))
+        passed:
+        - build-stemcell-((group))
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -176,6 +207,10 @@
         - build-stemcell-((group))
         trigger: true
       - get: bosh-stemcells-ci
+      - get: stemcell-trigger-((group))
+        passed:
+        - build-stemcell-((group))
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -213,6 +248,10 @@
         - build-stemcell-((group))
         trigger: true
       - get: bosh-stemcells-ci
+      - get: stemcell-trigger-((group))
+        passed:
+        - build-stemcell-((group))
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -250,6 +289,10 @@
         - build-stemcell-((group))
         trigger: true
       - get: bosh-stemcells-ci
+      - get: stemcell-trigger-((group))
+        passed:
+        - build-stemcell-((group))
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -287,6 +330,10 @@
         - build-stemcell-((group))
         trigger: true
       - get: bosh-stemcells-ci
+      - get: stemcell-trigger-((group))
+        passed:
+        - build-stemcell-((group))
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -298,6 +345,7 @@
         IAAS: openstack
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -327,6 +375,10 @@
         - build-stemcell-((group))
         trigger: true
       - get: bosh-stemcells-ci
+      - get: stemcell-trigger-((group))
+        passed:
+        - build-stemcell-((group))
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -338,6 +390,7 @@
         IAAS: vsphere
         OS_NAME: centos
         OS_VERSION: 7
+        STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
       attempts: 3
@@ -363,6 +416,10 @@
         - build-stemcell-((group))
         trigger: true
       - get: bosh-stemcells-ci
+      - get: stemcell-trigger-((group))
+        passed:
+        - build-stemcell-((group))
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
         passed:
@@ -427,6 +484,16 @@
           - build-openstack-kvm-((group))
           - build-vsphere-esxi-((group))
           - build-vcloud-esxi-((group))
+        - get: stemcell-trigger-((group))
+          passed:
+          - build-warden-boshlite-((group))
+          - build-aws-xen-hvm-((group))
+          - build-azure-hyperv-((group))
+          - build-google-kvm-((group))
+          - build-openstack-kvm-((group))
+          - build-vsphere-esxi-((group))
+          - build-vcloud-esxi-((group))
+          trigger: true
       - params:
           acquire: true
         put: environment
@@ -501,7 +568,7 @@
       uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
       ignore_paths:
         - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
-        - bosh-stemcell/image-metalinks/centos-7.meta4
+        - bosh-stemcell/image-metalinks/ubuntu-xenial.meta4
     type: git
 - path: /resources/-
   type: replace
@@ -595,3 +662,13 @@
       regexp: warden/bosh-stemcell-(.+)-warden-boshlite-centos-7-go_agent.tgz
       secret_access_key: ((stemcell_aws_secret_key))
     type: s3
+- path: /resources/-
+  type: replace
+  value:
+    name: stemcell-trigger-((group))
+    type: s3
+    source:
+      access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+      bucket: bosh-stemcell-triggers
+      secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+      versioned_file: centos-7/((group))/stemcell-trigger
