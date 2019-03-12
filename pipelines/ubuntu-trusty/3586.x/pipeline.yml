@@ -124,6 +124,7 @@ jobs:
 
   - name: manual-trigger
     plan:
+    - get: bosh-stemcells-ci
     - task: write-message
       file: bosh-stemcells-ci/tasks/write-bump-message.yml
       params:
