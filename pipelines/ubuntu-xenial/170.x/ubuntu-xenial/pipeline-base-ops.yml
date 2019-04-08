@@ -3,7 +3,6 @@
   value:
     jobs:
     - manual-trigger-((group))
-    - start-job-((group))
     - create-story-((group))
     - create-story-usn-((group))
     - bats-((group))
@@ -21,19 +20,6 @@
     - build-os-image-((group))
     - bump-os-image-((group))
     name: ((group))
-- path: /jobs/-
-  type: replace
-  value:
-    name: start-job-((group))
-    plan:
-    - get: bosh-stemcells-ci
-    - get: bosh-linux-stemcell-builder
-      resource: bosh-linux-stemcell-builder-((group))
-    - get: every-2-weeks-on-monday
-      trigger: true
-    - get: xenial-usn
-      trigger: true
-    serial: true
 - path: /jobs/-
   type: replace
   value:
