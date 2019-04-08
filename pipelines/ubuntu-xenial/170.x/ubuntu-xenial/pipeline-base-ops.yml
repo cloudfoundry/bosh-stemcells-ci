@@ -237,6 +237,7 @@
           tags:
           - vsphere-v6.5
           task: test-stemcell
+          attempts: 3
         ensure:
           file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/teardown.yml
           tags:

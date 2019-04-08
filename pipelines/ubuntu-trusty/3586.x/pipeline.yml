@@ -347,6 +347,7 @@ jobs:
           BOSH_vcenter_disks:       ((vcenter-disk-path))
           BOSH_vcenter_rp:          ((vcenter-rp))
       - task: test-stemcell
+        attempts: 3
         tags: [vsphere-v6.5]
         file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/test-stemcell.yml
         input_mapping:
@@ -374,6 +375,7 @@ jobs:
           BOSH_vcenter_disks:       ((vcenter-disk-path))
           BOSH_vcenter_rp:          ((vcenter-rp))
       - task: test-stemcell-ipv6
+        attempts: 3
         tags: [vsphere-v6.5]
         file: bosh-stemcells-ci/pipelines/ubuntu-trusty/3586.x/tasks/test-stemcell.yml
         input_mapping:
