@@ -10,6 +10,7 @@ inputs:
   - name: director-state
   - name: bosh-stemcells-ci
   - name: bosh-linux-stemcell-builder
+  - name: bosh-cli
 
 run:
   path: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/tasks/destroy-director.sh
