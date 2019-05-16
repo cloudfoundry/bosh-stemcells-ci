@@ -864,7 +864,7 @@ resources:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
     bucket: bosh-stemcell-triggers
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: master/stemcell-trigger
+    versioned_file: bionic/master/stemcell-trigger
   type: s3
 - name: slack-alert
   source:
