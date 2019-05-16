@@ -82,7 +82,7 @@ jobs:
     resource: bosh-linux-stemcell-builder-master
   - get: stemcell-trigger-master
     trigger: true
-  - file: bosh-stemcells-ci/tasks/os-images/build.yml
+  - file: bosh-stemcells-ci/ubuntu-bionic/tasks/build-os-image.yml
     params:
       OPERATING_SYSTEM_NAME: ubuntu
       OPERATING_SYSTEM_VERSION: bionic
