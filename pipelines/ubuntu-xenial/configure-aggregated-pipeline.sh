@@ -16,7 +16,7 @@ fly -t production set-pipeline \
       -o <( bosh int -v group=170.x -v branch=ubuntu-xenial/170.x -v initial_version=170.0.0 -v bump_version=minor "$dir/170.x/ubuntu-xenial/pipeline-branch-ops.yml" ) \
       -o <( bosh int -v group=250.x -v branch=ubuntu-xenial/250.x -v initial_version=250.0.0 -v bump_version=minor -v bosh_agent_version='"2.193.*"' "$dir/250.x/ubuntu-xenial/pipeline-base-ops.yml" ) \
       -o <( bosh int -v group=250.x -v branch=ubuntu-xenial/250.x -v initial_version=250.0.0 -v bump_version=minor "$dir/250.x/ubuntu-xenial/pipeline-branch-ops.yml" ) \
-      -o <( bosh int -v group=315.x -v branch=ubuntu-xenial/315.x -v initial_version=315.0.0 -v bump_version=minor -v bosh_agent_version='"2.193.*"' "$dir/315.x/ubuntu-xenial/pipeline-base-ops.yml" ) \
+      -o <( bosh int -v group=315.x -v branch=ubuntu-xenial/315.x -v initial_version=315.0.0 -v bump_version=minor -v bosh_agent_version='"2.215.*"' "$dir/315.x/ubuntu-xenial/pipeline-base-ops.yml" ) \
       -o <( bosh int -v group=315.x -v branch=ubuntu-xenial/315.x -v initial_version=315.0.0 -v bump_version=minor "$dir/315.x/ubuntu-xenial/pipeline-branch-ops.yml" ) \
       "$dir/master/ubuntu-xenial/pipeline-base.yml"
   ) \
