@@ -600,7 +600,7 @@ jobs:
         acquire: true
       put: environment
     - do:
-      - file: bosh-stemcells-ci/bats/tasks/deploy-director.yml
+      - file: bosh-stemcells-ci/tasks/bats/tasks/deploy-director.yml
         params:
           BAT_INFRASTRUCTURE: vsphere
           BOSH_CLIENT: ((stemcell-test-director-username))
@@ -620,7 +620,7 @@ jobs:
         tags:
         - vsphere-v6.5
         task: deploy-director
-      - file: bosh-stemcells-ci/bats/iaas/vsphere/prepare-bats-config.yml
+      - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
         params:
           STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-bionic-go_agent
         tags:
@@ -632,7 +632,7 @@ jobs:
         task: run-bats
       ensure:
         do:
-        - file: bosh-stemcells-ci/bats/tasks/destroy-director.yml
+        - file: bosh-stemcells-ci/tasks/bats/tasks/destroy-director.yml
           tags:
           - vsphere-v6.5
           task: teardown
