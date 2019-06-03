@@ -2,11 +2,11 @@ groups: []
 jobs: []
 resource_types:
 - name: usn
-  type: docker-image
+  type: registry-image
   source:
     repository: bosh/usn-resource
 - name: metalink-repository
-  type: docker-image
+  type: registry-image
   source:
     repository: dpb587/metalink-repository-resource
 resources:

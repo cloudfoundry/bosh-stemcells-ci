@@ -2,7 +2,7 @@ groups: []
 jobs: []
 resource_types:
 - name: usn
-  type: docker-image
+  type: registry-image
   source:
     repository: bosh/usn-resource
 resources:

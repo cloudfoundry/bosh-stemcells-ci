@@ -650,7 +650,7 @@ jobs:
       image_resource:
         source:
           repository: bosh/main
-        type: docker-image
+        type: registry-image
       inputs:
       - name: bionic-usn
       outputs:
@@ -692,16 +692,16 @@ resource_types:
 - name: usn
   source:
     repository: bosh/usn-resource
-  type: docker-image
+  type: registry-image
 - name: metalink-repository
   source:
     repository: dpb587/metalink-repository-resource
-  type: docker-image
+  type: registry-image
 - name: slack-notification
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
-  type: docker-image
+  type: registry-image
 resources:
 - name: bosh-stemcells-ci
   source:
