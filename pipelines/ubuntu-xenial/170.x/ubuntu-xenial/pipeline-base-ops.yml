@@ -215,7 +215,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/deploy-director.yml
           params:
             BOSH_vcenter_ip:          ((vcenter-ip))
             BOSH_vcenter_user:        ((vcenter-user))
@@ -230,7 +230,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/test-stemcell.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/test-stemcell.yml
           params:
             BOSH_os_name: ubuntu-xenial
             package: ipv4director
@@ -239,7 +239,7 @@
           task: test-stemcell
           attempts: 3
         ensure:
-          file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/tasks/teardown.yml
+          file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/teardown.yml
           tags:
           - vsphere-v6.5
           task: teardown
@@ -607,7 +607,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/tasks/deploy-director.yml
           params:
             BAT_INFRASTRUCTURE: vsphere
             BOSH_CLIENT: ((stemcell-test-director-username))
@@ -627,7 +627,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/iaas/vsphere/prepare-bats-config.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/iaas/vsphere/prepare-bats-config.yml
           params:
             STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-xenial-go_agent
           tags:
@@ -639,7 +639,7 @@
           task: run-bats
         ensure:
           do:
-          - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/170.x/bats/tasks/destroy-director.yml
+          - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/tasks/destroy-director.yml
             tags:
             - vsphere-v6.5
             task: teardown

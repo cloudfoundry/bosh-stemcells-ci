@@ -44,7 +44,7 @@
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
     - task: create-story
-      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/create-story.yml
+      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/create-story.yml
       params:
         BRANCH: ubuntu-xenial/((group))
         PROJECT_ID: ((story_creator_tracker_project_id))
@@ -69,7 +69,7 @@
       - get: xenial-usn
         trigger: true
     - task: create-story
-      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/create-story.yml
+      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/create-story.yml
       params:
         BRANCH: ubuntu-xenial/((group))
         PROJECT_ID: ((story_creator_private_tracker_project_id))
@@ -92,7 +92,7 @@
       resource: bosh-linux-stemcell-builder-((group))
     - get: stemcell-trigger-((group))
       trigger: true
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/os-images/tasks/build.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/os-images/tasks/build.yml
       params:
         OPERATING_SYSTEM_NAME: ubuntu
         OPERATING_SYSTEM_VERSION: xenial
@@ -121,7 +121,7 @@
         passed:
         - build-os-image-((group))
     - task: bump-os-image
-      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/os-images/tasks/bump-os-image.yml
+      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/os-images/tasks/bump-os-image.yml
       params:
         OS_NAME: ubuntu
         OS_VERSION: xenial
@@ -143,7 +143,7 @@
       passed:
       - bump-os-image-((group))
       trigger: true
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/test-unit.yml
+    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/test-unit.yml
       task: test-unit
     serial: true
 - path: /jobs/-
@@ -214,7 +214,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/deploy-director.yml
           params:
             BOSH_vcenter_ip:          ((vcenter-ip))
             BOSH_vcenter_user:        ((vcenter-user))
@@ -229,7 +229,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/test-stemcell.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/test-stemcell.yml
           params:
             BOSH_os_name: ubuntu-xenial
             package: ipv4director
@@ -238,7 +238,7 @@
           task: test-stemcell
           attempts: 3
         ensure:
-          file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/tasks/teardown.yml
+          file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/teardown.yml
           tags:
           - vsphere-v6.5
           task: teardown
@@ -568,7 +568,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/bats/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/tasks/deploy-director.yml
           params:
             BAT_INFRASTRUCTURE: vsphere
             BOSH_CLIENT: ((stemcell-test-director-username))
@@ -588,7 +588,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/bats/iaas/vsphere/prepare-bats-config.yml
+        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/iaas/vsphere/prepare-bats-config.yml
           params:
             STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-xenial-go_agent
           tags:
@@ -600,7 +600,7 @@
           task: run-bats
         ensure:
           do:
-          - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/bats/tasks/destroy-director.yml
+          - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/tasks/destroy-director.yml
             tags:
             - vsphere-v6.5
             task: teardown
