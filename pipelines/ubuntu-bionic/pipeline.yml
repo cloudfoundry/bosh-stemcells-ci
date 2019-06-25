@@ -75,6 +75,10 @@ jobs:
   - params:
       file: message/message.txt
     put: stemcell-trigger-master
+  - put: bosh-linux-stemcell-builder-push-master
+    params:
+      repository: bosh-linux-stemcell-builder
+      merge: true
 - name: build-os-image-master
   plan:
   - get: bosh-stemcells-ci
