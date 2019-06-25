@@ -87,7 +87,7 @@
     - put: stemcell-trigger-((group))
       params:
         file: message/message.txt
-    - put: bosh-linux-stemcell-builder-((group))
+    - put: bosh-linux-stemcell-builder-push-((group))
       params:
         repository: bosh-linux-stemcell-builder
         merge: true
