@@ -33,7 +33,7 @@ jobs:
     put: stemcell-trigger-master
 - name: create-story-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: every-2-weeks-on-monday
       trigger: true
     - get: bosh-stemcells-ci
@@ -55,7 +55,7 @@ jobs:
     put: stemcell-trigger-master
 - name: create-story-usn-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-master
@@ -94,7 +94,7 @@ jobs:
     put: os-image-tarball-master
 - name: bump-os-image-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       passed:
@@ -171,7 +171,7 @@ jobs:
 - name: test-stemcells-master
   plan:
   - do:
-    - aggregate:
+    - in_parallel:
       - get: version
         passed:
         - build-warden-boshlite-master
@@ -245,7 +245,7 @@ jobs:
   serial: true
 - name: build-warden-boshlite-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -271,7 +271,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*.tgz
@@ -283,7 +283,7 @@ jobs:
     put: stemcells-index
 - name: build-aws-xen-hvm-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -309,7 +309,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*.tgz
@@ -321,7 +321,7 @@ jobs:
     put: stemcells-index
 - name: build-azure-hyperv-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -347,7 +347,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*.tgz
@@ -359,7 +359,7 @@ jobs:
     put: stemcells-index
 - name: build-alicloud-kvm-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -385,7 +385,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*-go_agent.tgz
@@ -397,7 +397,7 @@ jobs:
     put: stemcells-index
 - name: build-google-kvm-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -423,7 +423,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*-go_agent.tgz
@@ -435,7 +435,7 @@ jobs:
     put: stemcells-index
 - name: build-openstack-kvm-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -461,7 +461,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*-raw.tgz
@@ -477,7 +477,7 @@ jobs:
     put: stemcells-index
 - name: build-vsphere-esxi-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -503,7 +503,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*.tgz
@@ -515,7 +515,7 @@ jobs:
     put: stemcells-index
 - name: build-vcloud-esxi-master
   plan:
-  - aggregate:
+  - in_parallel:
     - get: version
       passed:
       - build-stemcell-master
@@ -541,7 +541,7 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
-  - aggregate:
+  - in_parallel:
     - attempts: 3
       params:
         file: stemcell/*.tgz
@@ -554,7 +554,7 @@ jobs:
 - name: bats-master
   plan:
   - do:
-    - aggregate:
+    - in_parallel:
       - get: stemcell
         passed:
         - build-vsphere-esxi-master
@@ -778,6 +778,7 @@ resources:
   source:
     branch: master
     ignore_paths:
+    - VERSION
     - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder

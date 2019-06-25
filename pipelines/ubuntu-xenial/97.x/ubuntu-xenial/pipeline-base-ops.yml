@@ -37,7 +37,7 @@
   value:
     name: create-story-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: every-2-weeks-on-monday
         trigger: true
       - get: bosh-stemcells-ci
@@ -115,7 +115,7 @@
   value:
     name: bump-os-image-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
@@ -183,7 +183,7 @@
     name: test-stemcells-((group))
     plan:
     - do:
-      - aggregate:
+      - in_parallel:
         - get: version
           resource: version-((group))
           passed:
@@ -260,7 +260,7 @@
   value:
     name: build-warden-boshlite-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         resource: version-((group))
         passed:
@@ -285,7 +285,7 @@
         STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
-    - aggregate:
+    - in_parallel:
       - params:
           file: stemcell/*.tgz
         put: warden-boshlite-((group))
@@ -298,7 +298,7 @@
   value:
     name: build-aws-xen-hvm-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         resource: version-((group))
         passed:
@@ -323,7 +323,7 @@
         STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
-    - aggregate:
+    - in_parallel:
       - params:
           file: stemcell/*.tgz
         put: aws-xen-hvm-((group))
@@ -336,7 +336,7 @@
   value:
     name: build-azure-hyperv-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         resource: version-((group))
         passed:
@@ -361,7 +361,7 @@
         STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
-    - aggregate:
+    - in_parallel:
       - params:
           file: stemcell/*.tgz
         put: azure-hyperv-((group))
@@ -374,7 +374,7 @@
   value:
     name: build-google-kvm-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         resource: version-((group))
         passed:
@@ -399,7 +399,7 @@
         STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
-    - aggregate:
+    - in_parallel:
       - params:
           file: stemcell/*-go_agent.tgz
         put: google-kvm-((group))
@@ -412,7 +412,7 @@
   value:
     name: build-openstack-kvm-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         resource: version-((group))
         passed:
@@ -437,7 +437,7 @@
         STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
-    - aggregate:
+    - in_parallel:
       - params:
           file: stemcell/*-raw.tgz
         put: openstack-kvm-raw-((group))
@@ -453,7 +453,7 @@
   value:
     name: build-vsphere-esxi-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         resource: version-((group))
         passed:
@@ -478,7 +478,7 @@
         STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
-    - aggregate:
+    - in_parallel:
       - params:
           file: stemcell/*.tgz
         put: vsphere-esxi-((group))
@@ -491,7 +491,7 @@
   value:
     name: build-vcloud-esxi-((group))
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         resource: version-((group))
         passed:
@@ -516,7 +516,7 @@
         STEMCELL_BUCKET: bosh-core-stemcells-candidate
       privileged: true
       task: create-stemcell
-    - aggregate:
+    - in_parallel:
       - params:
           file: stemcell/*.tgz
         put: vcloud-esxi-((group))
@@ -530,7 +530,7 @@
     name: bats-((group))
     plan:
     - do:
-      - aggregate:
+      - in_parallel:
         - get: stemcell
           passed:
           - build-vsphere-esxi-((group))
@@ -645,6 +645,7 @@
       branch: ((branch))
       uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
       ignore_paths:
+        - VERSION
         - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
         - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     type: git

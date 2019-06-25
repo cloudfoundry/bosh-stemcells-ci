@@ -8,7 +8,7 @@
     name: aggregate-candidate-stemcells-((group))
     serial: true
     plan:
-    - aggregate:
+    - in_parallel:
       - get: version
         trigger: true
         resource: version-((group))
@@ -43,7 +43,7 @@
           vcloud/bosh-stemcell-%s-vcloud-esxi-centos-7-go_agent.tgz
           azure/bosh-stemcell-%s-azure-hyperv-centos-7-go_agent.tgz
       task: copy-artifacts
-    - aggregate:
+    - in_parallel:
       - params:
           only_tag: true
           repository: bosh-linux-stemcell-builder

@@ -12,7 +12,7 @@
     name: publish-stemcells
     serial: true
     plan:
-      - aggregate:
+      - in_parallel:
         - get: version
           trigger: true
           passed:
@@ -61,7 +61,7 @@
             warden/bosh-stemcell-%s-warden-boshlite-centos-7-go_agent.tgz
             vsphere/bosh-stemcell-%s-vsphere-esxi-centos-7-go_agent.tgz
             azure/bosh-stemcell-%s-azure-hyperv-centos-7-go_agent.tgz
-      - aggregate:
+      - in_parallel:
         - put: bosh-linux-stemcell-builder-push
           params:
             repository: bosh-linux-stemcell-builder
