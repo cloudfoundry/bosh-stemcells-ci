@@ -11,6 +11,7 @@ inputs:
 - name: bosh-stemcells-ci
 - name: usn-source
 - name: usn-log-in
+  optional: true
 
 outputs:
 - name: usn-log-out
