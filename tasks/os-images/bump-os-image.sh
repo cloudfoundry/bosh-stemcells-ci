@@ -19,7 +19,10 @@ function main() {
   rm "${metalink}"
   meta4 create --metalink "${metalink}"
   meta4 import-file --metalink "${metalink}" "${PWD}"/image-tarball/*.tgz
-  meta4 file-set-url --metalink "${metalink}" "$(cat "${PWD}/image-tarball/url")"
+  meta4 file-set-url --metalink "${metalink}" --file "bosh-${OS_NAME}-${OS_VERSION}-os-image.tgz" "$(cat "${PWD}/image-tarball/url")"
+
+  meta4 import-file --metalink "${metalink}" "${PWD}"/usn-log/usn-log.json
+  meta4 file-set-url --metalink "${metalink}" --file "usn-log.json" "$(cat "${PWD}/usn-log/url")"
   cat "${metalink}"
 
   rsync -avzp bosh-linux-stemcell-builder/ bosh-linux-stemcell-builder-push

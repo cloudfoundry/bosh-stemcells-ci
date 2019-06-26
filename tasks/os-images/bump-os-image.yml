@@ -10,6 +10,7 @@ inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
   - name: image-tarball
+  - name: usn-log
 
 outputs:
   - name: bosh-linux-stemcell-builder-push
