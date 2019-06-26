@@ -10,9 +10,10 @@ inputs:
 - name: bosh-linux-stemcell-builder
 - name: bosh-stemcells-ci
 - name: usn-source
+- name: usn-log-in
 
 outputs:
-- name: bosh-linux-stemcell-builder
+- name: usn-log-out
 
 run:
   path: bosh-stemcells-ci/tasks/write-usn-message.sh
