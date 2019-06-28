@@ -2,6 +2,14 @@
 
 set -euo pipefail
 
+until lpass status;do
+  LPASS_DISABLE_PINENTRY=1 lpass ls a
+done
+
+until fly -t production status;do
+  fly -t production login
+done
+
 dir="$(dirname "$0")"
 
 fly -t production set-pipeline \
