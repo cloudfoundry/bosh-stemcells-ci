@@ -70,10 +70,12 @@
         resource: bosh-linux-stemcell-builder-((group))
       - get: xenial-usn
         trigger: true
+      - get: usn-log-((group))
     - task: commit-usn-information
       file: bosh-stemcells-ci/tasks/write-usn-message.yml
       input_mapping:
         usn-source: xenial-usn
+        usn-log-in: usn-log-((group))
     - task: create-story
       file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/create-story.yml
       params:
@@ -88,10 +90,11 @@
     - put: stemcell-trigger-((group))
       params:
         file: message/message.txt
-    - put: bosh-linux-stemcell-builder-push-((group))
+    - put: usn-log-((group))
       params:
-        repository: bosh-linux-stemcell-builder
-        merge: true
+        file: usn-log-out/usn-log.json
+        acl: public-read
+
 - path: /jobs/-
   type: replace
   value:
@@ -100,6 +103,9 @@
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
+    - get: usn-log-((group))
+      passed:
+      - create-story-usn-((group))
     - get: stemcell-trigger-((group))
       trigger: true
     - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/os-images/tasks/build.yml
@@ -130,8 +136,12 @@
       - get: os-image-tarball-((group))
         passed:
         - build-os-image-((group))
+      - get: usn-log
+        resource: usn-log-((group))
+        passed:
+        - build-os-image-((group))
     - task: bump-os-image
-      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/os-images/tasks/bump-os-image.yml
+      file: bosh-stemcells-ci/tasks/os-images/bump-os-image.yml
       params:
         OS_NAME: ubuntu
         OS_VERSION: xenial
@@ -855,3 +865,15 @@
       bucket: bosh-stemcell-triggers
       secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
       versioned_file: ((group))/stemcell-trigger
+- path: /resources/-
+  type: replace
+  value:
+    name: usn-log-((group))
+    type: s3
+    source:
+      access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+      bucket: bosh-stemcell-triggers
+      secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+      versioned_file: ((group))/usn-log.json
+      initial_version: "-"
+      initial_context_text: ""
