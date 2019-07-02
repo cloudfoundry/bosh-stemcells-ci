@@ -715,7 +715,7 @@ jobs:
       - test-stemcells-master
       - bats-master
       trigger: true
-  - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/assert-version-aligns.yml
+  - file: bosh-stemcells-ci/pipelines/ubuntu-bionic/master/tasks/assert-version-aligns.yml
     task: assert-version-aligns
   - file: bosh-stemcells-ci/tasks/publish.yml
     params:
@@ -727,16 +727,16 @@ jobs:
       TO_BUCKET_NAME: bosh-core-stemcells-candidate
       TO_INDEX: candidate
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: bionic
       COPY_KEYS: |
-        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
-        google/bosh-stemcell-%s-google-kvm-ubuntu-xenial-go_agent.tgz
-        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent.tgz
-        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
-        warden/bosh-stemcell-%s-warden-boshlite-ubuntu-xenial-go_agent.tgz
-        vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-xenial-go_agent.tgz
-        vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-xenial-go_agent.tgz
-        azure/bosh-stemcell-%s-azure-hyperv-ubuntu-xenial-go_agent.tgz
+        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-bionic-go_agent.tgz
+        google/bosh-stemcell-%s-google-kvm-ubuntu-bionic-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-bionic-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-bionic-go_agent-raw.tgz
+        warden/bosh-stemcell-%s-warden-boshlite-ubuntu-bionic-go_agent.tgz
+        vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-bionic-go_agent.tgz
+        vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-bionic-go_agent.tgz
+        azure/bosh-stemcell-%s-azure-hyperv-ubuntu-bionic-go_agent.tgz
     task: copy-artifacts
   - in_parallel:
     - params:
