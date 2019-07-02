@@ -163,7 +163,7 @@
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/bump-bosh-agent.yml
+    - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
       task: bump
     - put: bosh-linux-stemcell-builder-push-((group))
       params:

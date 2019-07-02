@@ -16,4 +16,4 @@ outputs:
   path: bosh-linux-stemcell-builder-out
 
 run:
-  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/bump-bosh-agent.sh
+  path: bosh-stemcells-ci/tasks/bump-bosh-agent.sh
