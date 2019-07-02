@@ -19,7 +19,9 @@ groups:
   - build-os-image-master
   - bump-os-image-master
   - notify-of-usn
+  - aggregate-candidate-stemcells-master
   name: master
+
 jobs:
 - name: manual-trigger-master
   plan:
@@ -692,6 +694,62 @@ jobs:
       icon_url: https://i.imgur.com/A0Vlw5t.png
       text_file: slack-message/message
     put: slack-alert
+- name: aggregate-candidate-stemcells-master
+  serial: true
+  plan:
+  - in_parallel:
+    - get: version
+      trigger: true
+      resource: version-master
+      passed:
+      - test-stemcells-master
+      - bats-master
+    - get: bosh-stemcells-ci
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-master
+      passed:
+      - bats-master
+    - get: stemcells-index
+    - get: stemcell-trigger-master
+      passed:
+      - test-stemcells-master
+      - bats-master
+      trigger: true
+  - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/assert-version-aligns.yml
+    task: assert-version-aligns
+  - file: bosh-stemcells-ci/tasks/publish.yml
+    params:
+      AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
+      AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
+      COMMIT_PREFIX: candidate
+      FROM_BUCKET_NAME: bosh-core-stemcells-candidate
+      FROM_INDEX: dev
+      TO_BUCKET_NAME: bosh-core-stemcells-candidate
+      TO_INDEX: candidate
+      OS_NAME: ubuntu
+      OS_VERSION: xenial
+      COPY_KEYS: |
+        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
+        google/bosh-stemcell-%s-google-kvm-ubuntu-xenial-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
+        warden/bosh-stemcell-%s-warden-boshlite-ubuntu-xenial-go_agent.tgz
+        vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-xenial-go_agent.tgz
+        vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-xenial-go_agent.tgz
+        azure/bosh-stemcell-%s-azure-hyperv-ubuntu-xenial-go_agent.tgz
+    task: copy-artifacts
+  - in_parallel:
+    - params:
+        only_tag: true
+        repository: bosh-linux-stemcell-builder
+        tag: version-tag/tag
+      put: bosh-linux-stemcell-builder-push-master
+    - params:
+        rebase: true
+        repository: stemcells-index
+      put: stemcells-index
+  serial: true
+
 resource_types:
 - name: usn
   source:
@@ -706,6 +764,7 @@ resource_types:
     repository: cfcommunity/slack-notification-resource
     tag: latest
   type: registry-image
+
 resources:
 - name: bosh-stemcells-ci
   source:
