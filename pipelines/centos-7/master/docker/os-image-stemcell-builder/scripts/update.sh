@@ -46,8 +46,6 @@ apt-get -y install build-essential
 # ensure the correct kernel headers are installed
 apt-get -y install linux-headers-$(uname -r)
 
-
-
 # stemcell image creation
 apt-get -y install debootstrap kpartx
 
@@ -72,7 +70,8 @@ apt-get -y install yum
 # needed by stemcell building
 apt-get -y install parted
 
-
+# needed by stemcell building to debug issue with kpartx/parted
+apt-get -y install lsof
 
 mkdir -p /mnt/tmp
 chown -R ubuntu:ubuntu /mnt/tmp
