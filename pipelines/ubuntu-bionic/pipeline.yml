@@ -715,7 +715,7 @@ jobs:
       - test-stemcells-master
       - bats-master
       trigger: true
-  - file: bosh-stemcells-ci/pipelines/ubuntu-bionic/master/tasks/assert-version-aligns.yml
+  - file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
     task: assert-version-aligns
   - file: bosh-stemcells-ci/tasks/publish.yml
     params:
