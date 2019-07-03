@@ -1,0 +1,5 @@
+#!/bin/bash
+
+DIR=$(dirname $0)
+rg -l . --glob='pipeline.yml' --glob='*ops.yml' | grep -e 'centos' |
+  entr -c $DIR/../pipelines/centos-7/configure-aggregated-pipeline.sh

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+DIR=$(dirname $0)
+rg -l . --glob='pipeline.yml' | grep -e 'bionic' |
+  entr -c $DIR/../pipelines/ubuntu-bionic/configure.sh
