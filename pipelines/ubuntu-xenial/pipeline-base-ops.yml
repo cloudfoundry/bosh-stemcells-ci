@@ -20,6 +20,7 @@
     - test-unit-((group))
     - build-os-image-((group))
     - bump-os-image-((group))
+    - stemcell-trigger-start-((group))
     name: ((group))
 - path: /jobs/-
   type: replace
@@ -59,6 +60,15 @@
     - put: stemcell-trigger-((group))
       params:
         file: message/message.txt
+- path: /jobs/-
+  type: replace
+  value:
+    name: stemcell-trigger-start-((group))
+    plan:
+    - in_parallel:
+      - get: usn-log-((group))
+      - get: stemcell-trigger-((group))
+        trigger: true
 - path: /jobs/-
   type: replace
   value:
@@ -105,9 +115,11 @@
       resource: bosh-linux-stemcell-builder-((group))
     - get: usn-log-((group))
       passed:
-      - create-story-usn-((group))
+      - stemcell-trigger-start-((group))
     - get: stemcell-trigger-((group))
       trigger: true
+      passed:
+      - stemcell-trigger-start-((group))
     - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/os-images/tasks/build.yml
       params:
         OPERATING_SYSTEM_NAME: ubuntu
