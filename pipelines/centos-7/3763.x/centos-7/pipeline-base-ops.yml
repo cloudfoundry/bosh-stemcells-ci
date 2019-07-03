@@ -77,7 +77,7 @@
       resource: bosh-linux-stemcell-builder-((group))
     - get: stemcell-trigger-((group))
       trigger: true
-    - file: bosh-stemcells-ci/pipelines/centos-7/((group))/os-images/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/os-images/tasks/build.yml
       params:
         OPERATING_SYSTEM_NAME: centos
         OPERATING_SYSTEM_VERSION: 7
