@@ -120,7 +120,7 @@
       trigger: true
       passed:
       - stemcell-trigger-start-((group))
-    - file: bosh-stemcells-ci/tasks/os-images/tasks/build.yml
+    - file: bosh-stemcells-ci/tasks/os-images/build.yml
       params:
         OPERATING_SYSTEM_NAME: ubuntu
         OPERATING_SYSTEM_VERSION: xenial
