@@ -74,6 +74,11 @@ jobs:
     - get: bionic-usn
       trigger: true
     - get: usn-log-master
+  - task: commit-usn-information
+    file: bosh-stemcells-ci/tasks/write-usn-message.yml
+    input_mapping:
+      usn-source: bionic-usn
+      usn-log-in: usn-log-master
   - task: create-story
     file: bosh-stemcells-ci/tasks/create-story.yml
     params:
@@ -129,6 +134,9 @@ jobs:
       - build-os-image-master
       trigger: true
     - get: os-image-tarball-master
+      passed:
+      - build-os-image-master
+    - get: usn-log-master
       passed:
       - build-os-image-master
   - file: bosh-stemcells-ci/tasks/os-images/bump-os-image.yml
