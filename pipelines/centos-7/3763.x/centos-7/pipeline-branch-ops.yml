@@ -20,7 +20,7 @@
         passed:
         - bats-((group))
       - get: stemcells-index
-    - file: bosh-stemcells-ci/pipelines/centos-7/((group))/tasks/assert-version-aligns.yml
+    - file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
       task: assert-version-aligns
     - file: bosh-stemcells-ci/tasks/publish.yml
       params:

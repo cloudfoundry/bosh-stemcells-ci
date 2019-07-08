@@ -26,7 +26,7 @@
         - test-stemcells-((group))
         - bats-((group))
         trigger: true
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/assert-version-aligns.yml
+    - file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
       task: assert-version-aligns
     - file: bosh-stemcells-ci/tasks/publish.yml
       params:
