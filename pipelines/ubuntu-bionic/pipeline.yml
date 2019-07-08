@@ -1,5 +1,6 @@
 groups:
-- jobs:
+- name: master
+  jobs:
   - manual-trigger-master
   - create-story-master
   - create-story-usn-master
@@ -20,19 +21,27 @@ groups:
   - bump-os-image-master
   - notify-of-usn
   - aggregate-candidate-stemcells-master
-  name: master
+  - stemcell-trigger-start-master
 
 jobs:
+- name: stemcell-trigger-start-master
+  plan:
+  - in_parallel:
+    - get: usn-log-master
+    - get: stemcell-trigger-master
+      trigger: true
+
 - name: manual-trigger-master
   plan:
   - get: bosh-stemcells-ci
-  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
+  - task: write-message
+    file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
       MESSAGE_PREFIX: Manual bump
-    task: write-message
-  - params:
+  - put: stemcell-trigger-master
+    params:
       file: message/message.txt
-    put: stemcell-trigger-master
+
 - name: create-story-master
   plan:
   - in_parallel:
@@ -41,13 +50,13 @@ jobs:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-master
-  - file: bosh-stemcells-ci/tasks/create-story.yml
+  - task: create-story
+    file: bosh-stemcells-ci/tasks/create-story.yml
     params:
       BRANCH: ubuntu-bionic/master
       DESCRIPTION: periodic bump
       PROJECT_ID: ((story_creator_tracker_project_id))
       TOKEN: ((story_creator_tracker_token))
-    task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
       MESSAGE_PREFIX: Periodic bump
@@ -55,6 +64,7 @@ jobs:
   - params:
       file: message/message.txt
     put: stemcell-trigger-master
+
 - name: create-story-usn-master
   plan:
   - in_parallel:
@@ -63,31 +73,38 @@ jobs:
       resource: bosh-linux-stemcell-builder-master
     - get: bionic-usn
       trigger: true
-  - file: bosh-stemcells-ci/tasks/create-story.yml
+    - get: usn-log-master
+  - task: create-story
+    file: bosh-stemcells-ci/tasks/create-story.yml
     params:
       BRANCH: ubuntu-bionic/master
       DESCRIPTION: ubuntu *security* notice
       PROJECT_ID: ((story_creator_private_tracker_project_id))
       TOKEN: ((story_creator_tracker_token))
-    task: create-story
-  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
+  - task: write-message
+    file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
       MESSAGE_PREFIX: Addresses
-    task: write-message
-  - params:
-      file: message/message.txt
-    put: stemcell-trigger-master
-  - put: bosh-linux-stemcell-builder-push-master
+  - put: stemcell-trigger-master
     params:
-      repository: bosh-linux-stemcell-builder
-      merge: true
+      file: message/message.txt
+  - put: usn-log-master
+    params:
+      file: usn-log-out/usn-log.json
+      acl: public-read
+
 - name: build-os-image-master
   plan:
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder-master
+  - get: usn-log-master
+    passed:
+    - stemcell-trigger-start-master
   - get: stemcell-trigger-master
     trigger: true
+    passed:
+    - stemcell-trigger-start-master
   - file: bosh-stemcells-ci/pipelines/ubuntu-bionic/tasks/build-os-image.yml
     params:
       OPERATING_SYSTEM_NAME: ubuntu
@@ -98,6 +115,7 @@ jobs:
       acl: public-read
       file: os-image/ubuntu-bionic.tgz
     put: os-image-tarball-master
+
 - name: bump-os-image-master
   plan:
   - in_parallel:
@@ -124,6 +142,7 @@ jobs:
       rebase: true
       repository: bosh-linux-stemcell-builder-push
     put: bosh-linux-stemcell-builder-push-master
+
 - name: bump-bosh-agent-master
   plan:
   - get: bosh-agent
@@ -141,6 +160,7 @@ jobs:
       repository: bosh-linux-stemcell-builder
     put: bosh-linux-stemcell-builder-push-master
   serial: true
+
 - name: test-unit-master
   plan:
   - get: bosh-stemcells-ci
@@ -154,6 +174,7 @@ jobs:
   - file: bosh-stemcells-ci/tasks/test-unit.yml
     task: test-unit
   serial: true
+
 - name: build-stemcell-master
   plan:
   - get: bosh-stemcells-ci
@@ -174,6 +195,7 @@ jobs:
       file: version/number
     put: version-master
   serial: true
+
 - name: test-stemcells-master
   plan:
   - do:
@@ -249,6 +271,7 @@ jobs:
         release: environment
       put: environment
   serial: true
+
 - name: build-warden-boshlite-master
   plan:
   - in_parallel:
@@ -287,6 +310,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: build-aws-xen-hvm-master
   plan:
   - in_parallel:
@@ -325,6 +349,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: build-azure-hyperv-master
   plan:
   - in_parallel:
@@ -363,6 +388,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: build-alicloud-kvm-master
   plan:
   - in_parallel:
@@ -401,6 +427,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: build-google-kvm-master
   plan:
   - in_parallel:
@@ -439,6 +466,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: build-openstack-kvm-master
   plan:
   - in_parallel:
@@ -481,6 +509,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: build-vsphere-esxi-master
   plan:
   - in_parallel:
@@ -519,6 +548,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: build-vcloud-esxi-master
   plan:
   - in_parallel:
@@ -557,6 +587,7 @@ jobs:
       rebase: true
       repository: stemcells-index
     put: stemcells-index
+
 - name: bats-master
   plan:
   - do:
@@ -648,6 +679,7 @@ jobs:
           release: environment
         put: environment
   serial: true
+
 - name: notify-of-usn
   plan:
   - get: bionic-usn
@@ -694,6 +726,7 @@ jobs:
       icon_url: https://i.imgur.com/A0Vlw5t.png
       text_file: slack-message/message
     put: slack-alert
+
 - name: aggregate-candidate-stemcells-master
   serial: true
   plan:
@@ -751,14 +784,17 @@ jobs:
   serial: true
 
 resource_types:
+
 - name: usn
   source:
     repository: bosh/usn-resource
   type: registry-image
+
 - name: metalink-repository
   source:
     repository: dpb587/metalink-repository-resource
   type: registry-image
+
 - name: slack-notification
   source:
     repository: cfcommunity/slack-notification-resource
@@ -766,41 +802,49 @@ resource_types:
   type: registry-image
 
 resources:
+
 - name: bosh-stemcells-ci
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-stemcells-ci
   type: git
+
 - name: bats
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-acceptance-tests.git
   type: git
+
 - name: stemcells-index
   source:
     branch: master
     private_key: ((boshio_stemcells_index_key))
     uri: git@github.com:bosh-io/stemcells-core-index.git
   type: git
+
 - name: syslog-release
   source:
     repository: cloudfoundry/syslog-release
   type: bosh-io-release
+
 - name: os-conf-release
   source:
     repository: cloudfoundry/os-conf-release
   type: bosh-io-release
+
 - name: bosh-deployment
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment
   type: git
+
 - name: bosh-cli
   source:
     bucket: bosh-cli-artifacts
     regexp: bosh-cli-([0-9.]+)-linux-amd64
     region_name: us-east-1
   type: s3
+
 - name: environment
   source:
     branch: master
@@ -808,6 +852,7 @@ resources:
     private_key: ((github_deployment_key__bosh-cpi-environments))
     uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
   type: pool
+
 - name: every-2-weeks-on-monday
   source:
     days:
@@ -817,6 +862,7 @@ resources:
     start: "6:00"
     stop: "8:30"
   type: time
+
 - name: bionic-usn
   source:
     os: ubuntu-16.04-lts
@@ -824,6 +870,17 @@ resources:
     - high
     - critical
   type: usn
+
+- name: usn-log-master
+  type: s3
+  source:
+    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+    bucket: bosh-stemcell-triggers
+    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    versioned_file: bionic-master/usn-log.json
+    initial_version: "-"
+    initial_context_text: ""
+
 - name: os-image-tarball-master
   source:
     access_key_id: ((osimage_aws_access_key))
@@ -831,12 +888,14 @@ resources:
     secret_access_key: ((osimage_aws_secret_key))
     versioned_file: bosh-ubuntu-bionic-os-image.tgz
   type: s3
+
 - name: bosh-linux-stemcell-builder-push-master
   source:
     branch: master
     private_key: ((bosh_src_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
+
 - name: bosh-linux-stemcell-builder-master
   source:
     branch: master
@@ -846,6 +905,7 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
+
 - name: version-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -855,11 +915,13 @@ resources:
     key: bosh-stemcell/ubuntu-bionic/master-version
     secret_access_key: ((stemcell_aws_secret_key))
   type: semver
+
 - name: bosh-agent-master
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
     version: '*'
   type: metalink-repository
+
 - name: aws-xen-hvm-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -867,6 +929,7 @@ resources:
     regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: azure-hyperv-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -874,6 +937,7 @@ resources:
     regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: vsphere-esxi-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -881,6 +945,7 @@ resources:
     regexp: vsphere/bosh-stemcell-(.+)-vsphere-esxi-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: alicloud-kvm-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -888,6 +953,7 @@ resources:
     regexp: alicloud/bosh-stemcell-(.+)-alicloud-kvm-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: google-kvm-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -895,6 +961,7 @@ resources:
     regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: openstack-kvm-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -902,6 +969,7 @@ resources:
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: openstack-kvm-raw-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -909,6 +977,7 @@ resources:
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-bionic-go_agent-raw.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: vcloud-esxi-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -916,6 +985,7 @@ resources:
     regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: warden-boshlite-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -923,6 +993,7 @@ resources:
     regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-bionic-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 - name: stemcell-trigger-master
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -930,6 +1001,7 @@ resources:
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: bionic/master/stemcell-trigger
   type: s3
+
 - name: slack-alert
   source:
     url: ((slack_hook_url))
