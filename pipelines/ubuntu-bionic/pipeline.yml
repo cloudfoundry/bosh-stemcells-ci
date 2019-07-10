@@ -136,7 +136,8 @@ jobs:
     - get: os-image-tarball-master
       passed:
       - build-os-image-master
-    - get: usn-log-master
+    - get: usn-log
+      resource: usn-log-master
       passed:
       - build-os-image-master
   - file: bosh-stemcells-ci/tasks/os-images/bump-os-image.yml
