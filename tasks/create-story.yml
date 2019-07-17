@@ -16,4 +16,4 @@ inputs:
   - name: bosh-stemcells-ci
 
 run:
-  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/create-story.sh
+  path: bosh-stemcells-ci/tasks/create-story.sh
