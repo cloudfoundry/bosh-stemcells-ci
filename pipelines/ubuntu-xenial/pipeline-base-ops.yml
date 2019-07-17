@@ -47,7 +47,7 @@
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-((group))
     - task: create-story
-      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/create-story.yml
+      file: bosh-stemcells-ci/tasks/create-story.yml
       params:
         BRANCH: ubuntu-xenial/((group))
         PROJECT_ID: ((story_creator_tracker_project_id))
@@ -87,7 +87,7 @@
         usn-source: xenial-usn
         usn-log-in: usn-log-((group))
     - task: create-story
-      file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/create-story.yml
+      file: bosh-stemcells-ci/tasks/create-story.yml
       params:
         BRANCH: ubuntu-xenial/((group))
         PROJECT_ID: ((story_creator_private_tracker_project_id))
@@ -195,7 +195,7 @@
       passed:
       - bump-os-image-((group))
       trigger: true
-    - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/test-unit.yml
+    - file: bosh-stemcells-ci/tasks/test-unit.yml
       task: test-unit
     serial: true
 - path: /jobs/-
@@ -266,7 +266,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/tasks/deploy-director.yml
           params:
             BOSH_vcenter_ip:          ((vcenter-ip))
             BOSH_vcenter_user:        ((vcenter-user))
@@ -281,7 +281,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/test-stemcell.yml
+        - file: bosh-stemcells-ci/tasks/test-stemcell.yml
           params:
             BOSH_os_name: ubuntu-xenial
             package: ipv4director
@@ -290,7 +290,7 @@
           task: test-stemcell
           attempts: 3
         ensure:
-          file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/tasks/teardown.yml
+          file: bosh-stemcells-ci/tasks/teardown.yml
           tags:
           - vsphere-v6.5
           task: teardown
@@ -684,7 +684,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/tasks/bats/tasks/deploy-director.yml
           params:
             BAT_INFRASTRUCTURE: vsphere
             BOSH_CLIENT: ((stemcell-test-director-username))
@@ -704,7 +704,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/iaas/vsphere/prepare-bats-config.yml
+        - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
           params:
             STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-xenial-go_agent
           tags:
@@ -716,7 +716,7 @@
           task: run-bats
         ensure:
           do:
-          - file: bosh-stemcells-ci/pipelines/ubuntu-xenial/((group))/bats/tasks/destroy-director.yml
+          - file: bosh-stemcells-ci/tasks/bats/tasks/destroy-director.yml
             tags:
             - vsphere-v6.5
             task: teardown
