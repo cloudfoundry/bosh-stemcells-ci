@@ -530,7 +530,7 @@
           task: run-bats
         ensure:
           do:
-          - file: bosh-stemcells-ci/pipelines/centos-7/master/bats/tasks/destroy-director.yml
+          - file: bosh-stemcells-ci/tasks/bats/tasks/destroy-director.yml
             tags:
             - vsphere-v6.5
             task: teardown

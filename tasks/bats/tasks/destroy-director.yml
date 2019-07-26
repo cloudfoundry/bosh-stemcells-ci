@@ -13,4 +13,4 @@ inputs:
   - name: bosh-cli
 
 run:
-  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/bats/tasks/destroy-director.sh
+  path: bosh-stemcells-ci/tasks/bats/tasks/destroy-director.sh
