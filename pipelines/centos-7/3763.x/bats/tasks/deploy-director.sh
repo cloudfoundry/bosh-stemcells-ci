@@ -22,7 +22,7 @@ bosh-cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/$BAT_INFRASTRUCTURE/resource-pool.yml \
   -o bosh-deployment/misc/powerdns.yml \
   -o bosh-deployment/jumpbox-user.yml \
-  -o bosh-stemcells-ci/pipelines/centos-7/3763.x/bats/ops/remove-health-monitor.yml \
+  -o bosh-stemcells-ci/tasks/bats/ops/remove-health-monitor.yml \
   -v dns_recursor_ip=8.8.8.8 \
   -v director_name=bats-director \
   --vars-file <( bosh-stemcells-ci/tasks/bats/iaas/$BAT_INFRASTRUCTURE/director-vars ) \
