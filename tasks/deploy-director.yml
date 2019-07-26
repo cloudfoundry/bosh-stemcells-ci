@@ -16,4 +16,4 @@ outputs:
   - name: director-state
 
 run:
-  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/deploy-director.sh
+  path: bosh-stemcells-ci/tasks/deploy-director.sh

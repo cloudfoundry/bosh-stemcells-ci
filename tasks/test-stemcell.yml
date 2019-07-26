@@ -18,4 +18,4 @@ params:
   package: .
 
 run:
-  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/test-stemcell.sh
+  path: bosh-stemcells-ci/tasks/test-stemcell.sh

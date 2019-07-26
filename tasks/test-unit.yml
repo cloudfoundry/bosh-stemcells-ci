@@ -11,4 +11,4 @@ inputs:
   - name: bosh-stemcells-ci
 
 run:
-  path: bosh-stemcells-ci/pipelines/ubuntu-xenial/master/tasks/test-unit.sh
+  path: bosh-stemcells-ci/tasks/test-unit.sh
