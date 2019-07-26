@@ -25,7 +25,7 @@ bosh-cli interpolate bosh-deployment/bosh.yml \
   -o bosh-stemcells-ci/pipelines/ubuntu-xenial/master/bats/ops/remove-health-monitor.yml \
   -v dns_recursor_ip=8.8.8.8 \
   -v director_name=bats-director \
-  --vars-file <( bosh-stemcells-ci/pipelines/ubuntu-xenial/master/bats/iaas/$BAT_INFRASTRUCTURE/director-vars ) \
+  --vars-file <( bosh-stemcells-ci/tasks/bats/iaas/$BAT_INFRASTRUCTURE/director-vars ) \
   > director.yml
 
 bosh-cli create-env \
