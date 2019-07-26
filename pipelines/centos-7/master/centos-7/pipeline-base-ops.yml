@@ -518,7 +518,7 @@
           tags:
           - vsphere-v6.5
           task: deploy-director
-        - file: bosh-stemcells-ci/pipelines/centos-7/master/bats/iaas/vsphere/prepare-bats-config.yml
+        - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
           params:
             STEMCELL_NAME: bosh-vsphere-esxi-centos-7-go_agent
           tags:
