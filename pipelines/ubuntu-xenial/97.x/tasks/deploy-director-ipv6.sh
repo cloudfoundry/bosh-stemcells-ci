@@ -53,7 +53,7 @@ export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_password`
 
 $bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
-          --ops-file bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/assets/reserve-ips.yml \
+          --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --ops-file bosh-stemcells-ci/pipelines/ubuntu-xenial/97.x/assets/ipv6-cc.yml \
           --vars-env "BOSH"
 
