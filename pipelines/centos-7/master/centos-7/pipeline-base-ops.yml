@@ -498,7 +498,7 @@
           acquire: true
         put: environment
       - do:
-        - file: bosh-stemcells-ci/pipelines/centos-7/master/bats/tasks/deploy-director.yml
+        - file: bosh-stemcells-ci/tasks/bats/tasks/deploy-director.yml
           params:
             BAT_INFRASTRUCTURE: vsphere
             BOSH_CLIENT: ((stemcell-test-director-username))
