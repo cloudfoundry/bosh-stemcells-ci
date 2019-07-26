@@ -29,7 +29,7 @@ bosh interpolate \
   -o <( bosh int -v group=315.x -v branch=ubuntu-xenial/315.x -v initial_version=315.0.0 -v bump_version=minor "$dir/pipeline-branch-ops.yml" ) \
   -o <( bosh int -v group=456.x -v branch=ubuntu-xenial/456.x -v initial_version=456.0.0 -v bump_version=minor "$dir/pipeline-branch-ops.yml" ) \
 \
-  -o "$dir/../ops-files/97.x-delete-alicloud-build-ops.yml" \
+  -o "$dir/../../ops-files/97.x-delete-alicloud-build-ops.yml" \
 \
   -l <( lpass show --notes "concourse:production pipeline:os-images" ) \
   -l <( lpass show --notes "concourse:production pipeline:bosh:stemcells" ) \
