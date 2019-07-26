@@ -15,7 +15,7 @@ dir=$(dirname $0)
 pipeline_config=$(mktemp)
 bosh interpolate \
   -o <( bosh int -v group=master -v branch=master -v initial_version=0.0.0  -v bump_version=major -v bosh_agent_version='"*"' "$dir/pipeline-base-ops.yml" ) \
-  -o <( bosh int "$dir/master/ubuntu-xenial/pipeline-master-ops.yml" ) \
+  -o <( bosh int "$dir/pipeline-master-ops.yml" ) \
 \
   -o <( bosh int -v group=97.x  -v branch=ubuntu-xenial/97.x  -v initial_version=97.0.0  -v bump_version=minor -v bosh_agent_version='"2.117.*"' "$dir/pipeline-base-ops.yml" ) \
   -o <( bosh int -v group=170.x -v branch=ubuntu-xenial/170.x -v initial_version=170.0.0 -v bump_version=minor -v bosh_agent_version='"2.160.*"' "$dir/pipeline-base-ops.yml" ) \
@@ -35,7 +35,7 @@ bosh interpolate \
   -l <( lpass show --notes "concourse:production pipeline:bosh:stemcells" ) \
   -l <( lpass show --notes "bats-concourse-pool:vsphere secrets" ) \
   -l <(lpass show --notes "stemcell-reminder-bot") \
-  "$dir/master/ubuntu-xenial/pipeline-base.yml" \
+  "$dir/pipeline-base.yml" \
   > "$pipeline_config"
 
 fly -t production set-pipeline \
