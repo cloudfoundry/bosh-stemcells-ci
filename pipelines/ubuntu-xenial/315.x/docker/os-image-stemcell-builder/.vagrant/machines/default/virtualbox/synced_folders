@@ -1,1 +1,0 @@
-{"virtualbox":{"/opt/bosh":{"guestpath":"/opt/bosh","hostpath":"/home/pivotal/workspace/bosh-linux-stemcell-builder","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"/home/pivotal/workspace/bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder","disabled":false,"__vagrantfile":true}}}
