@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-#source /etc/profile.d/chruby.sh
+source /etc/profile.d/chruby.sh
 chruby ruby
 
 set +e
