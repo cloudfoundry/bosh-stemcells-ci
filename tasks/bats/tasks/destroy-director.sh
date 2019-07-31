@@ -2,8 +2,6 @@
 
 set -eu
 
-mv director-state/.bosh "$HOME"/
-
 bosh_cli=$(realpath bosh-cli/bosh-cli-*)
 export bosh_cli
 chmod +x "$bosh_cli"
