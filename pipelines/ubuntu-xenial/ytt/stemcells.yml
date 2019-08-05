@@ -1,0 +1,44 @@
+#@data/values
+---
+stemcells:
+- version: "master"
+  bosh_agent_version: "*"
+  branch: "master"
+  bump_version: "major"
+  initial_version: "0.0.0"
+  include_alicloud: true
+
+- version: "456.x"
+  bosh_agent_version: "2.234"
+  branch: "ubuntu-xenial/456.x"
+  bump_version: "minor"
+  initial_version: "456.0.0"
+  include_alicloud: true
+
+- version: "315.x"
+  bosh_agent_version: "2.215"
+  branch: "ubuntu-xenial/315.x"
+  bump_version: "minor"
+  initial_version: "315.0.0"
+  include_alicloud: true
+
+- version: "250.x"
+  bosh_agent_version: "2.193"
+  branch: "ubuntu-xenial/250.x"
+  bump_version: "minor"
+  initial_version: "250.0.0"
+  include_alicloud: true
+
+- version: "170.x"
+  bosh_agent_version: "2.160"
+  branch: "ubuntu-xenial/170.x"
+  bump_version: "minor"
+  initial_version: "170.0.0"
+  include_alicloud: true
+
+- version: "97.x"
+  bosh_agent_version: "2.117"
+  branch: "ubuntu-xenial/97.x"
+  bump_version: "minor"
+  initial_version: "97.0.0"
+  include_alicloud: false
