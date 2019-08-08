@@ -5,6 +5,7 @@ groups:
   - create-story-master
   - create-story-usn-master
   - bump-bosh-agent-master
+  - bump-resolvconf-manager-master
   - bats-master
   - build-vcloud-esxi-master
   - build-vsphere-esxi-master
@@ -163,6 +164,23 @@ jobs:
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder-master
   - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
+    task: bump
+  - params:
+      rebase: true
+      repository: bosh-linux-stemcell-builder
+    put: bosh-linux-stemcell-builder-push-master
+  serial: true
+
+- name: bump-resolvconf-manager-master
+  plan:
+  - get: resolvconf-manager
+    params:
+      skip_download: true
+    trigger: true
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-master
+  - file: bosh-stemcells-ci/tasks/bump-resolvconf-manager.yml
     task: bump
   - params:
       rebase: true
@@ -928,6 +946,12 @@ resources:
 - name: bosh-agent-master
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
+    version: '*'
+  type: metalink-repository
+
+- name: resolvconf-manager
+  source:
+    uri: git+https://github.com/cloudfoundry-incubator/resolvconf-manager-index.git
     version: '*'
   type: metalink-repository
 
