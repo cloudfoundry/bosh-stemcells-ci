@@ -2,4 +2,4 @@
 
 DIR=$(dirname $0)
 rg -l . --glob='pipeline.yml' --glob='*ops.yml' | grep -e 'xenial' |
-  entr -c $DIR/../pipelines/ubuntu-xenial/configure-aggregated-pipeline.sh
+  entr -c $DIR/../pipelines/ubuntu-xenial/configure.sh
