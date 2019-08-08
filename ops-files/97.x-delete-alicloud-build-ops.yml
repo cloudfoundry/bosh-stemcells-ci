@@ -1,5 +1,5 @@
 - type: remove
-  path: /groups/name=97.x/jobs/9
+  path: /groups/name=97.x/jobs/10
 
 - type: remove
   path: /jobs/name=build-alicloud-kvm-97.x

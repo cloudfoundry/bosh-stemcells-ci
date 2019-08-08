@@ -15,6 +15,11 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/bosh-stemcells-ci
     branch: master
+- name: resolvconf-manager
+  source:
+    uri: git+https://github.com/cloudfoundry-incubator/resolvconf-manager-index.git
+    version: '*'
+  type: metalink-repository
 - name: bats
   source:
     branch: master
@@ -65,4 +70,3 @@ resources:
   source:
     os: ubuntu-16.04-lts
     priorities: [high, critical]
-

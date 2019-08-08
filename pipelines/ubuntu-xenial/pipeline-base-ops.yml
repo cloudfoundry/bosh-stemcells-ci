@@ -6,6 +6,7 @@
     - create-story-((group))
     - create-story-usn-((group))
     - bump-bosh-agent-((group))
+    - bump-resolvconf-manager-((group))
     - bats-((group))
     - build-vcloud-esxi-((group))
     - build-vsphere-esxi-((group))
@@ -176,6 +177,25 @@
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-((group))
     - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
+      task: bump
+    - put: bosh-linux-stemcell-builder-push-((group))
+      params:
+        repository: bosh-linux-stemcell-builder
+        rebase: true
+    serial: true
+- path: /jobs/-
+  type: replace
+  value:
+    name: bump-resolvconf-manager-((group))
+    plan:
+    - get: resolvconf-manager
+      trigger: true
+      params:
+        skip_download: true
+    - get: bosh-stemcells-ci
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-((group))
+    - file: bosh-stemcells-ci/tasks/bump-resolvconf-manager.yml
       task: bump
     - put: bosh-linux-stemcell-builder-push-((group))
       params:
