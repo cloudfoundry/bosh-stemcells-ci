@@ -70,3 +70,8 @@ resources:
   source:
     os: ubuntu-16.04-lts
     priorities: [high, critical]
+- name: xenial-usn-low-medium
+  type: usn
+  source:
+    os: ubuntu-16.04-lts
+    priorities: [low, medium]

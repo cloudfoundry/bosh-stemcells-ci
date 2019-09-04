@@ -7,7 +7,6 @@ image_resource:
     repository: bosh/main
 
 inputs:
-- name: bosh-linux-stemcell-builder
 - name: bosh-stemcells-ci
 - name: usn-source
 - name: usn-log-in

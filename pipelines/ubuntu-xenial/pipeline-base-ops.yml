@@ -22,6 +22,7 @@
     - build-os-image-((group))
     - bump-os-image-((group))
     - stemcell-trigger-start-((group))
+    - log-low-medium-cves-((group))
     name: ((group))
 - path: /jobs/-
   type: replace
@@ -74,6 +75,7 @@
   type: replace
   value:
     name: create-story-usn-((group))
+    serial_groups: [log-cves-((group))]
     plan:
     - in_parallel:
       - get: bosh-stemcells-ci
@@ -101,6 +103,27 @@
     - put: stemcell-trigger-((group))
       params:
         file: message/message.txt
+    - put: usn-log-((group))
+      params:
+        file: usn-log-out/usn-log.json
+        acl: public-read
+
+- path: /jobs/-
+  type: replace
+  value:
+    name: log-low-medium-cves-((group))
+    serial_groups: [log-cves-((group))]
+    plan:
+    - in_parallel:
+      - get: bosh-stemcells-ci
+      - get: xenial-usn-low-medium
+        trigger: true
+      - get: usn-log-((group))
+    - task: commit-usn-information
+      file: bosh-stemcells-ci/tasks/write-usn-message.yml
+      input_mapping:
+        usn-source: xenial-usn-low-medium
+        usn-log-in: usn-log-((group))
     - put: usn-log-((group))
       params:
         file: usn-log-out/usn-log.json
