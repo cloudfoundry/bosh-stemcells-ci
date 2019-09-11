@@ -19,7 +19,7 @@ export BAT_DNS_HOST="$( state_path /instance_groups/name=bosh/networks/name=defa
 export BAT_INFRASTRUCTURE=vsphere
 export BAT_NETWORKING=manual
 
-export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage ~skip_centos"
+export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
 EOF
 
 cat > interpolate.yml <<EOF
