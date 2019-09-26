@@ -33,51 +33,6 @@ groups:
 #@ end
 
 jobs:
-- name: notify-of-usn
-  plan:
-    - get: xenial-usn
-      trigger: true
-    - task: build-slack-message
-      config:
-        platform: linux
-        image_resource:
-          type: registry-image
-          source:
-            repository: bosh/main
-        inputs: [{ name: xenial-usn }]
-        outputs: [{ name: slack-message }]
-        run:
-          path: /bin/bash
-          args:
-          - -c
-          - |
-            set -exu -o pipefail
-            cat <<EOF > template.json
-            {
-              "attachments": {
-                "color": "#ff0000",
-                  "thumb_url": "http://www.free-icons-download.net/images/lock-icon-66412.png",
-                  "footer": "USN Notification",
-                  "footer_icon": "https://i.imgur.com/7H8ZIq1.png",
-                  "mrkdwn_in": ["fields"],
-                  "fields": [
-                  {"title": "Priorities", "short": true, "value": (.priorities | join(", "))},
-                  {"title": "Date", "short": true, "value": .date},
-                  {"title": "Description", "short": false, "value": .description},
-                  {"title": "CVEs", "short": false, "value": (.cves | join("\n"))}
-                  ]
-              }
-            }
-            EOF
-            cat xenial-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
-            cat xenial-usn/usn.json | jq -r '"New USN for Xenial: *<\(.url)|\(.title)>*"' | tee slack-message/message
-    - put: slack-alert
-      params:
-        channel: ((usn_notifications_slack_channel_name))
-        icon_url: https://i.imgur.com/A0Vlw5t.png
-        attachments_file: slack-message/attachments
-        text_file: slack-message/message
-
 #@ for stemcell in data.values.stemcells:
 - name: manual-trigger-(@= stemcell.version @)
   plan:
@@ -922,6 +877,13 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment
   type: git
+- name: xenial-usn-low-medium
+  source:
+    os: ubuntu-16.04-lts
+    priorities:
+    - low
+    - medium
+  type: usn
 - name: bosh-cli
   source:
     bucket: bosh-cli-artifacts
