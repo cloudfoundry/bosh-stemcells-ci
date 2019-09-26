@@ -6,6 +6,7 @@ groups:
   - manual-trigger-(@= stemcell.version @)
   - create-story-(@= stemcell.version @)
   - create-story-usn-(@= stemcell.version @)
+  - log-low-medium-cves-(@= stemcell.version @)
   - bump-bosh-agent-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - build-vcloud-esxi-(@= stemcell.version @)
@@ -24,10 +25,59 @@ groups:
   - build-os-image-(@= stemcell.version @)
   - bump-os-image-(@= stemcell.version @)
   - stemcell-trigger-start-(@= stemcell.version @)
+#@ if stemcell.version == "master":
+  - notify-of-usn
+#@ else:
   - aggregate-candidate-stemcells-(@= stemcell.version @)
+#@ end
 #@ end
 
 jobs:
+- name: notify-of-usn
+  plan:
+    - get: xenial-usn
+      trigger: true
+    - task: build-slack-message
+      config:
+        platform: linux
+        image_resource:
+          type: registry-image
+          source:
+            repository: bosh/main
+        inputs: [{ name: xenial-usn }]
+        outputs: [{ name: slack-message }]
+        run:
+          path: /bin/bash
+          args:
+          - -c
+          - |
+            set -exu -o pipefail
+            cat <<EOF > template.json
+            {
+              "attachments": {
+                "color": "#ff0000",
+                  "thumb_url": "http://www.free-icons-download.net/images/lock-icon-66412.png",
+                  "footer": "USN Notification",
+                  "footer_icon": "https://i.imgur.com/7H8ZIq1.png",
+                  "mrkdwn_in": ["fields"],
+                  "fields": [
+                  {"title": "Priorities", "short": true, "value": (.priorities | join(", "))},
+                  {"title": "Date", "short": true, "value": .date},
+                  {"title": "Description", "short": false, "value": .description},
+                  {"title": "CVEs", "short": false, "value": (.cves | join("\n"))}
+                  ]
+              }
+            }
+            EOF
+            cat xenial-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
+            cat xenial-usn/usn.json | jq -r '"New USN for Xenial: *<\(.url)|\(.title)>*"' | tee slack-message/message
+    - put: slack-alert
+      params:
+        channel: ((usn_notifications_slack_channel_name))
+        icon_url: https://i.imgur.com/A0Vlw5t.png
+        attachments_file: slack-message/attachments
+        text_file: slack-message/message
+
 #@ for stemcell in data.values.stemcells:
 - name: manual-trigger-(@= stemcell.version @)
   plan:
@@ -75,6 +125,7 @@ jobs:
       trigger: true
 
 - name: create-story-usn-(@= stemcell.version @)
+  serial_groups: [log-cves-(@= stemcell.version @)]
   plan:
   - in_parallel:
     - get: bosh-stemcells-ci
@@ -110,6 +161,24 @@ jobs:
       acl: public-read
       file: usn-log-out/usn-log.json
     put: usn-log-(@= stemcell.version @)
+
+- name: log-low-medium-cves-(@= stemcell.version @)
+  serial_groups: [log-cves-(@= stemcell.version @)]
+  plan:
+  - in_parallel:
+    - get: bosh-stemcells-ci
+    - get: xenial-usn-low-medium
+      trigger: true
+    - get: usn-log-(@= stemcell.version @)
+  - task: commit-usn-information
+    file: bosh-stemcells-ci/tasks/write-usn-message.yml
+    input_mapping:
+      usn-source: xenial-usn-low-medium
+      usn-log-in: usn-log-(@= stemcell.version @)
+  - put: usn-log-(@= stemcell.version @)
+    params:
+      file: usn-log-out/usn-log.json
+      acl: public-read
 
 - name: build-os-image-(@= stemcell.version @)
   plan:
