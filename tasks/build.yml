@@ -11,6 +11,8 @@ inputs:
   - name: bosh-stemcells-ci
   - name: version
   - name: stemcells-index
+  - name: os-image-tarball
+    optional: true
 
 outputs:
   - name: stemcell

@@ -158,37 +158,6 @@ jobs:
       file: os-image/ubuntu-xenial.tgz
     put: os-image-tarball-(@= stemcell.version @)
 
-- name: bump-os-image-(@= stemcell.version @)
-  plan:
-  - in_parallel:
-    - get: bosh-stemcells-ci
-    - get: bosh-linux-stemcell-builder
-      passed:
-      - build-os-image-(@= stemcell.version @)
-      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-    - get: stemcell-trigger-(@= stemcell.version @)
-      passed:
-      - build-os-image-(@= stemcell.version @)
-      trigger: true
-    - get: os-image-tarball-(@= stemcell.version @)
-      passed:
-      - build-os-image-(@= stemcell.version @)
-    - get: usn-log
-      passed:
-      - build-os-image-(@= stemcell.version @)
-      resource: usn-log-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/os-images/bump-os-image.yml
-    input_mapping:
-      image-tarball: os-image-tarball-(@= stemcell.version @)
-    params:
-      OS_NAME: ubuntu
-      OS_VERSION: xenial
-    task: bump-os-image
-  - params:
-      rebase: true
-      repository: bosh-linux-stemcell-builder-push
-    put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-
 - name: bump-bosh-agent-(@= stemcell.version @)
   plan:
   - get: bosh-agent
@@ -336,6 +305,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -375,6 +348,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -414,6 +391,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -453,6 +434,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -492,6 +477,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -535,6 +524,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -574,6 +567,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -615,6 +612,10 @@ jobs:
       - build-stemcell-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:

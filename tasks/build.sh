@@ -58,8 +58,13 @@ done
 
 chown -R ubuntu:ubuntu bosh-linux-stemcell-builder
 
-sudo chmod u+s $(which sudo)
+OS_IMAGE=""
+mkdir -p "${TASK_DIR}/os-image-tarball"
+if [[ -n "$(ls -A "${TASK_DIR}/os-image-tarball/")" ]]; then
+	OS_IMAGE="$(readlink -f os-image-tarball/*)"
+fi
 
+sudo chmod u+s $(which sudo)
 sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
   set -e
 
@@ -67,8 +72,12 @@ sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
 
   bundle install --local
 
-  bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,$CANDIDATE_BUILD_NUMBER]
-  rm -f ./tmp/base_os_image.tgz
+if [[ -z "$OS_IMAGE" ]]; then
+	bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,$CANDIDATE_BUILD_NUMBER]
+	rm -f ./tmp/base_os_image.tgz
+else
+	bundle exec rake stemcell:build_with_local_os_image[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,$OS_IMAGE,$CANDIDATE_BUILD_NUMBER]
+fi
 SUDO
 
 #
