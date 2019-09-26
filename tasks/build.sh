@@ -61,7 +61,7 @@ chown -R ubuntu:ubuntu bosh-linux-stemcell-builder
 OS_IMAGE=""
 mkdir -p "${TASK_DIR}/os-image-tarball"
 if [[ -n "$(ls -A "${TASK_DIR}/os-image-tarball/")" ]]; then
-	OS_IMAGE="$(readlink -f os-image-tarball/*)"
+	OS_IMAGE="$(readlink -f os-image-tarball/*.tgz)"
 fi
 
 sudo chmod u+s $(which sudo)
