@@ -6,6 +6,7 @@ jobs:
     - get: bosh-agent
     - get: stemcell
       resource: gcp-stemcell
+    - get: bosh-stemcells-ci
   - task: repack-stemcell
     privileged: true
     file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-gcp.yml
@@ -22,6 +23,13 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
     branch: master
+
+- name: bosh-stemcells-ci
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/bosh-stemcells-ci
+    branch: master
+
 - name: gcp-stemcell
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -29,6 +37,7 @@ resources:
     regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
+
 # - name: aws-stemcell
 - name: bosh-agent
   type: metalink-repository
