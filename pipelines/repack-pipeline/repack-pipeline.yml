@@ -10,6 +10,17 @@ jobs:
   - task: repack-stemcell
     privileged: true
     file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-gcp.yml
+- name: repack-vsphere
+  plan:
+  - in_parallel:
+    - get: bosh-linux-stemcell-builder
+    - get: bosh-agent
+    - get: stemcell
+      resource: vsphere-stemcell
+    - get: bosh-stemcells-ci
+  - task: repack-stemcell
+    privileged: true
+    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-vsphere.yml
 
 resource_types:
 - name: metalink-repository
