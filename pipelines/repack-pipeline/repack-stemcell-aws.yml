@@ -1,0 +1,18 @@
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: bosh/os-image-stemcell-builder
+
+inputs:
+- name: stemcell
+- name: bosh-agent
+- name: bosh-linux-stemcell-builder
+- name: bosh-stemcells-ci
+
+outputs:
+- name: repacked-stemcell
+
+run:
+  path: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-aws.sh
