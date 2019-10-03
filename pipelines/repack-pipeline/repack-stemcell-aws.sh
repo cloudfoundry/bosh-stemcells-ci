@@ -45,11 +45,11 @@ stemcell_path=$($path/extract-stemcell.sh $stemcell)
 
 image_path=$(echo $stemcell_path | \
   $path/extract-image.sh | \
-  $path/convert-qcow2-to-raw.sh | \
+  $path/rename-rootimg-to-raw.sh | \
   $path/mount-image.sh | \
   $path/update-file.sh $PWD/bosh-agent/*-linux-amd64 /var/vcap/bosh/bin/bosh-agent | \
   $path/unmount-image.sh | \
-  $path/convert-raw-to-qcow2.sh | \
+  $path/rename-raw-to-rootimg.sh | \
   $path/pack-raw-disk.sh)
 
 output_stemcell=$($path/pack-stemcell.sh $stemcell_path $image_path $stemcell_version)
