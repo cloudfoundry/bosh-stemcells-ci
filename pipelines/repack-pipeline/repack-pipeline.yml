@@ -94,7 +94,7 @@ resources:
   source:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
-    regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent.tgz
+    regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 
