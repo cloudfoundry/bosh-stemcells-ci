@@ -21,6 +21,17 @@ jobs:
   - task: repack-stemcell
     privileged: true
     file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-aws.yml
+- name: repack-openstack-raw
+  plan:
+  - in_parallel:
+    - get: bosh-linux-stemcell-builder
+    - get: bosh-agent
+    - get: stemcell
+      resource: openstack-raw-stemcell
+    - get: bosh-stemcells-ci
+  - task: repack-stemcell
+    privileged: true
+    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack-raw.yml
 - name: repack-vsphere
   plan:
   - in_parallel:
@@ -76,6 +87,14 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: vsphere/bosh-stemcell-(.+)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
+    secret_access_key: ((stemcell_aws_secret_key))
+  type: s3
+
+- name: openstack-raw-stemcell
+  source:
+    access_key_id: ((stemcell_aws_access_key))
+    bucket: ((candidate_stemcell_bucket))
+    regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 
