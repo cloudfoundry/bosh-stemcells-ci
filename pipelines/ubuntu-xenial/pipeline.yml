@@ -153,8 +153,14 @@ jobs:
     privileged: true
     task: build
   - params:
-      acl: public-read
-      file: os-image/ubuntu-xenial.tgz
+      files:
+      - os-image/ubuntu-xenial.tgz
+      - usn-log-(@= stemcell.version @)/usn-log.json
+      options:
+        author_email: ci@localhost
+        author_name: CI Bot
+        message: 'bump OS image'
+      version: bosh-linux-stemcell-builder/.git/HEAD
     put: os-image-tarball-(@= stemcell.version @)
 
 - name: bump-bosh-agent-(@= stemcell.version @)
@@ -848,6 +854,25 @@ resource_types:
     tag: latest
   type: registry-image
 resources:
+#@ for stemcell in data.values.stemcells:
+- name: os-image-tarball-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((osimage_bucket))/{{.Name}}
+    options:
+      private_key: ((bosh_src_key))
+    filters:
+    - repositorypath: "*/ubuntu-xenial.meta4"
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((osimage_aws_access_key))
+        secret_key: ((osimage_aws_secret_key))
+      type: s3
+  type: metalink-repository
+#@ end
 - name: bosh-stemcells-ci
   source:
     branch: master
@@ -913,13 +938,6 @@ resources:
     - high
     - critical
   type: usn
-- name: os-image-tarball-master
-  source:
-    access_key_id: ((osimage_aws_access_key))
-    bucket: ((osimage_bucket))
-    secret_access_key: ((osimage_aws_secret_key))
-    versioned_file: bosh-ubuntu-xenial-os-image.tgz
-  type: s3
 - name: bosh-linux-stemcell-builder-push-master
   source:
     branch: master
@@ -1032,13 +1050,6 @@ resources:
   source:
     url: ((slack_hook_url))
   type: slack-notification
-- name: os-image-tarball-97.x
-  source:
-    access_key_id: ((osimage_aws_access_key))
-    bucket: ((osimage_bucket))
-    secret_access_key: ((osimage_aws_secret_key))
-    versioned_file: bosh-ubuntu-xenial-os-image.tgz
-  type: s3
 - name: bosh-linux-stemcell-builder-push-97.x
   source:
     branch: ubuntu-xenial/97.x
@@ -1139,13 +1150,6 @@ resources:
     initial_version: '-'
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: 97.x/usn-log.json
-  type: s3
-- name: os-image-tarball-170.x
-  source:
-    access_key_id: ((osimage_aws_access_key))
-    bucket: ((osimage_bucket))
-    secret_access_key: ((osimage_aws_secret_key))
-    versioned_file: bosh-ubuntu-xenial-os-image.tgz
   type: s3
 - name: bosh-linux-stemcell-builder-push-170.x
   source:
@@ -1255,13 +1259,6 @@ resources:
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: 170.x/usn-log.json
   type: s3
-- name: os-image-tarball-250.x
-  source:
-    access_key_id: ((osimage_aws_access_key))
-    bucket: ((osimage_bucket))
-    secret_access_key: ((osimage_aws_secret_key))
-    versioned_file: bosh-ubuntu-xenial-os-image.tgz
-  type: s3
 - name: bosh-linux-stemcell-builder-push-250.x
   source:
     branch: ubuntu-xenial/250.x
@@ -1370,13 +1367,6 @@ resources:
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: 250.x/usn-log.json
   type: s3
-- name: os-image-tarball-315.x
-  source:
-    access_key_id: ((osimage_aws_access_key))
-    bucket: ((osimage_bucket))
-    secret_access_key: ((osimage_aws_secret_key))
-    versioned_file: bosh-ubuntu-xenial-os-image.tgz
-  type: s3
 - name: bosh-linux-stemcell-builder-push-315.x
   source:
     branch: ubuntu-xenial/315.x
@@ -1484,13 +1474,6 @@ resources:
     initial_version: '-'
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: 315.x/usn-log.json
-  type: s3
-- name: os-image-tarball-456.x
-  source:
-    access_key_id: ((osimage_aws_access_key))
-    bucket: ((osimage_bucket))
-    secret_access_key: ((osimage_aws_secret_key))
-    versioned_file: bosh-ubuntu-xenial-os-image.tgz
   type: s3
 - name: bosh-linux-stemcell-builder-push-456.x
   source:
