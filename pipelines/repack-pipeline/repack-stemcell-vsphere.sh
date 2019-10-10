@@ -51,4 +51,4 @@ image_path=$(echo $stemcell_path | \
   $path/convert-raw-to-vmdk.sh)
 
 output_stemcell=$($path/pack-stemcell.sh $stemcell_path $image_path $stemcell_version)
-cp $output_stemcell/stemcell.tgz repacked-stemcell/$(basename stemcell)
+cp $output_stemcell/stemcell.tgz repacked-stemcell/$(basename ${stemcell})
