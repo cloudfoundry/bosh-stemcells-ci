@@ -7,8 +7,8 @@ until lpass status;do
   sleep 1
 done
 
-until fly -t pcf status;do
-  fly -t pcf login
+until fly -t production status;do
+  fly -t production login
   sleep 1
 done
 
