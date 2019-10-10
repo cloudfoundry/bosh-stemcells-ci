@@ -19,6 +19,7 @@ groups:
   - build-azure-hyperv-(@= stemcell.version @)
   - build-aws-xen-hvm-(@= stemcell.version @)
   - build-warden-boshlite-(@= stemcell.version @)
+  - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)
   - build-stemcell-(@= stemcell.version @)
   - test-unit-(@= stemcell.version @)
@@ -224,6 +225,51 @@ jobs:
     put: version-(@= stemcell.version @)
   serial: true
 
+- name: repack-stemcell-vsphere-esxi-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-warden-boshlite-(@= stemcell.version @)
+      - build-aws-xen-hvm-(@= stemcell.version @)
+      - build-azure-hyperv-(@= stemcell.version @)
+      - build-google-kvm-(@= stemcell.version @)
+      - build-openstack-kvm-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
+      - build-vcloud-esxi-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-warden-boshlite-(@= stemcell.version @)
+      - build-aws-xen-hvm-(@= stemcell.version @)
+      - build-azure-hyperv-(@= stemcell.version @)
+      - build-google-kvm-(@= stemcell.version @)
+      - build-openstack-kvm-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
+      - build-vcloud-esxi-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: bosh-agent
+      resource: bosh-agent-(@= stemcell.version @)
+      trigger: true
+    - get: stemcell
+      passed:
+      - build-vsphere-esxi-(@= stemcell.version @)
+      resource: vsphere-esxi-(@= stemcell.version @)
+      tags:
+      - vsphere-v6.5
+    - get: bosh-stemcells-ci
+  - task: repack-stemcell
+    privileged: true
+    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-vsphere.yml
+  - in_parallel:
+    - attempts: 3
+      params:
+        file: repacked-stemcell/*.tgz
+      put: vsphere-esxi-(@= stemcell.version @)
+
 - name: test-stemcells-(@= stemcell.version @)
   plan:
   - do:
@@ -235,7 +281,7 @@ jobs:
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
         - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - build-vcloud-esxi-(@= stemcell.version @)
         resource: version-(@= stemcell.version @)
         trigger: true
@@ -259,7 +305,7 @@ jobs:
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
         - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - build-vcloud-esxi-(@= stemcell.version @)
         trigger: true
     - params:
@@ -674,7 +720,7 @@ jobs:
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
         - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - build-vcloud-esxi-(@= stemcell.version @)
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
       - get: version
@@ -684,7 +730,7 @@ jobs:
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
         - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - build-vcloud-esxi-(@= stemcell.version @)
         resource: version-(@= stemcell.version @)
       - get: stemcell-trigger-(@= stemcell.version @)
@@ -694,7 +740,7 @@ jobs:
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
         - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - build-vcloud-esxi-(@= stemcell.version @)
         trigger: true
     - params:
