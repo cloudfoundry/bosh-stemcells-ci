@@ -309,7 +309,7 @@ jobs:
     - get: bosh-stemcells-ci
   - task: repack-stemcell
     privileged: true
-    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-vcloud.yml
+    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-vsphere.yml
   - in_parallel:
     - attempts: 3
       params:
