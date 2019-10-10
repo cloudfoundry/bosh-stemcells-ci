@@ -10,6 +10,7 @@ inputs:
 - name: bosh-agent
 - name: bosh-linux-stemcell-builder
 - name: bosh-stemcells-ci
+- name: version
 
 outputs:
 - name: repacked-stemcell
