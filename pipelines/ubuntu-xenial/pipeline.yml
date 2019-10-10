@@ -139,6 +139,10 @@ jobs:
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  - get: version
+    params:
+      bump: "major"
+    resource: os-image-version-(@= stemcell.version @)
   - get: usn-log-(@= stemcell.version @)
     passed:
     - stemcell-trigger-start-(@= stemcell.version @)
@@ -156,12 +160,16 @@ jobs:
       files:
       - os-image/ubuntu-xenial.tgz
       - usn-log-(@= stemcell.version @)/usn-log.json
+      rename: ubuntu-xenial.meta4
       options:
         author_email: ci@localhost
         author_name: CI Bot
         message: 'bump OS image'
-      version: bosh-linux-stemcell-builder/.git/HEAD
+      version: version/version
     put: os-image-tarball-(@= stemcell.version @)
+  - params:
+      file: version/number
+    put: os-image-version-(@= stemcell.version @)
 
 - name: bump-bosh-agent-(@= stemcell.version @)
   plan:
@@ -862,7 +870,7 @@ resources:
     options:
       private_key: ((bosh_src_key))
     filters:
-    - repositorypath: "*/ubuntu-xenial.meta4"
+    - repositorypath: "ubuntu-xenial.meta4"
     uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/
     url_handlers:
     - include:
@@ -872,6 +880,26 @@ resources:
         secret_key: ((osimage_aws_secret_key))
       type: s3
   type: metalink-repository
+#@ end
+#@ for stemcell in data.values.stemcells:
+- name: version-(@= stemcell.version @)
+  source:
+    access_key_id: ((stemcell_aws_access_key))
+    bucket: ((candidate_stemcell_bucket))
+    driver: s3
+    initial_version: (@= stemcell.initial_version @)
+    key: bosh-stemcell/ubuntu-xenial/(@= stemcell.version @)-version
+    secret_access_key: ((stemcell_aws_secret_key))
+  type: semver
+- name: os-image-version-(@= stemcell.version @)
+  source:
+    access_key_id: ((stemcell_aws_access_key))
+    bucket: ((candidate_stemcell_bucket))
+    driver: s3
+    initial_version: "0.0.0"
+    key: os-image/ubuntu-xenial/(@= stemcell.version @)-version
+    secret_access_key: ((stemcell_aws_secret_key))
+  type: semver
 #@ end
 - name: bosh-stemcells-ci
   source:
@@ -950,18 +978,10 @@ resources:
     ignore_paths:
     - VERSION
     - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
+    - bosh-stemcell/image-metalinks/ubuntu-xenial.meta4
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: version-master
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    driver: s3
-    initial_version: 0.0.0
-    key: bosh-stemcell/ubuntu-xenial/master-version
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: semver
 - name: bosh-agent-master
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
@@ -1065,15 +1085,6 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: version-97.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    driver: s3
-    initial_version: 97.0.0
-    key: bosh-stemcell/ubuntu-xenial/97.x-version
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: semver
 - name: bosh-agent-97.x
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
@@ -1166,15 +1177,6 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: version-170.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    driver: s3
-    initial_version: 170.0.0
-    key: bosh-stemcell/ubuntu-xenial/170.x-version
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: semver
 - name: bosh-agent-170.x
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
@@ -1274,15 +1276,6 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: version-250.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    driver: s3
-    initial_version: 250.0.0
-    key: bosh-stemcell/ubuntu-xenial/250.x-version
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: semver
 - name: bosh-agent-250.x
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
@@ -1382,15 +1375,6 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: version-315.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    driver: s3
-    initial_version: 315.0.0
-    key: bosh-stemcell/ubuntu-xenial/315.x-version
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: semver
 - name: bosh-agent-315.x
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
@@ -1490,15 +1474,6 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: version-456.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    driver: s3
-    initial_version: 456.0.0
-    key: bosh-stemcell/ubuntu-xenial/456.x-version
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: semver
 - name: bosh-agent-456.x
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
