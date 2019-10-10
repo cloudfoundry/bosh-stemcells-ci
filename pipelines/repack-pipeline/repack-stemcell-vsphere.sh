@@ -38,8 +38,7 @@ for i in $(seq 0 64); do
 done
 
 stemcell=$PWD/stemcell/*.tgz
-# stemcell_version=$(cat $PWD/stemcell/version)
-stemcell_version=1
+stemcell_version=$(cat $PWD/version/version)
 path=$PWD/bosh-linux-stemcell-builder/scripts/repack-helpers
 stemcell_path=$($path/extract-stemcell.sh $stemcell)
 
