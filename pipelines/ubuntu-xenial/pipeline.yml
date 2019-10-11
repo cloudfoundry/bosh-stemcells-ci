@@ -1495,7 +1495,7 @@ resources:
       private_key: ((bosh_src_key))
     filters:
     - repositorypath: "ubuntu-xenial.meta4"
-    uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/#(@= stemcell.branch @)
     url_handlers:
     - include:
       - (s3|https)://.*
