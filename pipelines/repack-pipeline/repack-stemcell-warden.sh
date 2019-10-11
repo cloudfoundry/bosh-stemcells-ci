@@ -3,6 +3,8 @@
 set -eu
 set -o pipefail
 
+cat version/number | sed 's/\.0$//;s/\.0$//' > version-number/number # For metalink to update the right directory
+
 stemcell=$PWD/stemcell/*.tgz
 stemcell_version=$(cat $PWD/version/version)
 path=$PWD/bosh-linux-stemcell-builder/scripts/repack-helpers

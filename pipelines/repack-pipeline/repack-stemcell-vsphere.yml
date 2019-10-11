@@ -14,6 +14,7 @@ inputs:
 
 outputs:
 - name: repacked-stemcell
+- name: version-number
 
 run:
   path: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-vsphere.sh
