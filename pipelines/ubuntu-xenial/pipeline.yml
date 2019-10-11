@@ -1490,7 +1490,7 @@ resources:
 - name: os-image-tarball-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((osimage_bucket))/{{.Name}}
+    - destination: s3://s3.amazonaws.com/((osimage_bucket))/{{.Version}}/.{{.Name}}
     options:
       private_key: ((bosh_src_key))
     filters:
