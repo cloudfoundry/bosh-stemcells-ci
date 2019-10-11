@@ -335,13 +335,15 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: stemcell/*.tgz
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/warden-boshlite-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: candidate-build-number/number
       put: warden-boshlite-(@= stemcell.version @)
-  - attempts: 3
-    params:
-      rebase: true
-      repository: stemcells-index
-    put: stemcells-index
 
 - name: build-aws-xen-hvm-(@= stemcell.version @)
   plan:
@@ -872,6 +874,25 @@ resource_types:
   type: registry-image
 resources:
 #@ for stemcell in data.values.stemcells:
+- name: warden-boshlite-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/warden/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/warden-boshlite-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+#@ end
+#@ for stemcell in data.values.stemcells:
 - name: aws-xen-hvm-(@= stemcell.version @)
   source:
     mirror_files:
@@ -1131,13 +1152,6 @@ resources:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
     version: '*'
   type: metalink-repository
-- name: warden-boshlite-master
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: stemcell-trigger-master
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1178,13 +1192,6 @@ resources:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
     version: 2.117.*
   type: metalink-repository
-- name: warden-boshlite-97.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: stemcell-trigger-97.x
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1221,13 +1228,6 @@ resources:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
     version: 2.160.*
   type: metalink-repository
-- name: warden-boshlite-170.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: stemcell-trigger-170.x
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1264,13 +1264,6 @@ resources:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
     version: 2.193.*
   type: metalink-repository
-- name: warden-boshlite-250.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: stemcell-trigger-250.x
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1307,13 +1300,6 @@ resources:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
     version: 2.215.*
   type: metalink-repository
-- name: warden-boshlite-315.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: stemcell-trigger-315.x
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1350,13 +1336,6 @@ resources:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
     version: 2.234.*
   type: metalink-repository
-- name: warden-boshlite-456.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: stemcell-trigger-456.x
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
