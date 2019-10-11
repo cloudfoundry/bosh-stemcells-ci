@@ -703,7 +703,7 @@ jobs:
       - get: os-conf-release
       - get: stemcell
         passed:
-        - build-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         resource: vsphere-esxi-(@= stemcell.version @)
         tags:
         - vsphere-v6.5
@@ -1125,7 +1125,7 @@ jobs:
     - in_parallel:
       - get: stemcell
         passed:
-        - build-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         resource: vsphere-esxi-(@= stemcell.version @)
         tags:
         - vsphere-v6.5
