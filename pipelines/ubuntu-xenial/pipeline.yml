@@ -597,14 +597,15 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: stemcell/*.tgz
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/vcloud-esxi-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: candidate-build-number/number
       put: vcloud-esxi-(@= stemcell.version @)
-  - attempts: 3
-    params:
-      rebase: true
-      repository: stemcells-index
-    put: stemcells-index
-
 
 #@ if stemcell.include_alicloud:
 - name: build-alicloud-kvm-(@= stemcell.version @)
@@ -863,6 +864,25 @@ resource_types:
   type: registry-image
 resources:
 #@ for stemcell in data.values.stemcells:
+- name: vcloud-esxi-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/vcloud/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/vcloud-esxi-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+#@ end
+#@ for stemcell in data.values.stemcells:
 - name: os-image-tarball-(@= stemcell.version @)
   source:
     mirror_files:
@@ -1036,13 +1056,6 @@ resources:
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: vcloud-esxi-master
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: warden-boshlite-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1130,13 +1143,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: vcloud-esxi-97.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: warden-boshlite-97.x
@@ -1231,13 +1237,6 @@ resources:
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: vcloud-esxi-170.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: warden-boshlite-170.x
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1328,13 +1327,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: vcloud-esxi-250.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: warden-boshlite-250.x
@@ -1429,13 +1421,6 @@ resources:
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: vcloud-esxi-315.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: warden-boshlite-315.x
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1526,13 +1511,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: vcloud-esxi-456.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: warden-boshlite-456.x
