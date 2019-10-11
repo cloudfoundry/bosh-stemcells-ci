@@ -464,13 +464,15 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: stemcell/*-go_agent.tgz
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/google-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: candidate-build-number/number
       put: google-kvm-(@= stemcell.version @)
-  - attempts: 3
-    params:
-      rebase: true
-      repository: stemcells-index
-    put: stemcells-index
 
 - name: build-openstack-kvm-(@= stemcell.version @)
   plan:
@@ -866,6 +868,25 @@ resource_types:
   type: registry-image
 resources:
 #@ for stemcell in data.values.stemcells:
+- name: google-kvm-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/google/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/google-kvm-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+#@ end
+#@ for stemcell in data.values.stemcells:
 - name: vsphere-esxi-(@= stemcell.version @)
   source:
     mirror_files:
@@ -1049,13 +1070,6 @@ resources:
     regexp: alicloud/bosh-stemcell-(.+)-alicloud-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: google-kvm-master
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: openstack-kvm-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1129,13 +1143,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: google-kvm-97.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: openstack-kvm-97.x
@@ -1216,13 +1223,6 @@ resources:
     regexp: alicloud/bosh-stemcell-(.+)-alicloud-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: google-kvm-170.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: openstack-kvm-170.x
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1299,13 +1299,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: alicloud/bosh-stemcell-(.+)-alicloud-kvm-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: google-kvm-250.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: openstack-kvm-250.x
@@ -1386,13 +1379,6 @@ resources:
     regexp: alicloud/bosh-stemcell-(.+)-alicloud-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: google-kvm-315.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: openstack-kvm-315.x
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1469,13 +1455,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: alicloud/bosh-stemcell-(.+)-alicloud-kvm-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: google-kvm-456.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: openstack-kvm-456.x
