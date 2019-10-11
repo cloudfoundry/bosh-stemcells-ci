@@ -3,10 +3,6 @@ groups:
 #@ for stemcell in data.values.stemcells:
 - name: (@= stemcell.version @)
   jobs:
-  - manual-trigger-(@= stemcell.version @)
-  - create-story-(@= stemcell.version @)
-  - create-story-usn-(@= stemcell.version @)
-  - log-low-medium-cves-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - build-vcloud-esxi-(@= stemcell.version @)
   - build-vsphere-esxi-(@= stemcell.version @)
@@ -34,10 +30,23 @@ groups:
   - test-unit-(@= stemcell.version @)
   - build-os-image-(@= stemcell.version @)
   - stemcell-trigger-start-(@= stemcell.version @)
+#@ if stemcell.version != "master":
+  - aggregate-candidate-stemcells-(@= stemcell.version @)
+#@ end
+#@ end
+- name: manual-triggers
+  jobs:
+#@ for stemcell in data.values.stemcells:
+  - manual-trigger-(@= stemcell.version @)
+#@ end
+- name: automatic-triggers
+  jobs:
+#@ for stemcell in data.values.stemcells:
+  - create-story-(@= stemcell.version @)
+  - create-story-usn-(@= stemcell.version @)
+  - log-low-medium-cves-(@= stemcell.version @)
 #@ if stemcell.version == "master":
   - notify-of-usn
-#@ else:
-  - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
 #@ end
 
