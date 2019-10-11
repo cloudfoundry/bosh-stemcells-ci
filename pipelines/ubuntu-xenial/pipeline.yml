@@ -421,13 +421,15 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: stemcell/*.tgz
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/azure-hyperv-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: candidate-build-number/number
       put: azure-hyperv-(@= stemcell.version @)
-  - attempts: 3
-    params:
-      rebase: true
-      repository: stemcells-index
-    put: stemcells-index
 
 - name: build-google-kvm-(@= stemcell.version @)
   plan:
@@ -889,6 +891,25 @@ resources:
 #@ end
 #@ end
 #@ for stemcell in data.values.stemcells:
+- name: azure-hyperv-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/azure/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/azure-hyperv-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+#@ end
+#@ for stemcell in data.values.stemcells:
 - name: openstack-kvm-(@= stemcell.version @)
   source:
     mirror_files:
@@ -1096,13 +1117,6 @@ resources:
     regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: azure-hyperv-master
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: warden-boshlite-master
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1157,13 +1171,6 @@ resources:
     regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: azure-hyperv-97.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: warden-boshlite-97.x
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1212,13 +1219,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: azure-hyperv-170.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: warden-boshlite-170.x
@@ -1271,13 +1271,6 @@ resources:
     regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: azure-hyperv-250.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: warden-boshlite-250.x
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1328,13 +1321,6 @@ resources:
     regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
-- name: azure-hyperv-315.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
 - name: warden-boshlite-315.x
   source:
     access_key_id: ((stemcell_aws_access_key))
@@ -1383,13 +1369,6 @@ resources:
     access_key_id: ((stemcell_aws_access_key))
     bucket: ((candidate_stemcell_bucket))
     regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
-    secret_access_key: ((stemcell_aws_secret_key))
-  type: s3
-- name: azure-hyperv-456.x
-  source:
-    access_key_id: ((stemcell_aws_access_key))
-    bucket: ((candidate_stemcell_bucket))
-    regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
     secret_access_key: ((stemcell_aws_secret_key))
   type: s3
 - name: warden-boshlite-456.x
