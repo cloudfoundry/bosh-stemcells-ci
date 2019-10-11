@@ -221,24 +221,12 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
       - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
       - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -273,23 +261,11 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
       - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
       - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
@@ -325,24 +301,12 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
       - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
       - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -378,24 +342,12 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
       - build-google-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
       - build-google-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -428,24 +380,12 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
       - build-azure-hyperv-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
       - build-azure-hyperv-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -478,24 +418,12 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
       - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
       - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -529,23 +457,11 @@ jobs:
     - get: version
       passed:
       - build-warden-boshlite-(@= stemcell.version @)
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
       - build-warden-boshlite-(@= stemcell.version @)
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -579,24 +495,12 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
       - build-alicloud-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
       - build-alicloud-kvm-(@= stemcell.version @)
-      - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -630,24 +534,12 @@ jobs:
   - in_parallel:
     - get: version
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
       - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
-      - build-warden-boshlite-(@= stemcell.version @)
-      - build-aws-xen-hvm-(@= stemcell.version @)
-      - build-azure-hyperv-(@= stemcell.version @)
-      - build-google-kvm-(@= stemcell.version @)
       - build-openstack-kvm-(@= stemcell.version @)
-      - build-vsphere-esxi-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
