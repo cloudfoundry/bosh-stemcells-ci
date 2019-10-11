@@ -281,7 +281,7 @@ jobs:
       - build-azure-hyperv-(@= stemcell.version @)
       - build-google-kvm-(@= stemcell.version @)
       - build-openstack-kvm-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
       - build-vcloud-esxi-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
@@ -292,7 +292,7 @@ jobs:
       - build-azure-hyperv-(@= stemcell.version @)
       - build-google-kvm-(@= stemcell.version @)
       - build-openstack-kvm-(@= stemcell.version @)
-      - build-vcloud-esxi-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
       - build-vcloud-esxi-(@= stemcell.version @)
       trigger: true
     - get: bosh-linux-stemcell-builder
@@ -305,7 +305,7 @@ jobs:
       - build-vcloud-esxi-(@= stemcell.version @)
       resource: vcloud-esxi-(@= stemcell.version @)
       tags:
-      - vcloud-v6.5
+      - vsphere-v6.5
     - get: bosh-stemcells-ci
   - task: repack-stemcell
     privileged: true
