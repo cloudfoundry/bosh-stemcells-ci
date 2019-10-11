@@ -21,6 +21,8 @@ groups:
   - build-warden-boshlite-(@= stemcell.version @)
   - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
   - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
+  - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+  - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)
   - build-stemcell-(@= stemcell.version @)
   - test-unit-(@= stemcell.version @)
@@ -316,6 +318,92 @@ jobs:
         file: repacked-stemcell/*.tgz
       put: vcloud-esxi-(@= stemcell.version @)
 
+- name: repack-stemcell-openstack-kvm-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-warden-boshlite-(@= stemcell.version @)
+      - build-aws-xen-hvm-(@= stemcell.version @)
+      - build-azure-hyperv-(@= stemcell.version @)
+      - build-google-kvm-(@= stemcell.version @)
+      - build-openstack-kvm-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
+      - build-vcloud-esxi-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-warden-boshlite-(@= stemcell.version @)
+      - build-aws-xen-hvm-(@= stemcell.version @)
+      - build-azure-hyperv-(@= stemcell.version @)
+      - build-google-kvm-(@= stemcell.version @)
+      - build-openstack-kvm-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
+      - build-vcloud-esxi-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: bosh-agent
+      resource: bosh-agent-(@= stemcell.version @)
+      trigger: true
+    - get: stemcell
+      passed:
+      - build-openstack-kvm-(@= stemcell.version @)
+      resource: openstack-kvm-(@= stemcell.version @)
+    - get: bosh-stemcells-ci
+  - task: repack-stemcell
+    privileged: true
+    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack.yml
+  - in_parallel:
+    - attempts: 3
+      params:
+        file: repacked-stemcell/*.tgz
+      put: openstack-kvm-(@= stemcell.version @)
+
+- name: repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-warden-boshlite-(@= stemcell.version @)
+      - build-aws-xen-hvm-(@= stemcell.version @)
+      - build-azure-hyperv-(@= stemcell.version @)
+      - build-google-kvm-(@= stemcell.version @)
+      - build-openstack-kvm-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
+      - build-vcloud-esxi-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-warden-boshlite-(@= stemcell.version @)
+      - build-aws-xen-hvm-(@= stemcell.version @)
+      - build-azure-hyperv-(@= stemcell.version @)
+      - build-google-kvm-(@= stemcell.version @)
+      - build-openstack-kvm-(@= stemcell.version @)
+      - build-vsphere-esxi-(@= stemcell.version @)
+      - build-vcloud-esxi-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: bosh-agent
+      resource: bosh-agent-(@= stemcell.version @)
+      trigger: true
+    - get: stemcell
+      passed:
+      - build-openstack-kvm-(@= stemcell.version @)
+      resource: openstack-kvm-raw-(@= stemcell.version @)
+    - get: bosh-stemcells-ci
+  - task: repack-stemcell
+    privileged: true
+    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack-raw.yml
+  - in_parallel:
+    - attempts: 3
+      params:
+        file: repacked-stemcell/*.tgz
+      put: openstack-kvm-raw-(@= stemcell.version @)
+
 - name: test-stemcells-(@= stemcell.version @)
   plan:
   - do:
@@ -326,7 +414,8 @@ jobs:
         - build-aws-xen-hvm-(@= stemcell.version @)
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         resource: version-(@= stemcell.version @)
@@ -350,7 +439,8 @@ jobs:
         - build-aws-xen-hvm-(@= stemcell.version @)
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         trigger: true
@@ -765,7 +855,8 @@ jobs:
         - build-aws-xen-hvm-(@= stemcell.version @)
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -775,7 +866,8 @@ jobs:
         - build-aws-xen-hvm-(@= stemcell.version @)
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         resource: version-(@= stemcell.version @)
@@ -785,7 +877,8 @@ jobs:
         - build-aws-xen-hvm-(@= stemcell.version @)
         - build-azure-hyperv-(@= stemcell.version @)
         - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         trigger: true
