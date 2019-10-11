@@ -18,6 +18,7 @@ outputs:
   - name: stemcell
   - name: stemcells-index
     path: stemcells-index-output
+  - name: candidate-build-number
 
 run:
   path: bosh-stemcells-ci/tasks/build.sh
