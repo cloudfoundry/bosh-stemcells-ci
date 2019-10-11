@@ -7,7 +7,6 @@ groups:
   - create-story-(@= stemcell.version @)
   - create-story-usn-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
-  - bump-bosh-agent-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - build-vcloud-esxi-(@= stemcell.version @)
   - build-vsphere-esxi-(@= stemcell.version @)
@@ -181,24 +180,6 @@ jobs:
   - params:
       file: version/number
     put: os-image-version-(@= stemcell.version @)
-
-- name: bump-bosh-agent-(@= stemcell.version @)
-  plan:
-  - get: bosh-agent
-    params:
-      skip_download: true
-    resource: bosh-agent-(@= stemcell.version @)
-    trigger: true
-  - get: bosh-stemcells-ci
-  - get: bosh-linux-stemcell-builder
-    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
-    task: bump
-  - params:
-      rebase: true
-      repository: bosh-linux-stemcell-builder
-    put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-  serial: true
 
 - name: test-unit-(@= stemcell.version @)
   plan:
@@ -1375,12 +1356,6 @@ resources:
     - high
     - critical
   type: usn
-- name: bosh-linux-stemcell-builder-push-master
-  source:
-    branch: master
-    private_key: ((bosh_src_key))
-    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  type: git
 - name: bosh-linux-stemcell-builder-master
   source:
     branch: master
