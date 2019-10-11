@@ -258,7 +258,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/vsphere-esxi-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: vsphere-esxi-(@= stemcell.version @)
 
 - name: repack-stemcell-vcloud-esxi-(@= stemcell.version @)
@@ -303,7 +310,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/vcloud-esxi-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: vcloud-esxi-(@= stemcell.version @)
 
 - name: repack-stemcell-openstack-kvm-(@= stemcell.version @)
@@ -339,6 +353,9 @@ jobs:
       passed:
       - build-openstack-kvm-(@= stemcell.version @)
       resource: openstack-kvm-(@= stemcell.version @)
+      params:
+        include_files:
+        - "bosh-stemcell-*-openstack-kvm-ubuntu-xenial-go_agent.tgz"
     - get: bosh-stemcells-ci
   - task: repack-stemcell
     privileged: true
@@ -346,7 +363,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/openstack-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: openstack-kvm-(@= stemcell.version @)
 
 - name: repack-stemcell-google-kvm-(@= stemcell.version @)
@@ -389,7 +413,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/google-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: google-kvm-(@= stemcell.version @)
 
 - name: repack-stemcell-azure-hyperv-(@= stemcell.version @)
@@ -432,7 +463,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/azure-hyperv-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: azure-hyperv-(@= stemcell.version @)
 
 - name: repack-stemcell-aws-xen-hvm-(@= stemcell.version @)
@@ -475,7 +513,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/aws-xen-hvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: aws-xen-hvm-(@= stemcell.version @)
 
 - name: repack-stemcell-warden-boshlite-(@= stemcell.version @)
@@ -518,7 +563,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/warden-boshlite-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: warden-boshlite-(@= stemcell.version @)
 
 #@ if stemcell.include_alicloud:
@@ -562,7 +614,14 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/alicloud-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
       put: alicloud-kvm-(@= stemcell.version @)
 #@ end
 
@@ -598,7 +657,10 @@ jobs:
     - get: stemcell
       passed:
       - build-openstack-kvm-(@= stemcell.version @)
-      resource: openstack-kvm-raw-(@= stemcell.version @)
+      resource: openstack-kvm-(@= stemcell.version @)
+      params:
+        include_files:
+        - "bosh-stemcell-*-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz"
     - get: bosh-stemcells-ci
   - task: repack-stemcell
     privileged: true
@@ -606,8 +668,15 @@ jobs:
   - in_parallel:
     - attempts: 3
       params:
-        file: repacked-stemcell/*.tgz
-      put: openstack-kvm-raw-(@= stemcell.version @)
+        files:
+        - repacked-stemcell/*.tgz
+        rename: "{{.Version}}/openstack-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: ubuntu-xenial'
+        version: version-number/number
+      put: openstack-kvm-(@= stemcell.version @)
 
 - name: test-stemcells-(@= stemcell.version @)
   plan:
