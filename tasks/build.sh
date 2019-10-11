@@ -88,6 +88,7 @@ stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-
 meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR-go_agent.meta4
 
 mkdir -p "$( dirname "$meta4_path" )"
+rm -f "$meta4_path"
 meta4 create --metalink="$meta4_path"
 
 if [ -e bosh-linux-stemcell-builder/tmp/*-raw.tgz ] ; then
