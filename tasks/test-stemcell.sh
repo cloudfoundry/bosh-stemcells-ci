@@ -12,7 +12,7 @@ export BOSH_CLIENT_SECRET=`$BOSH_BINARY_PATH int director-state/director-creds.y
 export SYSLOG_RELEASE_PATH=$(realpath syslog-release/*.tgz)
 export OS_CONF_RELEASE_PATH=$(realpath os-conf-release/*.tgz)
 export STEMCELL_PATH=$(realpath stemcell/*.tgz)
-export BOSH_stemcell_version=\"$(realpath stemcell/version | xargs -n 1 cat)\"
+export BOSH_stemcell_version=\"$(realpath stemcell/.resource/version | xargs -n 1 cat)\"
 
 if $BOSH_BINARY_PATH int director-state/director-creds.yml --path /jumpbox_ssh > /dev/null 2>&1 ; then
   jumpbox_private_key=$(mktemp)
