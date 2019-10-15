@@ -1,9 +1,12 @@
 #@ load("@ytt:data", "data")
 groups:
 #@ for stemcell in data.values.stemcells:
-- name: (@= stemcell.version @)
+- name: build-(@= stemcell.version @)
   jobs:
-  - bats-(@= stemcell.version @)
+  - build-stemcell-(@= stemcell.version @)
+  - test-unit-(@= stemcell.version @)
+  - build-os-image-(@= stemcell.version @)
+  - stemcell-trigger-start-(@= stemcell.version @)
   - build-vcloud-esxi-(@= stemcell.version @)
   - build-vsphere-esxi-(@= stemcell.version @)
   - build-openstack-kvm-(@= stemcell.version @)
@@ -14,6 +17,7 @@ groups:
   - build-azure-hyperv-(@= stemcell.version @)
   - build-aws-xen-hvm-(@= stemcell.version @)
   - build-warden-boshlite-(@= stemcell.version @)
+  - promote-bosh-agent-develop
   - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
   - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
   - repack-stemcell-openstack-kvm-(@= stemcell.version @)
@@ -25,13 +29,23 @@ groups:
   - repack-stemcell-azure-hyperv-(@= stemcell.version @)
   - repack-stemcell-aws-xen-hvm-(@= stemcell.version @)
   - repack-stemcell-warden-boshlite-(@= stemcell.version @)
+  - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)
-  - build-stemcell-(@= stemcell.version @)
-  - test-unit-(@= stemcell.version @)
-  - build-os-image-(@= stemcell.version @)
-  - stemcell-trigger-start-(@= stemcell.version @)
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
+#@ end
+#@ if stemcell.version == "master":
+- name: agent-(@= stemcell.version @)
+  jobs:
+  - test-unit-bosh-agent-develop
+  - test-integration-bosh-agent-develop
+  - bosh-integration-tests-bosh-agent-develop
+  - windows-test-unit-bosh-agent-develop
+  - windows-test-integration-2019-bosh-agent-develop
+  - windows-test-integration-1803-bosh-agent-develop
+  - windows-test-integration-2012R2-bosh-agent-develop
+  - promote-bosh-agent-develop
+  - bump-deps-bosh-agent-develop
 #@ end
 #@ end
 - name: manual-triggers
@@ -241,6 +255,10 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
       resource: bosh-agent-(@= stemcell.version @)
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       trigger: true
     - get: stemcell
       passed:
@@ -281,6 +299,10 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
       resource: bosh-agent-(@= stemcell.version @)
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       trigger: true
     - get: stemcell
       passed:
@@ -321,6 +343,10 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
       resource: bosh-agent-(@= stemcell.version @)
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       trigger: true
     - get: stemcell
       passed:
@@ -362,6 +388,10 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
       resource: bosh-agent-(@= stemcell.version @)
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       trigger: true
     - get: stemcell
       passed:
@@ -400,6 +430,10 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
       resource: bosh-agent-(@= stemcell.version @)
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       trigger: true
     - get: stemcell
       passed:
@@ -437,6 +471,10 @@ jobs:
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       resource: bosh-agent-(@= stemcell.version @)
       trigger: true
     - get: stemcell
@@ -475,6 +513,10 @@ jobs:
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       resource: bosh-agent-(@= stemcell.version @)
       trigger: true
     - get: stemcell
@@ -515,6 +557,10 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
       resource: bosh-agent-(@= stemcell.version @)
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       trigger: true
     - get: stemcell
       passed:
@@ -553,6 +599,10 @@ jobs:
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-agent
+#@ if stemcell.version == "master":
+      passed:
+      - promote-bosh-agent-develop
+#@ end
       resource: bosh-agent-(@= stemcell.version @)
       trigger: true
     - get: stemcell
@@ -1248,7 +1298,229 @@ jobs:
       text_file: slack-message/message
     put: slack-alert
 
+- name: bump-deps-bosh-agent-develop
+  public: true
+  plan:
+  - get: weekly
+    resource: weekly-bosh-agent-develop
+    trigger: true
+  - get: bosh-agent
+    resource: bosh-agent-src-develop
+  - task: bump-deps
+    file: bosh-agent/ci/tasks/bump-deps.yml
+  - task: test-unit
+    input_mapping:
+      bosh-agent: bumped-bosh-agent
+    file: bosh-agent/ci/tasks/test-unit.yml
+  - put: bosh-agent
+    resource: bosh-agent-src-develop
+    params:
+      repository: bumped-bosh-agent
+      rebase: true
+
+- name: test-unit-bosh-agent-develop
+  public: true
+  plan:
+  - get: bosh-agent
+    resource: bosh-agent-src-develop
+    trigger: true
+  - task: test-unit
+    file: bosh-agent/ci/tasks/test-unit.yml
+
+- name: test-integration-bosh-agent-develop
+  public: false
+  plan:
+  - get: bosh-agent
+    resource: bosh-agent-src-develop
+    trigger: true
+  - task: test-integration
+    privileged: true
+    file: bosh-agent/ci/tasks/test-integration.yml
+    params:
+      BOSH_AWS_ACCESS_KEY_ID: ((BOSH_AWS_ACCESS_KEY_ID))
+      BOSH_AWS_SECRET_ACCESS_KEY: ((BOSH_AWS_SECRET_ACCESS_KEY))
+      BOSH_LITE_KEYPAIR: ((BOSH_LITE_KEYPAIR))
+      BOSH_LITE_SUBNET_ID: ((BOSH_LITE_SUBNET_ID))
+      BOSH_LITE_NAME: ((BOSH_LITE_NAME))
+      BOSH_LITE_SECURITY_GROUP: ((BOSH_LITE_SECURITY_GROUP))
+      BOSH_LITE_PRIVATE_KEY: ((BOSH_LITE_PRIVATE_KEY))
+      AWS_ACCESS_KEY: ((integration_aws_access_key))
+      AWS_SECRET_ACCESS_KEY: ((integration_aws_secret_access_key))
+      AWS_REGION: ((integration_aws_region))
+      AWS_BUCKET: ((integration_aws_bucket))
+
+
+- name: bosh-integration-tests-bosh-agent-develop
+  public: true
+  serial: true
+  build_logs_to_retain: 250
+  plan:
+  - in_parallel:
+    - get: bosh-src
+      resource: bosh-src-bosh-agent-develop
+    - get: bosh-cli
+      resource: bosh-cli-bosh-agent-develop
+    - get: bosh-agent
+      resource: bosh-agent-src-develop
+      trigger: true
+      passed:
+      - test-unit-bosh-agent-develop
+      - test-integration-bosh-agent-develop
+      - windows-test-unit-bosh-agent-develop
+
+  - task: tests
+    privileged: true
+    file: bosh-src/ci/tasks/test-integration.yml
+    tags: ["bosh-integration"]
+    params:
+      DB: postgresql
+
+- name: windows-test-unit-bosh-agent-develop
+  serial: true
+  plan:
+  - get: bosh-agent
+    resource: bosh-agent-src-develop
+    trigger: true
+  - task: test-unit
+    file: bosh-agent/ci/tasks/test-unit-windows.yml
+
+- name: windows-test-integration-2019-bosh-agent-develop
+  serial: true
+  plan:
+  - get: windows-ami-2019
+    resource: windows-ami-2019-bosh-agent-develop
+  - get: bosh-agent
+    resource: bosh-agent-src-develop
+    trigger: true
+    passed:
+    - test-unit-bosh-agent-develop
+    - test-integration-bosh-agent-develop
+    - windows-test-unit-bosh-agent-develop
+  - task: test-integration
+    privileged: true
+    file: bosh-agent/ci/tasks/test-integration-windows.yml
+    input_mapping:
+      windows-ami: windows-ami-2019
+    params:
+      AWS_ACCESS_KEY: ((WINDOWS_AWS_ACCESS_KEY))
+      AWS_SECRET_KEY: ((WINDOWS_AWS_SECRET_KEY))
+      AWS_SUBNET: ((WINDOWS_AWS_SUBNET))
+      AWS_SSH_KEY: ((WINDOWS_AWS_SSH_KEY))
+      KEYPAIR_NAME: ((WINDOWS_AWS_KEYPAIR_NAME))
+      VAGRANT_PROVIDER: aws
+      WINRM_PASSWORD: ((WINRM_PASSWORD))
+      WINDOWS_OS_VERSION: 2019
+
+- name: windows-test-integration-1803-bosh-agent-develop
+  serial: true
+  plan:
+  - get: windows-ami-1803
+    resource: windows-ami-1803-bosh-agent-develop
+  - get: bosh-agent
+    resource: bosh-agent-src-develop
+    trigger: true
+    passed:
+    - test-unit-bosh-agent-develop
+    - test-integration-bosh-agent-develop
+    - windows-test-unit-bosh-agent-develop
+  - task: test-integration
+    privileged: true
+    file: bosh-agent/ci/tasks/test-integration-windows.yml
+    input_mapping:
+      windows-ami: windows-ami-1803
+    params:
+      AWS_ACCESS_KEY: ((WINDOWS_AWS_ACCESS_KEY))
+      AWS_SECRET_KEY: ((WINDOWS_AWS_SECRET_KEY))
+      AWS_SUBNET: ((WINDOWS_AWS_SUBNET))
+      AWS_SSH_KEY: ((WINDOWS_AWS_SSH_KEY))
+      KEYPAIR_NAME: ((WINDOWS_AWS_KEYPAIR_NAME))
+      VAGRANT_PROVIDER: aws
+      WINRM_PASSWORD: ((WINRM_PASSWORD))
+      WINDOWS_OS_VERSION: 1803
+
+- name: windows-test-integration-2012R2-bosh-agent-develop
+  serial: true
+  plan:
+  - get: windows-ami-2012R2
+    resource: windows-ami-2012R2-bosh-agent-develop
+  - get: bosh-agent
+    resource: bosh-agent-src-develop
+    trigger: true
+    passed:
+    - test-unit-bosh-agent-develop
+    - test-integration-bosh-agent-develop
+    - windows-test-unit-bosh-agent-develop
+  - task: test-integration
+    privileged: true
+    file: bosh-agent/ci/tasks/test-integration-windows.yml
+    input_mapping:
+      windows-ami: windows-ami-2012R2
+    params:
+      AWS_ACCESS_KEY: ((WINDOWS_AWS_ACCESS_KEY))
+      AWS_SECRET_KEY: ((WINDOWS_AWS_SECRET_KEY))
+      AWS_SUBNET: ((WINDOWS_AWS_SUBNET))
+      AWS_SSH_KEY: ((WINDOWS_AWS_SSH_KEY))
+      KEYPAIR_NAME: ((WINDOWS_AWS_KEYPAIR_NAME))
+      VAGRANT_PROVIDER: aws
+      WINRM_PASSWORD: ((WINRM_PASSWORD))
+      WINDOWS_OS_VERSION: 2012R2
+
+- name: promote-bosh-agent-develop
+  public: true
+  serial: true
+  plan:
+  - in_parallel:
+    - trigger: true
+      passed:
+      - bosh-integration-tests-bosh-agent-develop
+      - windows-test-integration-2019-bosh-agent-develop
+      - windows-test-integration-1803-bosh-agent-develop
+      - windows-test-integration-2012R2-bosh-agent-develop
+      get: bosh-agent
+      resource: bosh-agent-src-develop
+    - get: version-semver-bosh-agent-develop
+      params: {bump: minor}
+  - task: assert-version-aligns
+    file: bosh-agent/ci/tasks/assert-version-aligns.yml
+  - put: version-semver-bosh-agent-develop
+    params:
+      file: version-semver/number
+  - put: bosh-agent-commit-status
+    resource: bosh-agent-commit-status-bosh-agent-develop
+    params:
+      state: success
+      commit: bosh-agent
+  - put: bosh-agent-master
+    resource: bosh-agent-src-master
+    params:
+      repository: bosh-agent
+      tag: version-semver/number
+      tag_prefix: v
+  - in_parallel:
+    - task: build-windows
+      file: bosh-agent/ci/tasks/build-windows.yml
+    - task: build-linux
+      file: bosh-agent/ci/tasks/build-linux.yml
+    - task: build-linux-ppc64le
+      file: bosh-agent/ci/tasks/build-linux-ppc64le.yml
+  - put: bosh-agent-index
+    resource: bosh-agent-master
+    params:
+      files:
+      - compiled-linux-*/*
+      version: version-semver/number
+
 resource_types:
+- name: ami-resource
+  type: registry-image
+  source:
+    repository: pivotalgreenhouse/ami-resource
+    tag: latest
+- name: github-status
+  type: registry-image
+  source:
+    repository: dpb587/github-status-resource
+    tag: master
 - name: usn
   source:
     repository: bosh/usn-resource
@@ -1531,10 +1803,10 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: bosh-agent-master
+- name: bosh-agent-97.x
   source:
     uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
-    version: '*'
+    version: 2.117.*
   type: metalink-repository
 - name: stemcell-trigger-master
   source:
@@ -1571,11 +1843,6 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: bosh-agent-97.x
-  source:
-    uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
-    version: 2.117.*
-  type: metalink-repository
 - name: stemcell-trigger-97.x
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1736,3 +2003,121 @@ resources:
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: 456.x/usn-log.json
   type: s3
+
+- name: bosh-agent-src-develop
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh-agent.git
+    branch: develop
+    private_key: ((BOSH_GITHUB_DEPLOYMENT_KEY))
+
+- name: bosh-agent-src-master
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh-agent.git
+    branch: master
+    private_key: ((BOSH_GITHUB_DEPLOYMENT_KEY))
+
+- name: bosh-agent-master
+  type: metalink-repository
+  source:
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-agent-index.git//
+    version: '*'
+    mirror_files:
+    - destination: s3://s3-external-1.amazonaws.com/((RELEASE_BUCKET_AGENT))/{{.Name}}
+    options:
+      private_key: ((BOSH_AGENT_INDEX_DEPLOYMENT_PRIVATE_KEY))
+    url_handlers:
+    - type: s3
+      options:
+        access_key: ((AWS_S3_BUCKET_ACCESS_KEY))
+        secret_key: ((AWS_S3_BUCKET_SECRET_KEY))
+
+- name: bosh-agent-commit-status-bosh-agent-develop
+  type: github-status
+  source:
+    repository: cloudfoundry/bosh-agent
+    access_token: ((repo_github_token))
+    branch: develop
+    context: ci/published
+
+- name: bosh-src-bosh-agent-develop
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/bosh.git
+    branch: master
+
+- name: bosh-cli-bosh-agent-develop
+  type: s3
+  source:
+    regexp: alpha-bosh-cli-(.*)-linux-amd64
+    bucket: bosh-cli-alpha-artifacts
+    region_name: us-east-1
+
+- name: windows-ami-2012R2-bosh-agent-develop
+  type: ami-resource
+  source:
+    access_key_id: ((WINDOWS_AWS_ACCESS_KEY))
+    secret_access_key: ((WINDOWS_AWS_SECRET_KEY))
+    region: us-east-1
+    search_options:
+      filters:
+      - name: name
+        values:
+        - Windows_Server-2012-R2_RTM-English-64Bit-Base*
+      - name: state
+        values:
+        - available
+      owners:
+      - amazon
+
+- name: windows-ami-1803-bosh-agent-develop
+  type: ami-resource
+  source:
+    access_key_id: ((WINDOWS_AWS_ACCESS_KEY))
+    secret_access_key: ((WINDOWS_AWS_SECRET_KEY))
+    region: us-east-1
+    search_options:
+      filters:
+      - name: name
+        values:
+        - Windows_Server-1803-English-Core-Base*
+      - name: state
+        values:
+        - available
+      owners:
+      - amazon
+
+- name: windows-ami-2019-bosh-agent-develop
+  type: ami-resource
+  source:
+    access_key_id: ((WINDOWS_AWS_ACCESS_KEY))
+    secret_access_key: ((WINDOWS_AWS_SECRET_KEY))
+    region: us-east-1
+    search_options:
+      filters:
+      - name: name
+        values:
+        - Windows_Server-2019-English-Core-Base*
+      - name: state
+        values:
+        - available
+      owners:
+      - amazon
+
+- name: version-semver-bosh-agent-develop
+  type: semver
+  source:
+    initial_version: 0.0.1
+    key: agent-current-version
+    bucket: ((SEMVER_BUCKET))
+    region_name: ((AWS_S3_BUCKET_REGION))
+    access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
+    secret_access_key: ((AWS_S3_BUCKET_SECRET_KEY))
+
+- name: weekly-bosh-agent-develop
+  type: time
+  source:
+    start: 3:00 -0700
+    stop: 4:30 -0700
+    days: [Saturday]
