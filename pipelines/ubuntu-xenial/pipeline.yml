@@ -596,6 +596,18 @@ jobs:
         resource: version-(@= stemcell.version @)
         trigger: true
       - get: bosh-stemcells-ci
+      - get: bosh-agent
+        resource: bosh-agent-(@= stemcell.version @)
+        passed:
+        - repack-stemcell-warden-boshlite-(@= stemcell.version @)
+        - repack-stemcell-aws-xen-hvm-(@= stemcell.version @)
+        - repack-stemcell-azure-hyperv-(@= stemcell.version @)
+        - repack-stemcell-google-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
+        trigger: true
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
       - get: bosh-deployment
@@ -1033,6 +1045,18 @@ jobs:
         trigger: true
       - get: bosh-cli
       - get: bats
+      - get: bosh-agent
+        resource: bosh-agent-(@= stemcell.version @)
+        passed:
+        - repack-stemcell-warden-boshlite-(@= stemcell.version @)
+        - repack-stemcell-aws-xen-hvm-(@= stemcell.version @)
+        - repack-stemcell-azure-hyperv-(@= stemcell.version @)
+        - repack-stemcell-google-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-(@= stemcell.version @)
+        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
+        - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
+        - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
+        trigger: true
       - get: bosh-deployment
       - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
@@ -1126,6 +1150,12 @@ jobs:
       resource: version-(@= stemcell.version @)
       trigger: true
     - get: bosh-stemcells-ci
+    - get: bosh-agent
+      resource: bosh-agent-(@= stemcell.version @)
+      passed:
+      - test-stemcells-(@= stemcell.version @)
+      - bats-(@= stemcell.version @)
+      trigger: true
     - get: bosh-linux-stemcell-builder
       passed:
       - bats-(@= stemcell.version @)
