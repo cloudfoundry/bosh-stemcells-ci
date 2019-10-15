@@ -21,6 +21,8 @@ groups:
   - promote-bosh-agent-develop
 #@ elif stemcell.version == "97.x":
   - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+  - promote-bosh-agent-250.x
 #@ end
   - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
   - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
@@ -57,6 +59,14 @@ groups:
   - test-unit-bosh-agent-97.x
   - test-integration-bosh-agent-97.x
   - promote-bosh-agent-97.x
+#@ end
+#@ if stemcell.version == "250.x":
+- name: agent-250.x
+  jobs:
+  - test-unit-bosh-agent-250.x
+  - test-integration-bosh-agent-250.x
+  - bosh-integration-tests-bosh-agent-250.x
+  - promote-bosh-agent-250.x
 #@ end
 #@ end
 - name: manual-triggers
@@ -316,6 +326,9 @@ jobs:
 #@ elif stemcell.version == "97.x":
       passed:
       - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+      passed:
+      - promote-bosh-agent-250.x
 #@ end
       trigger: true
     - get: stemcell
@@ -363,6 +376,9 @@ jobs:
 #@ elif stemcell.version == "97.x":
       passed:
       - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+      passed:
+      - promote-bosh-agent-250.x
 #@ end
       trigger: true
     - get: stemcell
@@ -411,6 +427,9 @@ jobs:
 #@ elif stemcell.version == "97.x":
       passed:
       - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+      passed:
+      - promote-bosh-agent-250.x
 #@ end
       trigger: true
     - get: stemcell
@@ -456,6 +475,9 @@ jobs:
 #@ elif stemcell.version == "97.x":
       passed:
       - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+      passed:
+      - promote-bosh-agent-250.x
 #@ end
       trigger: true
     - get: stemcell
@@ -500,6 +522,9 @@ jobs:
 #@ elif stemcell.version == "97.x":
       passed:
       - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+      passed:
+      - promote-bosh-agent-250.x
 #@ end
       resource: bosh-agent-(@= stemcell.version @)
       trigger: true
@@ -545,6 +570,9 @@ jobs:
 #@ elif stemcell.version == "97.x":
       passed:
       - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+      passed:
+      - promote-bosh-agent-250.x
 #@ end
       resource: bosh-agent-(@= stemcell.version @)
       trigger: true
@@ -592,6 +620,9 @@ jobs:
 #@ elif stemcell.version == "97.x":
       passed:
       - promote-bosh-agent-97.x
+#@ elif stemcell.version == "250.x":
+      passed:
+      - promote-bosh-agent-250.x
 #@ end
       trigger: true
     - get: stemcell
@@ -1554,6 +1585,15 @@ jobs:
     - task: test-unit
       file: bosh-agent/ci/tasks/test-unit.yml
 
+- name: test-unit-bosh-agent-250.x
+  public: true
+  plan:
+  - get: bosh-agent
+    resource: bosh-agent-src-250.x
+    trigger: true
+  - task: test-unit
+    file: bosh-agent/ci/tasks/test-unit.yml
+
 - name: test-integration-bosh-agent-97.x
   public: false
   plan:
@@ -1571,6 +1611,46 @@ jobs:
         BOSH_LITE_NAME: ((BOSH_LITE_NAME))
         BOSH_LITE_SECURITY_GROUP: ((BOSH_LITE_SECURITY_GROUP))
         BOSH_LITE_PRIVATE_KEY: ((BOSH_LITE_PRIVATE_KEY))
+
+- name: test-integration-bosh-agent-250.x
+  public: false
+  plan:
+  - get: bosh-agent
+    resource: bosh-agent-src-250.x
+    trigger: true
+  - task: test-integration
+    privileged: true
+    file: bosh-agent/ci/tasks/test-integration.yml
+    params:
+      BOSH_AWS_ACCESS_KEY_ID: ((BOSH_AWS_ACCESS_KEY_ID))
+      BOSH_AWS_SECRET_ACCESS_KEY: ((BOSH_AWS_SECRET_ACCESS_KEY))
+      BOSH_LITE_KEYPAIR: ((BOSH_LITE_KEYPAIR))
+      BOSH_LITE_SUBNET_ID: ((BOSH_LITE_SUBNET_ID))
+      BOSH_LITE_NAME: ((BOSH_LITE_NAME))
+      BOSH_LITE_SECURITY_GROUP: ((BOSH_LITE_SECURITY_GROUP))
+      BOSH_LITE_PRIVATE_KEY: ((BOSH_LITE_PRIVATE_KEY))
+
+- name: bosh-integration-tests-bosh-agent-250.x
+  public: true
+  serial: true
+  build_logs_to_retain: 250
+  plan:
+  - in_parallel:
+    - get: bosh-src
+    - get: bosh-cli
+    - get: bosh-agent
+      resource: bosh-agent-src-250.x
+      trigger: true
+      passed:
+      - test-unit-bosh-agent-250.x
+      - test-integration-bosh-agent-250.x
+  - task: tests
+    privileged: true
+    file: bosh-src/ci/tasks/test-integration.yml
+    tags: ["bosh-integration"]
+    params:
+      DB: postgresql
+      SKIP_RUN_SCRIPT_ENV: true
 
 - name: promote-bosh-agent-97.x
   public: true
@@ -1608,6 +1688,43 @@ jobs:
         files:
         - compiled-linux-*/*
         version: version-semver/number
+
+- name: promote-bosh-agent-250.x
+  public: true
+  serial: true
+  plan:
+  - in_parallel:
+    - trigger: true
+      passed:
+      - bosh-integration-tests-bosh-agent-250.x
+      get: bosh-agent
+      resource: bosh-agent-src-250.x
+    - get: version-semver
+      resource: version-semver-bosh-agent-250.x
+      params: {bump: patch}
+  - task: assert-version-aligns
+    file: bosh-agent/ci/tasks/assert-version-aligns.yml
+  - put: version-semver
+    resource: version-semver-bosh-agent-250.x
+    params:
+      file: version-semver/number
+  - put: bosh-agent
+    resource: bosh-agent-src-250.x
+    params:
+      only_tag: true
+      repository: bosh-agent
+      tag: version-semver/number
+      tag_prefix: v
+  - in_parallel:
+    - task: build-linux
+      file: bosh-agent/ci/tasks/build-linux.yml
+    - task: build-linux-ppc64le
+      file: bosh-agent/ci/tasks/build-linux-ppc64le.yml
+  - put: bosh-agent-250.x
+    params:
+      files:
+      - compiled-linux-*/*
+      version: version-semver/number
 
 resource_types:
 - name: ami-resource
@@ -2004,11 +2121,6 @@ resources:
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: bosh-agent-250.x
-  source:
-    uri: git+https://github.com/cloudfoundry/bosh-agent-index.git
-    version: 2.193.*
-  type: metalink-repository
 - name: stemcell-trigger-250.x
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -2141,6 +2253,44 @@ resources:
       options:
         access_key: ((AWS_S3_BUCKET_ACCESS_KEY))
         secret_key: ((AWS_S3_BUCKET_SECRET_KEY))
+
+- name: bosh-agent-250.x
+  type: metalink-repository
+  source:
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-agent-index.git//
+    version: 2.193.*
+    mirror_files:
+    - destination: s3://s3-external-1.amazonaws.com/((RELEASE_BUCKET_AGENT))/{{.Name}}
+    options:
+      private_key: ((BOSH_AGENT_INDEX_DEPLOYMENT_PRIVATE_KEY))
+    url_handlers:
+    - type: s3
+      options:
+        access_key: ((AWS_S3_BUCKET_ACCESS_KEY))
+        secret_key: ((AWS_S3_BUCKET_SECRET_KEY))
+
+- name: bosh-agent-src-250.x
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh-agent.git
+    branch: 2.193.x
+    private_key: ((BOSH_GITHUB_DEPLOYMENT_KEY))
+
+- name: bosh-src
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/bosh.git
+    branch: master
+
+- name: version-semver-bosh-agent-250.x
+  type: semver
+  source:
+    initial_version: 2.193.0
+    key: agent-2.193-current-version
+    bucket: ((SEMVER_BUCKET))
+    region_name: ((AWS_S3_BUCKET_REGION))
+    access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
+    secret_access_key: ((AWS_S3_BUCKET_SECRET_KEY))
 
 - name: bosh-agent-commit-status-bosh-agent-develop
   type: github-status
