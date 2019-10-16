@@ -5,6 +5,12 @@ stemcells:
   bosh_agent_version: "*"
   branch: "master"
   bump_version: "major"
+  agent_bump_version: "minor"
+  agent_promote_from: "develop"
+  agent_metalink_version: '*'
+  agent_branch: "master"
+  agent_initial_version: "0.0.1"
+  agent_version_key: "agent-current-version"
   initial_version: "0.0.0"
   include_alicloud: true
 
@@ -12,6 +18,12 @@ stemcells:
   bosh_agent_version: "2.234"
   branch: "ubuntu-xenial/456.x"
   bump_version: "minor"
+  agent_bump_version: "patch"
+  agent_promote_from: "456.x"
+  agent_metalink_version: '2.234.*'
+  agent_branch: "2.234.x"
+  agent_initial_version: "2.234.0"
+  agent_version_key: "agent-2.234-current-version"
   initial_version: "456.0.0"
   include_alicloud: true
 
@@ -19,6 +31,12 @@ stemcells:
   bosh_agent_version: "2.215"
   branch: "ubuntu-xenial/315.x"
   bump_version: "minor"
+  agent_bump_version: "patch"
+  agent_promote_from: "315.x"
+  agent_metalink_version: '2.215.*'
+  agent_branch: "2.215.x"
+  agent_initial_version: "2.215.0"
+  agent_version_key: "agent-2.215-current-version"
   initial_version: "315.0.0"
   include_alicloud: true
 
@@ -26,6 +44,12 @@ stemcells:
   bosh_agent_version: "2.193"
   branch: "ubuntu-xenial/250.x"
   bump_version: "minor"
+  agent_bump_version: "patch"
+  agent_promote_from: "250.x"
+  agent_metalink_version: '2.193.*'
+  agent_branch: "2.193.x"
+  agent_initial_version: "2.193.0"
+  agent_version_key: "agent-2.193-current-version"
   initial_version: "250.0.0"
   include_alicloud: true
 
@@ -33,12 +57,24 @@ stemcells:
   bosh_agent_version: "2.160"
   branch: "ubuntu-xenial/170.x"
   bump_version: "minor"
+  agent_bump_version: "patch"
+  agent_promote_from: "170.x"
+  agent_metalink_version: '2.160.*'
+  agent_branch: "2.160.x"
+  agent_initial_version: "2.160.0"
+  agent_version_key: "agent-2.160-current-version"
   initial_version: "170.0.0"
   include_alicloud: true
 
 - version: "97.x"
   bosh_agent_version: "2.117"
   branch: "ubuntu-xenial/97.x"
+  agent_bump_version: "patch"
+  agent_promote_from: "97.x"
+  agent_metalink_version: '2.117.*'
+  agent_branch: "2.117.x"
+  agent_initial_version: "2.117.0"
+  agent_version_key: "agent-2.117-current-version"
   bump_version: "minor"
   initial_version: "97.0.0"
   include_alicloud: false
