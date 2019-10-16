@@ -1797,16 +1797,6 @@ resources:
     - high
     - critical
   type: usn
-- name: bosh-linux-stemcell-builder-master
-  source:
-    branch: master
-    ignore_paths:
-    - VERSION
-    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
-    - bosh-stemcell/image-metalinks/ubuntu-xenial.meta4
-    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
-    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
-  type: git
 - name: stemcell-trigger-master
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1818,140 +1808,52 @@ resources:
   source:
     url: ((slack_hook_url))
   type: slack-notification
-- name: bosh-linux-stemcell-builder-push-97.x
-  source:
-    branch: ubuntu-xenial/97.x
-    private_key: ((bosh_src_key))
-    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-- name: bosh-linux-stemcell-builder-97.x
-  source:
-    branch: ubuntu-xenial/97.x
-    ignore_paths:
-    - VERSION
-    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
-    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
-    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-- name: bosh-linux-stemcell-builder-push-170.x
-  source:
-    branch: ubuntu-xenial/170.x
-    private_key: ((bosh_src_key))
-    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-- name: bosh-linux-stemcell-builder-170.x
-  source:
-    branch: ubuntu-xenial/170.x
-    ignore_paths:
-    - VERSION
-    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
-    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
-    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-- name: bosh-linux-stemcell-builder-push-250.x
-  source:
-    branch: ubuntu-xenial/250.x
-    private_key: ((bosh_src_key))
-    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-- name: bosh-linux-stemcell-builder-250.x
-  source:
-    branch: ubuntu-xenial/250.x
-    ignore_paths:
-    - VERSION
-    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
-    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
-    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-- name: bosh-linux-stemcell-builder-push-315.x
-  source:
-    branch: ubuntu-xenial/315.x
-    private_key: ((bosh_src_key))
-    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-- name: bosh-linux-stemcell-builder-315.x
-  source:
-    branch: ubuntu-xenial/315.x
-    ignore_paths:
-    - VERSION
-    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
-    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
-    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
-  type: git
 - name: bosh-src
   type: git
   source:
     uri: https://github.com/cloudfoundry/bosh.git
     branch: master
-- name: usn-log-master
+
+- name: bosh-linux-stemcell-builder-master
   source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    initial_context_text: ""
-    initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: master/usn-log.json
-  type: s3
-- name: usn-log-97.x
+    branch: master
+    ignore_paths:
+    - VERSION
+    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
+    - bosh-stemcell/image-metalinks/ubuntu-xenial.meta4
+    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
+    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
+  type: git
+#@ for stemcell in data.values.stemcells:
+#@ if stemcell.version != "master":
+- name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    initial_context_text: ""
-    initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: 97.x/usn-log.json
-  type: s3
-- name: usn-log-170.x
-  source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    initial_context_text: ""
-    initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: 170.x/usn-log.json
-  type: s3
-- name: usn-log-250.x
-  source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    initial_context_text: ""
-    initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: 250.x/usn-log.json
-  type: s3
-- name: usn-log-315.x
-  source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    initial_context_text: ""
-    initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: 315.x/usn-log.json
-  type: s3
-- name: usn-log-456.x
-  source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    initial_context_text: ""
-    initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: 456.x/usn-log.json
-  type: s3
-- name: bosh-linux-stemcell-builder-push-456.x
-  source:
-    branch: ubuntu-xenial/456.x
+    branch: ubuntu-xenial/(@= stemcell.version @)
     private_key: ((bosh_src_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
-- name: bosh-linux-stemcell-builder-456.x
+- name: bosh-linux-stemcell-builder-(@= stemcell.version @)
   source:
-    branch: ubuntu-xenial/456.x
+    branch: ubuntu-xenial/(@= stemcell.version @)
     ignore_paths:
     - VERSION
     - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
     - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
+#@ end
+#@ end
+#@ for stemcell in data.values.stemcells:
+- name: usn-log-(@= stemcell.version @)
+  source:
+    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+    bucket: bosh-stemcell-triggers
+    initial_context_text: ""
+    initial_version: '-'
+    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    versioned_file: (@= stemcell.version @)/usn-log.json
+  type: s3
+#@ end
 
 #@ for stemcell in data.values.stemcells:
 - name: bosh-agent-(@= stemcell.version @)
