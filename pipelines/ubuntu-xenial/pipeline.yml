@@ -21,7 +21,6 @@ groups:
   - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
   - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
   - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-  - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
   - repack-stemcell-google-kvm-(@= stemcell.version @)
 #@ if stemcell.include_alicloud:
   - repack-stemcell-alicloud-kvm-(@= stemcell.version @)
@@ -325,49 +324,6 @@ jobs:
         version: version-number/number
       put: vcloud-esxi-(@= stemcell.version @)
 
-- name: repack-stemcell-openstack-kvm-(@= stemcell.version @)
-  plan:
-  - in_parallel:
-    - get: version
-      passed:
-      - build-openstack-kvm-(@= stemcell.version @)
-      resource: version-(@= stemcell.version @)
-      trigger: true
-    - get: stemcell-trigger-(@= stemcell.version @)
-      passed:
-      - build-openstack-kvm-(@= stemcell.version @)
-      trigger: true
-    - get: bosh-linux-stemcell-builder
-      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-    - get: bosh-agent
-      resource: bosh-agent-(@= stemcell.version @)
-      passed:
-      - promote-bosh-agent-(@= stemcell.version @)
-      trigger: true
-    - get: stemcell
-      passed:
-      - build-openstack-kvm-(@= stemcell.version @)
-      resource: openstack-kvm-(@= stemcell.version @)
-      params:
-        include_files:
-        - "bosh-stemcell-*-openstack-kvm-ubuntu-xenial-go_agent.tgz"
-    - get: bosh-stemcells-ci
-  - task: repack-stemcell
-    privileged: true
-    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack.yml
-  - in_parallel:
-    - attempts: 3
-      params:
-        files:
-        - repacked-stemcell/*.tgz
-        rename: "{{.Version}}/openstack-kvm-go_agent.meta4"
-        options:
-          author_email: ci@localhost
-          author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
-        version: version-number/number
-      put: openstack-kvm-(@= stemcell.version @)
-
 - name: repack-stemcell-google-kvm-(@= stemcell.version @)
   plan:
   - in_parallel:
@@ -570,7 +526,7 @@ jobs:
       put: alicloud-kvm-(@= stemcell.version @)
 #@ end
 
-- name: repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
+- name: repack-stemcell-openstack-kvm-(@= stemcell.version @)
   plan:
   - in_parallel:
     - get: version
@@ -589,22 +545,37 @@ jobs:
       - promote-bosh-agent-(@= stemcell.version @)
       resource: bosh-agent-(@= stemcell.version @)
       trigger: true
-    - get: stemcell
+    - get: stemcell-raw
       passed:
       - build-openstack-kvm-(@= stemcell.version @)
       resource: openstack-kvm-(@= stemcell.version @)
       params:
         include_files:
         - "bosh-stemcell-*-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz"
+    - get: stemcell
+      passed:
+      - build-openstack-kvm-(@= stemcell.version @)
+      resource: openstack-kvm-(@= stemcell.version @)
+      params:
+        include_files:
+        - "bosh-stemcell-*-openstack-kvm-ubuntu-xenial-go_agent.tgz"
     - get: bosh-stemcells-ci
   - task: repack-stemcell
     privileged: true
+    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack.yml
+  - task: repack-stemcell-raw
+    privileged: true
     file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack-raw.yml
+    input_mapping:
+      stemcell: stemcell-raw
+    output_mapping:
+      repacked-stemcell: repacked-raw-stemcell
   - in_parallel:
     - attempts: 3
       params:
         files:
         - repacked-stemcell/*.tgz
+        - repacked-raw-stemcell/*.tgz
         rename: "{{.Version}}/openstack-kvm-go_agent.meta4"
         options:
           author_email: ci@localhost
@@ -624,7 +595,6 @@ jobs:
         - repack-stemcell-azure-hyperv-(@= stemcell.version @)
         - repack-stemcell-google-kvm-(@= stemcell.version @)
         - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         resource: version-(@= stemcell.version @)
@@ -638,7 +608,6 @@ jobs:
         - repack-stemcell-azure-hyperv-(@= stemcell.version @)
         - repack-stemcell-google-kvm-(@= stemcell.version @)
         - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         trigger: true
@@ -661,7 +630,6 @@ jobs:
         - repack-stemcell-azure-hyperv-(@= stemcell.version @)
         - repack-stemcell-google-kvm-(@= stemcell.version @)
         - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         trigger: true
@@ -1087,7 +1055,6 @@ jobs:
         - repack-stemcell-azure-hyperv-(@= stemcell.version @)
         - repack-stemcell-google-kvm-(@= stemcell.version @)
         - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         trigger: true
@@ -1100,7 +1067,6 @@ jobs:
         - repack-stemcell-azure-hyperv-(@= stemcell.version @)
         - repack-stemcell-google-kvm-(@= stemcell.version @)
         - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
@@ -1111,7 +1077,6 @@ jobs:
         - repack-stemcell-azure-hyperv-(@= stemcell.version @)
         - repack-stemcell-google-kvm-(@= stemcell.version @)
         - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         resource: version-(@= stemcell.version @)
@@ -1122,7 +1087,6 @@ jobs:
         - repack-stemcell-azure-hyperv-(@= stemcell.version @)
         - repack-stemcell-google-kvm-(@= stemcell.version @)
         - repack-stemcell-openstack-kvm-(@= stemcell.version @)
-        - repack-stemcell-openstack-kvm-raw-(@= stemcell.version @)
         - repack-stemcell-vsphere-esxi-(@= stemcell.version @)
         - repack-stemcell-vcloud-esxi-(@= stemcell.version @)
         trigger: true
@@ -1477,7 +1441,8 @@ jobs:
 #@ end
       get: bosh-agent
       resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
-    - get: version-semver-bosh-agent-(@= stemcell.version @)
+    - get: version-semver
+      resource: version-semver-bosh-agent-(@= stemcell.version @)
       params:
         bump: (@= stemcell.agent_bump_version @)
   - task: assert-version-aligns
@@ -1797,13 +1762,6 @@ resources:
     - high
     - critical
   type: usn
-- name: stemcell-trigger-master
-  source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: master/stemcell-trigger
-  type: s3
 - name: slack-alert
   source:
     url: ((slack_hook_url))
@@ -1853,9 +1811,7 @@ resources:
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: (@= stemcell.version @)/usn-log.json
   type: s3
-#@ end
 
-#@ for stemcell in data.values.stemcells:
 - name: bosh-agent-(@= stemcell.version @)
   type: metalink-repository
   source:
@@ -1870,6 +1826,7 @@ resources:
       options:
         access_key: ((AWS_S3_BUCKET_ACCESS_KEY))
         secret_key: ((AWS_S3_BUCKET_SECRET_KEY))
+
 - name: stemcell-trigger-(@= stemcell.version @)
   source:
     access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
@@ -1894,7 +1851,6 @@ resources:
     region_name: ((AWS_S3_BUCKET_REGION))
     access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
     secret_access_key: ((AWS_S3_BUCKET_SECRET_KEY))
-
 #@ end
 
 - name: bosh-agent-src-develop
