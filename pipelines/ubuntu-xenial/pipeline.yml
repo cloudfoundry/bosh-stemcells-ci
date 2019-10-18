@@ -562,16 +562,17 @@ jobs:
         include_files:
         - "bosh-stemcell-*-openstack-kvm-ubuntu-xenial-go_agent.tgz"
     - get: bosh-stemcells-ci
-  - task: repack-stemcell
-    privileged: true
-    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack.yml
-  - task: repack-stemcell-raw
-    privileged: true
-    file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack-raw.yml
-    input_mapping:
-      stemcell: stemcell-raw
-    output_mapping:
-      repacked-stemcell: repacked-raw-stemcell
+  - in_parallel:
+    - task: repack-stemcell
+      privileged: true
+      file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack.yml
+    - task: repack-stemcell-raw
+      privileged: true
+      file: bosh-stemcells-ci/pipelines/repack-pipeline/repack-stemcell-openstack-raw.yml
+      input_mapping:
+        stemcell: stemcell-raw
+      output_mapping:
+        repacked-stemcell: repacked-raw-stemcell
   - in_parallel:
     - attempts: 3
       params:
