@@ -1,4 +1,5 @@
 #@ load("@ytt:data", "data")
+#@yaml/text-templated-strings
 groups:
 #@ for stemcell in data.values.stemcells:
 - name: build-(@= stemcell.version @)
@@ -65,6 +66,7 @@ groups:
 #@ end
 #@ end
 
+#@yaml/text-templated-strings
 jobs:
 #@ for stemcell in data.values.stemcells:
 - name: manual-trigger-(@= stemcell.version @)
@@ -1503,6 +1505,7 @@ resource_types:
     repository: cfcommunity/slack-notification-resource
     tag: latest
   type: registry-image
+#@yaml/text-templated-strings
 resources:
 #@ for stemcell in data.values.stemcells:
 - name: warden-boshlite-(@= stemcell.version @)
