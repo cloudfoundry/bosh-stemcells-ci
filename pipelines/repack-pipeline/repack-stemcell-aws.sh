@@ -40,7 +40,7 @@ done
 cat version/number | sed 's/\.0$//;s/\.0$//' > version-number/number # For metalink to update the right directory
 
 stemcell=$PWD/stemcell/*.tgz
-stemcell_version=$(cat $PWD/version/version)
+stemcell_version=$(cat $PWD/version-number/number)
 path=$PWD/bosh-linux-stemcell-builder/scripts/repack-helpers
 stemcell_path=$($path/extract-stemcell.sh $stemcell)
 
