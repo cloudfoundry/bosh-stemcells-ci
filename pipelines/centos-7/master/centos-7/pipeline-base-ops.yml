@@ -548,7 +548,7 @@
       access_key_id: ((osimage_aws_access_key))
       bucket: ((osimage_bucket))
       secret_access_key: ((osimage_aws_secret_key))
-      versioned_file: bosh-centos-7-os-image.tgz
+      versioned_file: centos-7.tgz
     type: s3
 - path: /resources/-
   type: replace
