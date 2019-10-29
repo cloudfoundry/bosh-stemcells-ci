@@ -14,6 +14,19 @@ stemcells:
   initial_version: "0.0.0"
   include_alicloud: true
 
+- version: "621.x"
+  bosh_agent_version: "2.268"
+  branch: "ubuntu-xenial/621.x"
+  bump_version: "minor"
+  agent_bump_version: "patch"
+  agent_promote_from: "621.x"
+  agent_metalink_version: '2.268.*'
+  agent_branch: "2.268.x"
+  agent_initial_version: "2.268.0"
+  agent_version_key: "agent-2.268-current-version"
+  initial_version: "621.0.0"
+  include_alicloud: true
+
 - version: "456.x"
   bosh_agent_version: "2.234"
   branch: "ubuntu-xenial/456.x"
