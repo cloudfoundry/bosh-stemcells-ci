@@ -1533,10 +1533,8 @@ jobs:
       tag: version-semver/number
       tag_prefix: v
   - in_parallel:
-#@ if stemcell.version == "master" or stemcell.version == "456.x":
     - task: build-windows
       file: bosh-agent/ci/tasks/build-windows.yml
-#@ end
     - task: build-linux
       file: bosh-agent/ci/tasks/build-linux.yml
     - task: build-linux-ppc64le
@@ -1545,6 +1543,7 @@ jobs:
     params:
       files:
       - compiled-linux-*/*
+      - compiled-windows-amd64/*
       version: version-semver/number
 #@ end
 
