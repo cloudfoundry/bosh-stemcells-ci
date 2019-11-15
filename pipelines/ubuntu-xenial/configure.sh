@@ -16,7 +16,7 @@ pipeline_config=$(mktemp)
 ytt -f "$(dirname $0)" > $pipeline_config
 # ytt -f "$(dirname $0)"
 
-fly -t production set-pipeline \
+fly -t main set-pipeline \
   -p "bosh:stemcells:ubuntu-xenial" \
   -l <(lpass show --notes "concourse:production pipeline:os-images" ) \
   -l <(lpass show --notes "concourse:production pipeline:bosh:stemcells" ) \
