@@ -721,7 +721,7 @@ jobs:
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
           BOSH_os_name: ubuntu-xenial
-          package: ipv4director
+          package: ipv6director
         tags:
         - vsphere-v6.5
         task: test-stemcell-ipv6
