@@ -701,6 +701,7 @@ jobs:
         tags:
         - vsphere-v6.5
         task: teardown
+        attempts: 3
     - do:
       - file: bosh-stemcells-ci/tasks/deploy-director-ipv6.yml
         params:
@@ -725,15 +726,17 @@ jobs:
         tags:
         - vsphere-v6.5
         task: test-stemcell-ipv6
-      ensure:
-        file: bosh-stemcells-ci/tasks/teardown.yml
+    ensure:
+      do:
+      - file: bosh-stemcells-ci/tasks/teardown.yml
         tags:
         - vsphere-v6.5
         task: teardown
-    ensure:
-      params:
-        release: environment
-      put: environment
+        attempts: 3
+      - params:
+          release: environment
+        put: environment
+        attempts: 3
   serial: true
 
 - name: build-warden-boshlite-(@= stemcell.version @)
@@ -1225,17 +1228,17 @@ jobs:
         tags:
         - vsphere-v6.5
         task: run-bats
-      ensure:
-        do:
-        - file: bosh-stemcells-ci/tasks/bats/tasks/destroy-director.yml
-          tags:
-          - vsphere-v6.5
-          task: teardown
     ensure:
       do:
+      - file: bosh-stemcells-ci/tasks/bats/tasks/destroy-director.yml
+        tags:
+        - vsphere-v6.5
+        task: teardown
+        attempts: 3
       - params:
           release: environment
         put: environment
+        attempts: 3
 
 #@ if stemcell.version != "master":
 - name: aggregate-candidate-stemcells-(@= stemcell.version @)
