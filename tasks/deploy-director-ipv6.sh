@@ -21,9 +21,11 @@ export BOSH_second_internal_gw=$(fromEnvironment '.network1IPv6.vCenterGateway')
 export BOSH_second_internal_cidr=$(fromEnvironment '.network1IPv6["vCenterCIDR"]')
 export BOSH_second_internal_ip=$(fromEnvironment '.network1IPv6["staticIP-1"]')
 
-cat > director-creds.yml <<EOF
+if [ ! -f director-creds.yml ]; then
+  cat > director-creds.yml <<EOF
 internal_ip: $BOSH_internal_ip
 EOF
+fi
 
 export bosh_cli=$(realpath bosh-cli/bosh-cli-*)
 chmod +x $bosh_cli
