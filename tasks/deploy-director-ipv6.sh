@@ -39,7 +39,16 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -v director_name=stemcell-smoke-tests-director \
   --vars-env "BOSH" > director.yml
 
+set +e
 $bosh_cli create-env director.yml -l director-creds.yml
+deployed=$?
+mv $HOME/.bosh director-state/
+mv director.yml director-creds.yml director-state.json director-state/
+if [ $deployed -ne 0 ]
+then
+  exit 1
+fi
+set -e
 
 # occasionally we get a race where director process hasn't finished starting
 # before nginx is reachable causing "Cannot talk to director..." messages.
@@ -54,6 +63,3 @@ $bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --ops-file bosh-stemcells-ci/ops-files/ipv6-cc.yml \
           --vars-env "BOSH"
-
-mv $HOME/.bosh director-state/
-mv director.yml director-creds.yml director-state.json director-state/
