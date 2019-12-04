@@ -16,3 +16,7 @@
       range: ((second_internal_cidr))
       reserved: []
     type: manual
+
+- type: replace
+  path: /compilation/network
+  value: "ipv6"
