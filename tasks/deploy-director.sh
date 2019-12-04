@@ -34,8 +34,8 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
 set +e
 $bosh_cli create-env director.yml -l director-creds.yml
 deployed=$?
-mv $HOME/.bosh director-state/
-mv director.yml director-creds.yml director-state.json director-state/
+cp -r $HOME/.bosh director-state/
+cp director.yml director-creds.yml director-state.json director-state/
 if [ $deployed -ne 0 ]
 then
   exit 1
