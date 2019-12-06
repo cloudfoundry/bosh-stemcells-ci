@@ -696,7 +696,6 @@ jobs:
         tags:
         - vsphere-v6.5
         task: test-stemcell
-#@ if stemcell.version == "master":
       ensure:
         file: bosh-stemcells-ci/tasks/teardown.yml
         tags:
@@ -727,7 +726,6 @@ jobs:
         tags:
         - vsphere-v6.5
         task: test-stemcell-ipv6
-#@ end
     ensure:
       do:
       - file: bosh-stemcells-ci/tasks/teardown.yml
