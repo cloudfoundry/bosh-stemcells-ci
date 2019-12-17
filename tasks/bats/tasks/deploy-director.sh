@@ -12,7 +12,7 @@ export BUILD_DIR=$PWD
 vars_file=$(mktemp)
 $BUILD_DIR/bosh-stemcells-ci/tasks/bats/iaas/$BAT_INFRASTRUCTURE/director-vars > $vars_file
 
-mv bosh-cli/bosh-cli-* /usr/local/bin/bosh-cli
+cp bosh-cli/alpha-bosh-cli-* /usr/local/bin/bosh-cli
 chmod +x /usr/local/bin/bosh-cli
 
 mkdir -p director-state

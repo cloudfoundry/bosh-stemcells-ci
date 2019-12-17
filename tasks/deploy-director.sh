@@ -21,8 +21,8 @@ cat > director-creds.yml <<EOF
 internal_ip: $BOSH_internal_ip
 EOF
 
-export bosh_cli=$(realpath bosh-cli/bosh-cli-*)
-chmod +x $bosh_cli
+cp bosh-cli/alpha-bosh-cli-* /usr/local/bin/bosh-cli
+chmod +x /usr/local/bin/bosh-cli
 
 $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/vsphere/cpi.yml \
