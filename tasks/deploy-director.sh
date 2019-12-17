@@ -24,7 +24,7 @@ EOF
 cp bosh-cli/alpha-bosh-cli-* /usr/local/bin/bosh-cli
 chmod +x /usr/local/bin/bosh-cli
 
-$bosh_cli interpolate bosh-deployment/bosh.yml \
+bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/vsphere/cpi.yml \
   -o bosh-deployment/vsphere/resource-pool.yml \
   --vars-store director-creds.yml \
@@ -32,7 +32,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   --vars-env "BOSH" > director.yml
 
 set +e
-$bosh_cli create-env director.yml -l director-creds.yml
+bosh_cli create-env director.yml -l director-creds.yml
 deployed=$?
 cp -r $HOME/.bosh director-state/
 cp director.yml director-creds.yml director-state.json director-state/
@@ -46,11 +46,11 @@ set -e
 # before nginx is reachable causing "Cannot talk to director..." messages.
 sleep 10
 
-export BOSH_ENVIRONMENT=`$bosh_cli int director-creds.yml --path /internal_ip`
-export BOSH_CA_CERT=`$bosh_cli int director-creds.yml --path /director_ssl/ca`
+export BOSH_ENVIRONMENT=`bosh_cli int director-creds.yml --path /internal_ip`
+export BOSH_CA_CERT=`bosh_cli int director-creds.yml --path /director_ssl/ca`
 export BOSH_CLIENT=admin
-export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_password`
+export BOSH_CLIENT_SECRET=`bosh_cli int director-creds.yml --path /admin_password`
 
-$bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
+bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --vars-env "BOSH"
