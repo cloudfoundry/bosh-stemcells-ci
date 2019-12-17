@@ -1831,9 +1831,9 @@ resources:
   type: usn
 - name: bosh-cli
   source:
-    bucket: bosh-cli-artifacts
-    regexp: bosh-cli-([0-9.]+)-linux-amd64
-    region_name: us-east-1
+    regexp: alpha-bosh-cli-(.*)-linux-amd64
+    bucket: ((bosh_cli_aws_s3_alpha_release_bucket))
+    region_name: ((bosh_cli_aws_s3_release_bucket_region))
   type: s3
 - name: environment
   source:
