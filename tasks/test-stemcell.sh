@@ -2,7 +2,7 @@
 
 set -eu
 
-export BOSH_BINARY_PATH=$(realpath bosh-cli/alpha-bosh-cli-*)
+export BOSH_BINARY_PATH=$(realpath bosh-cli/*bosh-cli-*)
 chmod +x $BOSH_BINARY_PATH
 
 export BOSH_ENVIRONMENT=`$BOSH_BINARY_PATH int director-state/director-creds.yml --path /internal_ip`

@@ -2,7 +2,7 @@
 
 set -eu
 
-bosh_cli=$(realpath bosh-cli/alpha-bosh-cli-*)
+bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
 export bosh_cli
 chmod +x "$bosh_cli"
 

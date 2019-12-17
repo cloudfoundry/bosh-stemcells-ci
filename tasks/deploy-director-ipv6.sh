@@ -27,7 +27,7 @@ internal_ip: $BOSH_internal_ip
 EOF
 fi
 
-export bosh_cli=$(realpath bosh-cli/alpha-bosh-cli-*)
+export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
 chmod +x $bosh_cli
 
 $bosh_cli interpolate bosh-deployment/bosh.yml \

@@ -8,7 +8,7 @@ chruby ruby
 mv director-state/* .
 mv director-state/.bosh $HOME/
 
-cp bosh-cli/alpha-bosh-cli-* /usr/local/bin/bosh-cli
-chmod +x /usr/local/bin/bosh-cli
+export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
+chmod +x $bosh_cli
 
-bosh-cli delete-env director.yml -l director-creds.yml
+$bosh_cli delete-env director.yml -l director-creds.yml
