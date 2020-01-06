@@ -12,7 +12,7 @@ FILTER_UNSTARTED=$(jq -rn '"-type:release state:unstarted" | @uri')
 UNSTARTED_STORIES=$(curl -s -X GET -H "X-TrackerToken: $TOKEN" "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/stories?filter=$FILTER_UNSTARTED")
 FIRST_UNSTARTED_STORY=$(echo "$UNSTARTED_STORIES" | jq '.[0].id')
 
-curl -s -X POST "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/stories" \
+curl -X POST "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/stories" \
   -H "X-TrackerToken: $TOKEN" \
   -H "Content-Type: application/json" \
   -d @- << EOF | jq -r '.url'
