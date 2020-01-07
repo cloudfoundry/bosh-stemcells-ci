@@ -989,8 +989,7 @@ jobs:
     trigger: true
   - task: test-unit
     file: bosh-agent/ci/tasks/test-unit.yml
-#@ end
-#@ for stemcell in data.values.stemcells:
+
 - name: test-integration-bosh-agent-(@= stemcell.version @)
   public: false
   plan:
@@ -1012,8 +1011,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ((integration_aws_secret_access_key))
         AWS_REGION: ((integration_aws_region))
         AWS_BUCKET: ((integration_aws_bucket))
-#@ end
-#@ for stemcell in data.values.stemcells:
+
 #@ if stemcell.version != "97.x" and stemcell.version != "170.x":
 - name: bosh-integration-tests-bosh-agent-(@= stemcell.version @)
   public: true
@@ -1042,8 +1040,7 @@ jobs:
       SKIP_RUN_SCRIPT_ENV: true
 #@ end
 #@ end
-#@ end
-#@ for stemcell in data.values.stemcells:
+
 - name: promote-bosh-agent-(@= stemcell.version @)
   public: true
   serial: true
@@ -1101,9 +1098,7 @@ jobs:
       - compiled-linux-*/*
       - compiled-windows-amd64/*
       version: version-semver/number
-#@ end
 
-#@ for stemcell in data.values.stemcells:
 - name: bump-bosh-agent-(@= stemcell.version @)
   plan:
   - get: bosh-agent
