@@ -1332,9 +1332,7 @@ resources:
 
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   source:
-    #@ if stemcell.version != "master":
-    branch: ubuntu-xenial/(@= stemcell.version @)
-    #@ end
+    branch: (@= stemcell.branch @)
     private_key: ((bosh_src_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
