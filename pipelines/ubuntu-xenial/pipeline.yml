@@ -1090,8 +1090,6 @@ jobs:
       file: bosh-agent/ci/tasks/build-windows.yml
     - task: build-linux
       file: bosh-agent/ci/tasks/build-linux.yml
-    - task: build-linux-ppc64le
-      file: bosh-agent/ci/tasks/build-linux-ppc64le.yml
   - put: bosh-agent-(@= stemcell.version @)
     params:
       files:
