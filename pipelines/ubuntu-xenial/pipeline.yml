@@ -55,7 +55,6 @@ groups:
 #@ end
 #@ end
 
-#@yaml/text-templated-strings
 jobs:
 #@ for stemcell in data.values.stemcells:
 - name: manual-trigger-(@= stemcell.version @)
@@ -1053,8 +1052,7 @@ jobs:
 #@ if stemcell.version == "170.x" or stemcell.version == "97.x":
       - test-unit-bosh-agent-(@= stemcell.version @)
       - test-integration-bosh-agent-(@= stemcell.version @)
-#@ end
-#@ if stemcell.version != "97.x" and stemcell.version != "170.x":
+#@ else:
       - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
 #@ end
 #@ if stemcell.version == "master":
@@ -1144,7 +1142,6 @@ resource_types:
     repository: cfcommunity/slack-notification-resource
     tag: latest
   type: registry-image
-#@yaml/text-templated-strings
 resources:
 #@ for stemcell in data.values.stemcells:
 - name: warden-boshlite-(@= stemcell.version @)
