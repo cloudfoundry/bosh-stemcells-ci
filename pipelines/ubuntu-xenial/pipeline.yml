@@ -7,7 +7,6 @@ groups:
   - build-stemcell-(@= stemcell.version @)
   - test-unit-(@= stemcell.version @)
   - build-os-image-(@= stemcell.version @)
-  - stemcell-trigger-start-(@= stemcell.version @)
   - build-vcloud-esxi-(@= stemcell.version @)
   - build-vsphere-esxi-(@= stemcell.version @)
   - build-openstack-kvm-(@= stemcell.version @)
@@ -39,11 +38,6 @@ groups:
   - windows-test-integration-2012R2-bosh-agent-(@= stemcell.version @)
 #@ end
 #@ end
-- name: manual-triggers
-  jobs:
-#@ for stemcell in data.values.stemcells:
-  - manual-trigger-(@= stemcell.version @)
-#@ end
 - name: automatic-triggers
   jobs:
 #@ for stemcell in data.values.stemcells:
@@ -57,17 +51,6 @@ groups:
 
 jobs:
 #@ for stemcell in data.values.stemcells:
-- name: manual-trigger-(@= stemcell.version @)
-  plan:
-  - get: bosh-stemcells-ci
-  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
-    params:
-      MESSAGE_PREFIX: Manual bump
-    task: write-message
-  - params:
-      file: message/message.txt
-    put: stemcell-trigger-(@= stemcell.version @)
-
 - name: create-story-(@= stemcell.version @)
   plan:
   - in_parallel:
@@ -94,13 +77,6 @@ jobs:
   - params:
       file: message/message.txt
     put: stemcell-trigger-(@= stemcell.version @)
-
-- name: stemcell-trigger-start-(@= stemcell.version @)
-  plan:
-  - in_parallel:
-    - get: usn-log-(@= stemcell.version @)
-    - get: stemcell-trigger-(@= stemcell.version @)
-      trigger: true
 
 - name: create-story-usn-(@= stemcell.version @)
   serial_groups: [log-cves-(@= stemcell.version @)]
@@ -169,11 +145,7 @@ jobs:
       bump: "major"
     resource: os-image-version-(@= stemcell.version @)
   - get: usn-log-(@= stemcell.version @)
-    passed:
-    - stemcell-trigger-start-(@= stemcell.version @)
   - get: stemcell-trigger-(@= stemcell.version @)
-    passed:
-    - stemcell-trigger-start-(@= stemcell.version @)
     trigger: true
   - file: bosh-stemcells-ci/tasks/os-images/build.yml
     params:
