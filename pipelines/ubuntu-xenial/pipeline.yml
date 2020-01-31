@@ -173,6 +173,7 @@ jobs:
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    trigger: true
     passed:
     - build-os-image-(@= stemcell.version @)
   - get: stemcell-trigger-(@= stemcell.version @)
