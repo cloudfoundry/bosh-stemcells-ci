@@ -49,6 +49,7 @@ groups:
 #@ end
 #@ end
 
+#@yaml/text-templated-strings
 jobs:
 #@ for stemcell in data.values.stemcells:
 - name: create-story-(@= stemcell.version @)
@@ -1115,6 +1116,8 @@ resource_types:
     repository: cfcommunity/slack-notification-resource
     tag: latest
   type: registry-image
+
+#@yaml/text-templated-strings
 resources:
 #@ for stemcell in data.values.stemcells:
 - name: warden-boshlite-(@= stemcell.version @)
