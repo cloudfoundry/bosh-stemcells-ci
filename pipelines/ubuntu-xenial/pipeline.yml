@@ -19,23 +19,25 @@ groups:
   - build-warden-boshlite-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)
-#@ if stemcell.version != "master":
+#@ if stemcell.branch != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
-- name: agent-(@= stemcell.version @)
-  jobs:
-  - test-unit-bosh-agent-(@= stemcell.version @)
-  - test-integration-bosh-agent-(@= stemcell.version @)
-  - promote-bosh-agent-(@= stemcell.version @)
-  - bump-bosh-agent-(@= stemcell.version @)
-#@ if stemcell.version != "97.x" and stemcell.version != "170.x":
-  - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
 #@ end
-#@ if stemcell.version == "master":
-  - bump-deps-bosh-agent-(@= stemcell.version @)
-  - windows-test-unit-bosh-agent-(@= stemcell.version @)
-  - windows-test-integration-2019-bosh-agent-(@= stemcell.version @)
-  - windows-test-integration-2012R2-bosh-agent-(@= stemcell.version @)
+#@ for agent in data.values.agents:
+- name: agent-(@= agent.agent_promote_to @)
+  jobs:
+  - test-unit-bosh-agent-(@= agent.agent_promote_to @)
+  - test-integration-bosh-agent-(@= agent.agent_promote_to @)
+  - promote-bosh-agent-(@= agent.agent_promote_to @)
+  - bump-bosh-agent-(@= agent.agent_promote_to @)
+#@ if agent.agent_promote_to != "97.x" and agent.agent_promote_to != "170.x":
+  - bosh-integration-tests-bosh-agent-(@= agent.agent_promote_to @)
+#@ end
+#@ if agent.agent_promote_to == "master":
+  - bump-deps-bosh-agent-(@= agent.agent_promote_to @)
+  - windows-test-unit-bosh-agent-(@= agent.agent_promote_to @)
+  - windows-test-integration-2019-bosh-agent-(@= agent.agent_promote_to @)
+  - windows-test-integration-2012R2-bosh-agent-(@= agent.agent_promote_to @)
 #@ end
 #@ end
 - name: automatic-triggers
@@ -44,9 +46,9 @@ groups:
   - create-story-(@= stemcell.version @)
   - create-story-usn-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
-#@ if stemcell.version == "master":
-  - notify-of-usn
 #@ end
+#@ for os in data.values.os:
+  - notify-of-usn-(@= os.id @)
 #@ end
 
 #@yaml/text-templated-strings
@@ -62,11 +64,7 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
   - file: bosh-stemcells-ci/tasks/create-story.yml
     params:
-      #@ if stemcell.version == "master":
-      BRANCH: ubuntu-xenial/(@= stemcell.branch @)
-      #@ else:
-      BRANCH: (@= stemcell.branch @)
-      #@ end
+      BRANCH: (@= stemcell.os_name @)/(@= stemcell.version @)
       DESCRIPTION: periodic bump
       PROJECT_ID: ((story_creator_tracker_project_id))
       TOKEN: ((story_creator_tracker_token))
@@ -86,18 +84,18 @@ jobs:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-    - get: xenial-usn
+    - get: (@= stemcell.os @)-usn
       trigger: true
     - get: usn-log-(@= stemcell.version @)
   - file: bosh-stemcells-ci/tasks/write-usn-message.yml
     input_mapping:
       usn-log-in: usn-log-(@= stemcell.version @)
-      usn-source: xenial-usn
+      usn-source: (@= stemcell.os @)-usn
     task: commit-usn-information
   - file: bosh-stemcells-ci/tasks/create-story.yml
     params:
       #@ if stemcell.version == "master":
-      BRANCH: ubuntu-xenial/(@= stemcell.branch @)
+      BRANCH: ubuntu-(@= stemcell.os @)/(@= stemcell.branch @)
       #@ else:
       BRANCH: (@= stemcell.branch @)
       #@ end
@@ -122,13 +120,13 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-stemcells-ci
-    - get: xenial-usn-low-medium
+    - get: (@= stemcell.os @)-usn-low-medium
       trigger: true
     - get: usn-log-(@= stemcell.version @)
   - task: commit-usn-information
     file: bosh-stemcells-ci/tasks/write-usn-message.yml
     input_mapping:
-      usn-source: xenial-usn-low-medium
+      usn-source: (@= stemcell.os @)-usn-low-medium
       usn-log-in: usn-log-(@= stemcell.version @)
   - put: usn-log-(@= stemcell.version @)
     params:
@@ -151,14 +149,14 @@ jobs:
   - file: bosh-stemcells-ci/tasks/os-images/build.yml
     params:
       OPERATING_SYSTEM_NAME: ubuntu
-      OPERATING_SYSTEM_VERSION: xenial
+      OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
     privileged: true
     task: build
   - params:
       files:
-      - os-image/ubuntu-xenial.tgz
+      - os-image/ubuntu-(@= stemcell.os @).tgz
       - usn-log-(@= stemcell.version @)/usn-log.json
-      rename: ubuntu-xenial.meta4
+      rename: ubuntu-(@= stemcell.os @).meta4
       options:
         author_email: ci@localhost
         author_name: CI Bot
@@ -266,7 +264,7 @@ jobs:
       - attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
-          BOSH_os_name: ubuntu-xenial
+          BOSH_os_name: ubuntu-(@= stemcell.os @)
           package: ipv4director
         tags:
         - vsphere-v6.5
@@ -296,7 +294,7 @@ jobs:
       - attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
-          BOSH_os_name: ubuntu-xenial
+          BOSH_os_name: ubuntu-(@= stemcell.os @)
           package: ipv6director
         tags:
         - vsphere-v6.5
@@ -342,7 +340,7 @@ jobs:
       HYPERVISOR: boshlite
       IAAS: warden
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -355,7 +353,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: warden-boshlite-(@= stemcell.version @)
 
@@ -387,7 +385,7 @@ jobs:
       HYPERVISOR: xen-hvm
       IAAS: aws
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -400,7 +398,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: aws-xen-hvm-(@= stemcell.version @)
 
@@ -432,7 +430,7 @@ jobs:
       HYPERVISOR: hyperv
       IAAS: azure
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -445,7 +443,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: azure-hyperv-(@= stemcell.version @)
 
@@ -477,7 +475,7 @@ jobs:
       HYPERVISOR: kvm
       IAAS: google
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -490,7 +488,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: google-kvm-(@= stemcell.version @)
 
@@ -522,7 +520,7 @@ jobs:
       HYPERVISOR: kvm
       IAAS: openstack
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -535,7 +533,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: openstack-kvm-(@= stemcell.version @)
 
@@ -567,7 +565,7 @@ jobs:
       HYPERVISOR: esxi
       IAAS: vsphere
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -580,7 +578,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: vsphere-esxi-(@= stemcell.version @)
 
@@ -612,7 +610,7 @@ jobs:
       HYPERVISOR: esxi
       IAAS: vcloud
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -625,7 +623,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: vcloud-esxi-(@= stemcell.version @)
 
@@ -658,7 +656,7 @@ jobs:
       HYPERVISOR: kvm
       IAAS: alicloud
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
@@ -671,7 +669,7 @@ jobs:
         options:
           author_email: ci@localhost
           author_name: CI Bot
-          message: 'dev: ubuntu-xenial'
+          message: 'dev: ubuntu-(@= stemcell.os @)'
         version: candidate-build-number/number
       put: alicloud-kvm-(@= stemcell.version @)
 #@ end
@@ -748,7 +746,7 @@ jobs:
         task: deploy-director
       - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
         params:
-          STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-xenial-go_agent
+          STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent
         tags:
         - vsphere-v6.5
         task: prepare-bats
@@ -768,7 +766,7 @@ jobs:
         put: environment
         attempts: 3
 
-#@ if stemcell.version != "master":
+#@ if stemcell.branch != "master":
 - name: aggregate-candidate-stemcells-(@= stemcell.version @)
   serial: true
   plan:
@@ -798,18 +796,18 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
       COMMIT_PREFIX: candidate
       COPY_KEYS: |
-        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
-        google/bosh-stemcell-%s-google-kvm-ubuntu-xenial-go_agent.tgz
-        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent.tgz
-        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
-        warden/bosh-stemcell-%s-warden-boshlite-ubuntu-xenial-go_agent.tgz
-        vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-xenial-go_agent.tgz
-        vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-xenial-go_agent.tgz
-        azure/bosh-stemcell-%s-azure-hyperv-ubuntu-xenial-go_agent.tgz
+        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        google/bosh-stemcell-%s-google-kvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-(@= stemcell.os @)-go_agent-raw.tgz
+        warden/bosh-stemcell-%s-warden-boshlite-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        azure/bosh-stemcell-%s-azure-hyperv-ubuntu-(@= stemcell.os @)-go_agent.tgz
       FROM_BUCKET_NAME: bosh-core-stemcells-candidate
       FROM_INDEX: dev
       OS_NAME: ubuntu
-      OS_VERSION: xenial
+      OS_VERSION: (@= stemcell.os @)
       TO_BUCKET_NAME: bosh-core-stemcells-candidate
       TO_INDEX: candidate
     task: copy-artifacts
@@ -825,9 +823,11 @@ jobs:
       put: stemcells-index
 #@ end
 #@ end
-- name: notify-of-usn
+
+#@ for os in data.values.os:
+- name: notify-of-usn-(@= os.id @)
   plan:
-  - get: xenial-usn
+  - get: (@= os.id @)-usn
     trigger: true
   - config:
       image_resource:
@@ -835,7 +835,7 @@ jobs:
           repository: bosh/main
         type: registry-image
       inputs:
-      - name: xenial-usn
+      - name: (@= os.id @)-usn
       outputs:
       - name: slack-message
       platform: linux
@@ -861,8 +861,8 @@ jobs:
             }
           }
           EOF
-          cat xenial-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
-          cat xenial-usn/usn.json | jq -r '"New USN for Xenial: *<\(.url)|\(.title)>*"' | tee slack-message/message
+          cat (@= os.id @)-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
+          cat (@= os.id @)-usn/usn.json | jq -r '"New USN for (@= os.id @): *<\(.url)|\(.title)>*"' | tee slack-message/message
         path: /bin/bash
     task: build-slack-message
   - params:
@@ -871,6 +871,7 @@ jobs:
       icon_url: https://i.imgur.com/A0Vlw5t.png
       text_file: slack-message/message
     put: slack-alert
+#@ end
 
 - name: bump-deps-bosh-agent-master
   public: true
@@ -955,22 +956,22 @@ jobs:
       WINRM_PASSWORD: ((WINRM_PASSWORD))
       WINDOWS_OS_VERSION: 2012R2
 
-#@ for stemcell in data.values.stemcells:
-- name: test-unit-bosh-agent-(@= stemcell.version @)
+#@ for agent in data.values.agents:
+- name: test-unit-bosh-agent-(@= agent.agent_promote_to @)
   public: true
   plan:
   - get: bosh-agent
-    resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+    resource: bosh-agent-src-(@= agent.agent_promote_from @)
     trigger: true
   - task: test-unit
     file: bosh-agent/ci/tasks/test-unit.yml
 
-- name: test-integration-bosh-agent-(@= stemcell.version @)
+- name: test-integration-bosh-agent-(@= agent.agent_promote_to @)
   public: false
   plan:
     - get: bosh-agent
       trigger: true
-      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+      resource: bosh-agent-src-(@= agent.agent_promote_from @)
     - task: test-integration
       privileged: true
       file: bosh-agent/ci/tasks/test-integration.yml
@@ -987,8 +988,8 @@ jobs:
         AWS_REGION: ((integration_aws_region))
         AWS_BUCKET: ((integration_aws_bucket))
 
-#@ if stemcell.version != "97.x" and stemcell.version != "170.x":
-- name: bosh-integration-tests-bosh-agent-(@= stemcell.version @)
+#@ if agent.agent_promote_to != "97.x" and agent.agent_promote_to != "170.x":
+- name: bosh-integration-tests-bosh-agent-(@= agent.agent_promote_to @)
   public: true
   serial: true
   build_logs_to_retain: 250
@@ -997,13 +998,13 @@ jobs:
     - get: bosh-src
     - get: bosh-cli
     - get: bosh-agent
-      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+      resource: bosh-agent-src-(@= agent.agent_promote_from @)
       trigger: true
       passed:
-      - test-unit-bosh-agent-(@= stemcell.version @)
-      - test-integration-bosh-agent-(@= stemcell.version @)
-#@ if stemcell.version == "master":
-      - windows-test-unit-bosh-agent-(@= stemcell.version @)
+      - test-unit-bosh-agent-(@= agent.agent_promote_to @)
+      - test-integration-bosh-agent-(@= agent.agent_promote_to @)
+#@ if agent.agent_promote_to == "master":
+      - windows-test-unit-bosh-agent-(@= agent.agent_promote_to @)
 #@ end
   - task: tests
     privileged: true
@@ -1011,49 +1012,49 @@ jobs:
     tags: ["bosh-integration"]
     params:
       DB: postgresql
-#@ if stemcell.version == "250.x":
+#@ if agent.agent_promote_to == "250.x":
       SKIP_RUN_SCRIPT_ENV: true
 #@ end
 #@ end
 
-- name: promote-bosh-agent-(@= stemcell.version @)
+- name: promote-bosh-agent-(@= agent.agent_promote_to @)
   public: true
   serial: true
   plan:
   - in_parallel:
     - trigger: true
       passed:
-#@ if stemcell.version == "170.x" or stemcell.version == "97.x":
-      - test-unit-bosh-agent-(@= stemcell.version @)
-      - test-integration-bosh-agent-(@= stemcell.version @)
+#@ if agent.agent_promote_to == "170.x" or agent.agent_promote_to == "97.x":
+      - test-unit-bosh-agent-(@= agent.agent_promote_to @)
+      - test-integration-bosh-agent-(@= agent.agent_promote_to @)
 #@ else:
-      - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
+      - bosh-integration-tests-bosh-agent-(@= agent.agent_promote_to @)
 #@ end
-#@ if stemcell.version == "master":
-      - windows-test-integration-2019-bosh-agent-(@= stemcell.version @)
-      - windows-test-integration-2012R2-bosh-agent-(@= stemcell.version @)
+#@ if agent.agent_promote_to == "master":
+      - windows-test-integration-2019-bosh-agent-(@= agent.agent_promote_to @)
+      - windows-test-integration-2012R2-bosh-agent-(@= agent.agent_promote_to @)
 #@ end
       get: bosh-agent
-      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+      resource: bosh-agent-src-(@= agent.agent_promote_from @)
     - get: version-semver
-      resource: version-semver-bosh-agent-(@= stemcell.version @)
+      resource: version-semver-bosh-agent-(@= agent.agent_promote_to @)
       params:
-        bump: (@= stemcell.agent_bump_version @)
+        bump: (@= agent.agent_bump_version @)
   - task: assert-version-aligns
     file: bosh-agent/ci/tasks/assert-version-aligns.yml
-  - put: version-semver-bosh-agent-(@= stemcell.version @)
+  - put: version-semver-bosh-agent-(@= agent.agent_promote_to @)
     params:
       file: version-semver/number
-#@ if stemcell.version == "master":
+#@ if agent.agent_promote_to == "master":
   - put: bosh-agent-commit-status
-    resource: bosh-agent-commit-status-bosh-agent-(@= stemcell.version @)
+    resource: bosh-agent-commit-status-bosh-agent-(@= agent.agent_promote_to @)
     params:
       state: success
       commit: bosh-agent
 #@ end
-  - put: bosh-agent-src-(@= stemcell.version @)
+  - put: bosh-agent-src-(@= agent.agent_promote_to @)
     params:
-#@ if stemcell.version != "master":
+#@ if agent.agent_promote_to != "master":
       only_tag: true
 #@ end
       repository: bosh-agent
@@ -1064,32 +1065,33 @@ jobs:
       file: bosh-agent/ci/tasks/build-windows.yml
     - task: build-linux
       file: bosh-agent/ci/tasks/build-linux.yml
-  - put: bosh-agent-(@= stemcell.version @)
+  - put: bosh-agent-(@= agent.agent_promote_to @)
     params:
       files:
       - compiled-linux-*/*
       - compiled-windows-amd64/*
       version: version-semver/number
 
-- name: bump-bosh-agent-(@= stemcell.version @)
+- name: bump-bosh-agent-(@= agent.agent_promote_to @)
   plan:
   - get: bosh-agent
     params:
       skip_download: true
-    resource: bosh-agent-(@= stemcell.version @)
+    resource: bosh-agent-(@= agent.agent_promote_to @)
     passed:
-    - promote-bosh-agent-(@= stemcell.version @)
+    - promote-bosh-agent-(@= agent.agent_promote_to @)
     trigger: true
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
-    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    resource: bosh-linux-stemcell-builder-(@= agent.agent_promote_to @)
   - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
     task: bump
   - params:
       rebase: true
       repository: bosh-linux-stemcell-builder
-    put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+    put: bosh-linux-stemcell-builder-push-(@= agent.agent_promote_to @)
   serial: true
+
 #@ end
 
 resource_types:
@@ -1128,7 +1130,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/warden-boshlite-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1146,7 +1148,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/aws-xen-hvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1165,7 +1167,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/alicloud-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1184,7 +1186,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/azure-hyperv-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1202,7 +1204,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/openstack-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1220,7 +1222,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/google-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1238,7 +1240,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/vsphere-esxi-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1256,7 +1258,7 @@ resources:
       private_key: ((boshio_stemcells_index_key))
     filters:
     - repositorypath: "*/vcloud-esxi-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-xenial/
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/ubuntu-(@= stemcell.os @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1273,7 +1275,7 @@ resources:
     options:
       private_key: ((bosh_src_key))
     filters:
-    - repositorypath: "ubuntu-xenial.meta4"
+    - repositorypath: "ubuntu-(@= stemcell.os @).meta4"
     uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/#(@= stemcell.branch @)
     url_handlers:
     - include:
@@ -1290,7 +1292,7 @@ resources:
     bucket: ((candidate_stemcell_bucket))
     driver: s3
     initial_version: (@= stemcell.initial_version @)
-    key: bosh-stemcell/ubuntu-xenial/(@= stemcell.version @)-version
+    key: bosh-stemcell/ubuntu-(@= stemcell.os @)/(@= stemcell.version @)-version
     secret_access_key: ((stemcell_aws_secret_key))
   type: semver
 - name: os-image-version-(@= stemcell.version @)
@@ -1299,17 +1301,9 @@ resources:
     bucket: ((candidate_stemcell_bucket))
     driver: s3
     initial_version: "0.0.0"
-    key: os-image/ubuntu-xenial/(@= stemcell.version @)-version
+    key: os-image/ubuntu-(@= stemcell.os @)/(@= stemcell.version @)-version
     secret_access_key: ((stemcell_aws_secret_key))
   type: semver
-
-- name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-  source:
-    branch: (@= stemcell.branch @)
-    private_key: ((bosh_src_key))
-    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-
 - name: bosh-linux-stemcell-builder-(@= stemcell.version @)
   source:
     branch: (@= stemcell.branch @)
@@ -1330,11 +1324,28 @@ resources:
     versioned_file: (@= stemcell.version @)/usn-log.json
   type: s3
 
-- name: bosh-agent-(@= stemcell.version @)
+- name: stemcell-trigger-(@= stemcell.version @)
+  source:
+    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+    bucket: bosh-stemcell-triggers
+    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    versioned_file: (@= stemcell.version @)/stemcell-trigger
+  type: s3
+#@ end
+
+#@ for agent in data.values.agents:
+- name: bosh-linux-stemcell-builder-push-(@= agent.agent_promote_to @)
+  source:
+    branch: (@= agent.stemcell_branch @)
+    private_key: ((bosh_src_key))
+    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
+  type: git
+
+- name: bosh-agent-(@= agent.agent_promote_to @)
   type: metalink-repository
   source:
     uri: git+ssh://git@github.com:cloudfoundry/bosh-agent-index.git//
-    version: (@= stemcell.agent_metalink_version @)
+    version: (@= agent.agent_metalink_version @)
     mirror_files:
     - destination: s3://s3-external-1.amazonaws.com/((RELEASE_BUCKET_AGENT))/{{.Name}}
     options:
@@ -1345,26 +1356,18 @@ resources:
         access_key: ((AWS_S3_BUCKET_ACCESS_KEY))
         secret_key: ((AWS_S3_BUCKET_SECRET_KEY))
 
-- name: stemcell-trigger-(@= stemcell.version @)
-  source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: (@= stemcell.version @)/stemcell-trigger
-  type: s3
-
-- name: bosh-agent-src-(@= stemcell.version @)
+- name: bosh-agent-src-(@= agent.agent_promote_to @)
   type: git
   source:
     uri: git@github.com:cloudfoundry/bosh-agent.git
-    branch: (@= stemcell.agent_branch @)
+    branch: (@= agent.agent_branch @)
     private_key: ((BOSH_GITHUB_DEPLOYMENT_KEY))
 
-- name: version-semver-bosh-agent-(@= stemcell.version @)
+- name: version-semver-bosh-agent-(@= agent.agent_promote_to @)
   type: semver
   source:
-    initial_version: (@= stemcell.agent_initial_version @)
-    key: (@= stemcell.agent_version_key @)
+    initial_version: (@= agent.agent_initial_version @)
+    key: (@= agent.agent_version_key @)
     bucket: ((SEMVER_BUCKET))
     region_name: ((AWS_S3_BUCKET_REGION))
     access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
@@ -1400,13 +1403,15 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment
   type: git
-- name: xenial-usn-low-medium
+#@ for os in data.values.os:
+- name: (@= os.id @)-usn-low-medium
   source:
-    os: ubuntu-16.04-lts
+    os: (@= os.usn @)
     priorities:
     - low
     - medium
   type: usn
+#@ end
 - name: bosh-cli
   source:
     regexp: alpha-bosh-cli-(.*)-linux-amd64
@@ -1429,13 +1434,15 @@ resources:
     start: "6:00"
     stop: "8:30"
   type: time
-- name: xenial-usn
+#@ for os in data.values.os:
+- name: (@= os.id @)-usn
   source:
-    os: ubuntu-16.04-lts
+    os: (@= os.usn @)
     priorities:
     - high
     - critical
   type: usn
+#@ end
 - name: slack-alert
   source:
     url: ((slack_hook_url))
