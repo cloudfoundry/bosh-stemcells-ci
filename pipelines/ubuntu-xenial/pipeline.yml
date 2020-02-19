@@ -146,12 +146,25 @@ jobs:
   - get: usn-log-(@= stemcell.version @)
   - get: stemcell-trigger-(@= stemcell.version @)
     trigger: true
-  - file: bosh-stemcells-ci/tasks/os-images/build.yml
-    params:
-      OPERATING_SYSTEM_NAME: ubuntu
-      OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
+  - task: build
     privileged: true
-    task: build
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          tag: (@= stemcell.image_builder_tag @)
+          repository: bosh/os-image-stemcell-builder
+      inputs:
+        - name: bosh-linux-stemcell-builder
+        - name: bosh-stemcells-ci
+      outputs:
+      - name: os-image
+      run:
+        path: bosh-stemcells-ci/tasks/os-images/build.sh
+      params:
+        OPERATING_SYSTEM_NAME: ubuntu
+        OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
   - params:
       files:
       - os-image/ubuntu-(@= stemcell.os @).tgz

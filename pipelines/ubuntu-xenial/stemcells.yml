@@ -81,6 +81,7 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
+  image_builder_tag: latest
 
 - version: "bionic-master"
   bosh_agent_version: "*"
@@ -90,6 +91,7 @@ stemcells:
   include_alicloud: true
   os: bionic
   os_name: ubuntu-bionic
+  image_builder_tag: bionic
 
 - version: "621.x"
   bosh_agent_version: "2.268"
@@ -99,6 +101,7 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
+  image_builder_tag: latest
 
 - version: "456.x"
   bosh_agent_version: "2.234"
@@ -108,6 +111,7 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
+  image_builder_tag: latest
 
 - version: "315.x"
   bosh_agent_version: "2.215"
@@ -117,6 +121,7 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
+  image_builder_tag: latest
 
 - version: "250.x"
   bosh_agent_version: "2.193"
@@ -126,6 +131,7 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
+  image_builder_tag: latest
 
 - version: "170.x"
   bosh_agent_version: "2.160"
@@ -135,6 +141,7 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
+  image_builder_tag: latest
 
 - version: "97.x"
   bosh_agent_version: "2.117"
@@ -144,3 +151,4 @@ stemcells:
   include_alicloud: false
   os: xenial
   os_name: ubuntu-xenial
+  image_builder_tag: latest
