@@ -8,6 +8,39 @@ os:
   name: ubuntu-bionic
   usn: ubuntu-18.04-lts
 
+agent_to_stemcells:
+- name: "master"
+  agent_resource: "master"
+  stemcell_branch: master
+
+- name: "bionic-master"
+  agent_resource: "master"
+  stemcell_branch: ubuntu-bionic/master
+
+- name: "621.x"
+  agent_resource: "621.x"
+  stemcell_branch: ubuntu-xenial/621.x
+
+- name: "456.x"
+  agent_resource: "456.x"
+  stemcell_branch: ubuntu-xenial/456.x
+
+- name: "315.x"
+  agent_resource: "315.x"
+  stemcell_branch: ubuntu-xenial/315.x
+
+- name: "250.x"
+  agent_resource: "250.x"
+  stemcell_branch: ubuntu-xenial/250.x
+
+- name: "170.x"
+  agent_resource: "170.x"
+  stemcell_branch: ubuntu-xenial/170.x
+
+- name: "97.x"
+  agent_resource: "97.x"
+  stemcell_branch: ubuntu-xenial/97.x
+
 agents:
 - agent_bump_version: "minor"
   agent_promote_from: "develop"
@@ -85,7 +118,7 @@ stemcells:
 
 - version: "bionic-master"
   bosh_agent_version: "*"
-  branch: "master"
+  branch: "ubuntu-bionic/master"
   bump_version: "major"
   initial_version: "0.0.0"
   include_alicloud: true

@@ -19,9 +19,14 @@ groups:
   - build-warden-boshlite-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)
-#@ if stemcell.branch != "master":
+#@ if stemcell.branch != "master" and stemcell.branch != "ubuntu-bionic/master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
+#@ end
+- name: bump-agents
+  jobs:
+#@ for mapping in data.values.agent_to_stemcells:
+  - bump-bosh-agent-(@= mapping.name @)
 #@ end
 #@ for agent in data.values.agents:
 - name: agent-(@= agent.agent_promote_to @)
@@ -29,7 +34,6 @@ groups:
   - test-unit-bosh-agent-(@= agent.agent_promote_to @)
   - test-integration-bosh-agent-(@= agent.agent_promote_to @)
   - promote-bosh-agent-(@= agent.agent_promote_to @)
-  - bump-bosh-agent-(@= agent.agent_promote_to @)
 #@ if agent.agent_promote_to != "97.x" and agent.agent_promote_to != "170.x":
   - bosh-integration-tests-bosh-agent-(@= agent.agent_promote_to @)
 #@ end
@@ -779,7 +783,7 @@ jobs:
         put: environment
         attempts: 3
 
-#@ if stemcell.branch != "master":
+#@ if stemcell.branch != "master" and stemcell.branch != "ubuntu-bionic/master":
 - name: aggregate-candidate-stemcells-(@= stemcell.version @)
   serial: true
   plan:
@@ -1084,27 +1088,28 @@ jobs:
       - compiled-linux-*/*
       - compiled-windows-amd64/*
       version: version-semver/number
+#@ end
 
-- name: bump-bosh-agent-(@= agent.agent_promote_to @)
+#@ for mapping in data.values.agent_to_stemcells:
+- name: bump-bosh-agent-(@= mapping.name @)
   plan:
   - get: bosh-agent
     params:
       skip_download: true
-    resource: bosh-agent-(@= agent.agent_promote_to @)
+    resource: bosh-agent-(@= mapping.agent_resource @)
     passed:
-    - promote-bosh-agent-(@= agent.agent_promote_to @)
+    - promote-bosh-agent-(@= mapping.agent_resource @)
     trigger: true
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
-    resource: bosh-linux-stemcell-builder-(@= agent.agent_promote_to @)
+    resource: bosh-linux-stemcell-builder-(@= mapping.name @)
   - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
     task: bump
   - params:
       rebase: true
       repository: bosh-linux-stemcell-builder
-    put: bosh-linux-stemcell-builder-push-(@= agent.agent_promote_to @)
+    put: bosh-linux-stemcell-builder-push-(@= mapping.name @)
   serial: true
-
 #@ end
 
 resource_types:
@@ -1346,13 +1351,17 @@ resources:
   type: s3
 #@ end
 
-#@ for agent in data.values.agents:
-- name: bosh-linux-stemcell-builder-push-(@= agent.agent_promote_to @)
+#@ for mapping in data.values.agent_to_stemcells:
+- name: bosh-linux-stemcell-builder-push-(@= mapping.name @)
   source:
-    branch: (@= agent.stemcell_branch @)
+    branch: (@= mapping.stemcell_branch @)
     private_key: ((bosh_src_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
+
+#@ end
+
+#@ for agent in data.values.agents:
 
 - name: bosh-agent-(@= agent.agent_promote_to @)
   type: metalink-repository
