@@ -55,7 +55,7 @@ jobs:
 - name: create-story-(@= stemcell.version @)
   plan:
   - in_parallel:
-    - get: every-2-weeks-on-monday
+    - get: every-3-weeks-on-monday
       trigger: true
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
@@ -1420,11 +1420,11 @@ resources:
     private_key: ((github_deployment_key__bosh-cpi-environments))
     uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
   type: pool
-- name: every-2-weeks-on-monday
+- name: every-3-weeks-on-monday
   source:
     days:
     - Monday
-    interval: 192h
+    interval: 499h
     location: America/Los_Angeles
     start: "6:00"
     stop: "8:30"
