@@ -293,7 +293,7 @@ jobs:
         tags:
         - vsphere-v6.5
         task: deploy-director-ipv6
-      - attempts: 3
+      - attempts: 6
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
           BOSH_os_name: ubuntu-xenial
