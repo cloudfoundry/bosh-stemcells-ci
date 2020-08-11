@@ -22,6 +22,7 @@ fly -t main set-pipeline \
   -l <(lpass show --notes "concourse:production pipeline:bosh:stemcells" ) \
   -l <(lpass show --notes "bosh-agent concourse secrets" ) \
   -l <(lpass show --notes "bats-concourse-pool:vsphere secrets" ) \
+  -l <(lpass show --notes "bats-concourse-pool:vsphere nimbus secrets" ) \
   -l <(lpass show --notes "stemcell-reminder-bot") \
   -c "$pipeline_config"
 

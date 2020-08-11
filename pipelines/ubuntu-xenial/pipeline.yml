@@ -1,6 +1,9 @@
 #@ load("@ytt:data", "data")
 #@yaml/text-templated-strings
 groups:
+- name: nimbus
+  jobs:
+    - nimbus-test-stemcells-master
 #@ for stemcell in data.values.stemcells:
 - name: build-(@= stemcell.version @)
   jobs:
@@ -206,6 +209,79 @@ jobs:
     put: version-(@= stemcell.version @)
   serial: true
 
+#@ if stemcell.version == "master":
+- name: nimbus-test-stemcells-(@= stemcell.version @)
+  plan:
+    - do:
+        - in_parallel:
+            - get: version
+              passed:
+                - build-warden-boshlite-(@= stemcell.version @)
+                - build-aws-xen-hvm-(@= stemcell.version @)
+                - build-azure-hyperv-(@= stemcell.version @)
+                - build-google-kvm-(@= stemcell.version @)
+                - build-openstack-kvm-(@= stemcell.version @)
+                - build-vsphere-esxi-(@= stemcell.version @)
+                - build-vcloud-esxi-(@= stemcell.version @)
+              resource: version-(@= stemcell.version @)
+              trigger: true
+            - get: bosh-stemcells-ci
+            - get: bosh-linux-stemcell-builder
+              resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+            - get: bosh-deployment
+            - get: bosh-cli
+            - get: syslog-release
+            - get: os-conf-release
+            - get: stemcell
+              passed:
+                - build-vsphere-esxi-(@= stemcell.version @)
+              resource: vsphere-esxi-(@= stemcell.version @)
+              tags:
+                - nimbus
+            - get: stemcell-trigger-(@= stemcell.version @)
+              passed:
+                - build-warden-boshlite-(@= stemcell.version @)
+                - build-aws-xen-hvm-(@= stemcell.version @)
+                - build-azure-hyperv-(@= stemcell.version @)
+                - build-google-kvm-(@= stemcell.version @)
+                - build-openstack-kvm-(@= stemcell.version @)
+                - build-vsphere-esxi-(@= stemcell.version @)
+                - build-vcloud-esxi-(@= stemcell.version @)
+              trigger: true
+        - params:
+            acquire: true
+          put: environment
+          resource: nimbus-environment
+        - do:
+            - task: deploy-director
+              file: bosh-stemcells-ci/tasks/deploy-director.yml
+              params:
+                BOSH_vcenter_cluster: ((nimbus-cluster))
+                BOSH_vcenter_dc: ((nimbus-dc))
+                BOSH_vcenter_disks: ((vcenter-disk-path))
+                BOSH_vcenter_ds: ((nimbus-datastore))
+                BOSH_vcenter_ip: ((nimbus-ip))
+                BOSH_vcenter_password: ((nimbus-password))
+                BOSH_vcenter_rp: ((nimbus-rp))
+                BOSH_vcenter_templates: ((vcenter-template-folder))
+                BOSH_vcenter_user: ((nimbus-user))
+                BOSH_vcenter_vms: ((vcenter-vm-folder))
+                BOSH_internal_ntp: "[10.188.26.119, 10.166.1.120]"
+              tags:
+                - nimbus
+            - put: director-creds
+              params:
+                file: director-state/director-creds.yml
+      ensure:
+        do:
+          - params:
+              release: environment
+            put: environment
+            resource: nimbus-environment
+            attempts: 3
+  serial: true
+#@ end
+
 - name: test-stemcells-(@= stemcell.version @)
   plan:
   - do:
@@ -260,6 +336,7 @@ jobs:
           BOSH_vcenter_templates: ((vcenter-template-folder))
           BOSH_vcenter_user: ((vcenter-user))
           BOSH_vcenter_vms: ((vcenter-vm-folder))
+          BOSH_internal_ntp: "[time1.google.com, time2.google.com]"
         tags:
         - vsphere-v6.5
         task: deploy-director
@@ -743,6 +820,7 @@ jobs:
           BOSH_VSPHERE_VCENTER_VLAN: ((vcenter-vlan))
           BOSH_VSPHERE_VCENTER_VM_FOLDER: ((vcenter-vm-folder))
           BOSH_VSPHERE_VERSION: ((vsphere-version))
+          BOSH_internal_ntp: "[time1.google.com, time2.google.com]"
         tags:
         - vsphere-v6.5
         task: deploy-director
@@ -1116,6 +1194,10 @@ resource_types:
     repository: cfcommunity/slack-notification-resource
     tag: latest
   type: registry-image
+- name: gcs-resource
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
 
 #@yaml/text-templated-strings
 resources:
@@ -1420,6 +1502,19 @@ resources:
     private_key: ((github_deployment_key__bosh-cpi-environments))
     uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
   type: pool
+- name: nimbus-environment
+  source:
+    branch: master
+    pool: nimbus
+    private_key: ((github_deployment_key__bosh-cpi-environments))
+    uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
+  type: pool
+- name: director-creds
+  type: gcs-resource
+  source:
+    bucket: ((deployments_core_bucket_name))
+    json_key: ((gcp_credentials_json))
+    versioned_file: nimbus/director-creds.yml
 - name: every-3-weeks-on-monday
   source:
     days:
