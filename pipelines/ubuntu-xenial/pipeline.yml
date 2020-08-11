@@ -272,8 +272,52 @@ jobs:
             - put: director-creds
               params:
                 file: director-state/director-creds.yml
+
+            - attempts: 3
+              file: bosh-stemcells-ci/tasks/test-stemcell.yml
+              params:
+                BOSH_os_name: ubuntu-xenial
+                package: ipv4director
+              tags:
+                - nimbus
+              task: test-stemcell
+          ensure:
+            file: bosh-stemcells-ci/tasks/teardown.yml
+            tags:
+              - nimbus
+            task: teardown
+            attempts: 1
+        - do:
+            - file: bosh-stemcells-ci/tasks/deploy-director-ipv6.yml
+              params:
+                BOSH_vcenter_cluster: ((nimbus-cluster))
+                BOSH_vcenter_dc: ((nimbus-dc))
+                BOSH_vcenter_disks: ((vcenter-disk-path))
+                BOSH_vcenter_ds: ((nimbus-datastore))
+                BOSH_vcenter_ip: ((nimbus-ip))
+                BOSH_vcenter_password: ((nimbus-password))
+                BOSH_vcenter_rp: ((nimbus-rp))
+                BOSH_vcenter_templates: ((vcenter-template-folder))
+                BOSH_vcenter_user: ((nimbus-user))
+                BOSH_vcenter_vms: ((vcenter-vm-folder))
+              tags:
+                - nimbus
+              task: deploy-director-ipv6
+            - attempts: 1
+              file: bosh-stemcells-ci/tasks/test-stemcell.yml
+              params:
+                BOSH_os_name: ubuntu-xenial
+                package: ipv6director
+              tags:
+                - nimbus
+              task: test-stemcell-ipv6
       ensure:
         do:
+          - file: bosh-stemcells-ci/tasks/teardown.yml
+            tags:
+              - nimbus
+            task: teardown
+            attempts: 3
           - params:
               release: environment
             put: environment
