@@ -267,6 +267,7 @@ jobs:
                 BOSH_vcenter_user: ((nimbus-user))
                 BOSH_vcenter_vms: ((vcenter-vm-folder))
                 BOSH_internal_ntp: "[10.188.26.119, 10.166.1.120]"
+                BOSH_internal_dns: "[10.142.7.1, 10.132.7.1]"
               tags:
                 - nimbus
             - put: director-creds
@@ -381,6 +382,7 @@ jobs:
           BOSH_vcenter_user: ((vcenter-user))
           BOSH_vcenter_vms: ((vcenter-vm-folder))
           BOSH_internal_ntp: "[time1.google.com, time2.google.com]"
+          BOSH_internal_dns: "[8.8.8.8]"
         tags:
         - vsphere-v6.5
         task: deploy-director
@@ -865,6 +867,7 @@ jobs:
           BOSH_VSPHERE_VCENTER_VM_FOLDER: ((vcenter-vm-folder))
           BOSH_VSPHERE_VERSION: ((vsphere-version))
           BOSH_internal_ntp: "[time1.google.com, time2.google.com]"
+          BOSH_internal_dns: "[8.8.8.8]"
         tags:
         - vsphere-v6.5
         task: deploy-director
