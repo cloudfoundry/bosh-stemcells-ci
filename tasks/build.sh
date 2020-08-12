@@ -70,6 +70,7 @@ sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
 
   cd bosh-linux-stemcell-builder
 
+  bundle update --bundler
   bundle install --local
 
 if [[ -z "$OS_IMAGE" ]]; then
