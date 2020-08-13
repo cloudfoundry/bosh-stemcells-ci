@@ -13,7 +13,7 @@ function fromEnvironment() {
 
 export BOSH_internal_cidr=$(fromEnvironment '.network1.vCenterCIDR')
 export BOSH_internal_gw=$(fromEnvironment '.network1.vCenterGateway')
-export BOSH_internal_ip=$(fromEnvironment '.network1["staticIP-1"]')
+export BOSH_internal_ip=$(fromEnvironment '.directorIP')
 export BOSH_network_name=$(fromEnvironment '.network1.vCenterVLAN')
 export BOSH_reserved_range="[$(fromEnvironment '.network1.reservedRange')]"
 
