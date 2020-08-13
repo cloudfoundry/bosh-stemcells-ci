@@ -3,7 +3,8 @@
 groups:
 - name: nimbus
   jobs:
-    - nimbus-test-stemcells-master
+    - nimbus-test-stemcells-master-ipv4
+    - nimbus-test-stemcells-master-ipv6
 #@ for stemcell in data.values.stemcells:
 - name: build-(@= stemcell.version @)
   jobs:
@@ -210,7 +211,7 @@ jobs:
   serial: true
 
 #@ if stemcell.version == "master":
-- name: nimbus-test-stemcells-(@= stemcell.version @)
+- name: nimbus-test-stemcells-(@= stemcell.version @)-ipv4
   plan:
     - do:
         - in_parallel:
@@ -282,12 +283,61 @@ jobs:
               tags:
                 - nimbus
               task: test-stemcell
-          ensure:
-            file: bosh-stemcells-ci/tasks/teardown.yml
+      ensure:
+        do:
+          - file: bosh-stemcells-ci/tasks/teardown.yml
             tags:
               - nimbus
             task: teardown
-            attempts: 1
+            attempts: 3
+          - params:
+              release: environment
+            put: environment
+            resource: nimbus-environment
+            attempts: 3
+  serial: true
+- name: nimbus-test-stemcells-(@= stemcell.version @)-ipv6
+  plan:
+    - do:
+        - in_parallel:
+            - get: version
+              passed:
+                - build-warden-boshlite-(@= stemcell.version @)
+                - build-aws-xen-hvm-(@= stemcell.version @)
+                - build-azure-hyperv-(@= stemcell.version @)
+                - build-google-kvm-(@= stemcell.version @)
+                - build-openstack-kvm-(@= stemcell.version @)
+                - build-vsphere-esxi-(@= stemcell.version @)
+                - build-vcloud-esxi-(@= stemcell.version @)
+              resource: version-(@= stemcell.version @)
+              trigger: true
+            - get: bosh-stemcells-ci
+            - get: bosh-linux-stemcell-builder
+              resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+            - get: bosh-deployment
+            - get: bosh-cli
+            - get: syslog-release
+            - get: os-conf-release
+            - get: stemcell
+              passed:
+                - build-vsphere-esxi-(@= stemcell.version @)
+              resource: vsphere-esxi-(@= stemcell.version @)
+              tags:
+                - nimbus
+            - get: stemcell-trigger-(@= stemcell.version @)
+              passed:
+                - build-warden-boshlite-(@= stemcell.version @)
+                - build-aws-xen-hvm-(@= stemcell.version @)
+                - build-azure-hyperv-(@= stemcell.version @)
+                - build-google-kvm-(@= stemcell.version @)
+                - build-openstack-kvm-(@= stemcell.version @)
+                - build-vsphere-esxi-(@= stemcell.version @)
+                - build-vcloud-esxi-(@= stemcell.version @)
+              trigger: true
+        - params:
+            acquire: true
+          put: environment
+          resource: nimbus-environment
         - do:
             - file: bosh-stemcells-ci/tasks/deploy-director-ipv6.yml
               params:
@@ -301,6 +351,8 @@ jobs:
                 BOSH_vcenter_templates: ((vcenter-template-folder))
                 BOSH_vcenter_user: ((nimbus-user))
                 BOSH_vcenter_vms: ((vcenter-vm-folder))
+                BOSH_internal_ntp: "[10.188.26.119, 10.166.1.120]"
+                BOSH_internal_dns: "[10.142.7.1, 10.132.7.1]"
               tags:
                 - nimbus
               task: deploy-director-ipv6
@@ -413,6 +465,8 @@ jobs:
           BOSH_vcenter_templates: ((vcenter-template-folder))
           BOSH_vcenter_user: ((vcenter-user))
           BOSH_vcenter_vms: ((vcenter-vm-folder))
+          BOSH_internal_ntp: "[time1.google.com, time2.google.com]"
+          BOSH_internal_dns: "[8.8.8.8]"
         tags:
         - vsphere-v6.5
         task: deploy-director-ipv6

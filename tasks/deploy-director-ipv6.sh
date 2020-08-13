@@ -36,6 +36,8 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/ipv6/bosh.yml \
   -o bosh-deployment/misc/second-network.yml \
   -o bosh-deployment/vsphere/second-network.yml \
+  -o bosh-deployment/misc/ntp.yml \
+  -o bosh-deployment/misc/dns.yml \
   -o bosh-stemcells-ci/ops-files/ipv6-director.yml \
   --vars-store director-creds.yml \
   -v director_name=stemcell-smoke-tests-director \
