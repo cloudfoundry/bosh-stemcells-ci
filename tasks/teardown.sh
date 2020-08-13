@@ -17,5 +17,5 @@ export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_password`
 
 $bosh_cli deployments --column name | xargs -n1 -I % "$bosh_cli" -n -d % delete-deployment
-$bosh_cli clean-up -n --all 
+$bosh_cli clean-up -n --all
 $bosh_cli delete-env director.yml -l director-creds.yml

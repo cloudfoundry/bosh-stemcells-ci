@@ -27,6 +27,7 @@ chmod +x $bosh_cli
 $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/vsphere/cpi.yml \
   -o bosh-deployment/vsphere/resource-pool.yml \
+  -o bosh-deployment/jumpbox-user.yml \
   -o bosh-deployment/misc/ntp.yml \
   -o bosh-deployment/misc/dns.yml \
   --vars-store director-creds.yml \
