@@ -234,6 +234,7 @@ jobs:
             - get: bosh-cli
             - get: syslog-release
             - get: os-conf-release
+            - get: nimbus-vcenter-vars
             - get: stemcell
               passed:
                 - build-vsphere-esxi-(@= stemcell.version @)
@@ -257,19 +258,6 @@ jobs:
         - do:
             - task: deploy-director
               file: bosh-stemcells-ci/tasks/deploy-director.yml
-              params:
-                BOSH_vcenter_cluster: ((nimbus-cluster))
-                BOSH_vcenter_dc: ((nimbus-dc))
-                BOSH_vcenter_disks: ((vcenter-disk-path))
-                BOSH_vcenter_ds: ((nimbus-datastore))
-                BOSH_vcenter_ip: ((nimbus-ip))
-                BOSH_vcenter_password: ((nimbus-password))
-                BOSH_vcenter_rp: ((nimbus-rp))
-                BOSH_vcenter_templates: ((vcenter-template-folder))
-                BOSH_vcenter_user: ((nimbus-user))
-                BOSH_vcenter_vms: ((vcenter-vm-folder))
-                BOSH_internal_ntp: "[10.188.26.119, 10.166.1.120]"
-                BOSH_internal_dns: "[10.142.7.1, 10.132.7.1]"
               tags:
                 - nimbus
             - attempts: 3
@@ -311,6 +299,7 @@ jobs:
             - get: bosh-stemcells-ci
             - get: bosh-linux-stemcell-builder
               resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+            - get: nimbus-vcenter-vars
             - get: bosh-deployment
             - get: bosh-cli
             - get: syslog-release
@@ -337,19 +326,6 @@ jobs:
           resource: nimbus-environment
         - do:
             - file: bosh-stemcells-ci/tasks/deploy-director-ipv6.yml
-              params:
-                BOSH_vcenter_cluster: ((nimbus-cluster))
-                BOSH_vcenter_dc: ((nimbus-dc))
-                BOSH_vcenter_disks: ((vcenter-disk-path))
-                BOSH_vcenter_ds: ((nimbus-datastore))
-                BOSH_vcenter_ip: ((nimbus-ip))
-                BOSH_vcenter_password: ((nimbus-password))
-                BOSH_vcenter_rp: ((nimbus-rp))
-                BOSH_vcenter_templates: ((vcenter-template-folder))
-                BOSH_vcenter_user: ((nimbus-user))
-                BOSH_vcenter_vms: ((vcenter-vm-folder))
-                BOSH_internal_ntp: "[10.188.26.119, 10.166.1.120]"
-                BOSH_internal_dns: "[10.142.7.1, 10.132.7.1]"
               tags:
                 - nimbus
               task: deploy-director-ipv6
@@ -390,6 +366,7 @@ jobs:
             - get: bats
             - get: bosh-deployment
             - get: bosh-stemcells-ci
+            - get: nimbus-vcenter-vars
             - get: bosh-linux-stemcell-builder
               passed:
                 - build-warden-boshlite-(@= stemcell.version @)
@@ -427,24 +404,8 @@ jobs:
         - do:
             - task: deploy-director
               file: bosh-stemcells-ci/tasks/deploy-director.yml
-              params:
-                BOSH_vcenter_cluster: ((nimbus-cluster))
-                BOSH_vcenter_dc: ((nimbus-dc))
-                BOSH_vcenter_disks: ((vcenter-disk-path))
-                BOSH_vcenter_ds: ((nimbus-datastore))
-                BOSH_vcenter_ip: ((nimbus-ip))
-                BOSH_vcenter_password: ((nimbus-password))
-                BOSH_vcenter_rp: ((nimbus-rp))
-                BOSH_vcenter_templates: ((vcenter-template-folder))
-                BOSH_vcenter_user: ((nimbus-user))
-                BOSH_vcenter_vms: ((vcenter-vm-folder))
-                BOSH_internal_ntp: "[10.188.26.119, 10.166.1.120]"
-                BOSH_internal_dns: "[10.142.7.1, 10.132.7.1]"
               tags:
                 - nimbus
-            - put: director-creds
-              params:
-                file: director-state/director-creds.yml
             - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
               params:
                 STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-xenial-go_agent
@@ -1701,12 +1662,12 @@ resources:
     private_key: ((github_deployment_key__bosh-cpi-environments))
     uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
   type: pool
-- name: director-creds
+- name: nimbus-vcenter-vars
   type: gcs-resource
   source:
     bucket: ((deployments_core_bucket_name))
     json_key: ((gcp_credentials_json))
-    versioned_file: nimbus/director-creds.yml
+    versioned_file: nimbus-vcenter-vars.yml
 - name: every-3-weeks-on-monday
   source:
     days:

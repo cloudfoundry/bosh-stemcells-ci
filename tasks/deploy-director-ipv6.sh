@@ -41,7 +41,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-stemcells-ci/ops-files/ipv6-director.yml \
   --vars-store director-creds.yml \
   -v director_name=stemcell-smoke-tests-director \
-  --vars-env "BOSH" > director.yml
+  --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml > director.yml
 
 set +e
 $bosh_cli create-env director.yml -l director-creds.yml

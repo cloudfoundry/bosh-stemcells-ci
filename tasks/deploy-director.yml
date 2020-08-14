@@ -11,6 +11,7 @@ inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-cli
   - name: environment
+  - name: nimbus-vcenter-vars
 
 outputs:
   - name: director-state
