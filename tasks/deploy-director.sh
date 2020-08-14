@@ -11,11 +11,6 @@ function fromEnvironment() {
   cat $environment | jq -r "$key"
 }
 
-export BOSH_internal_cidr=$(fromEnvironment '.network1.vCenterCIDR')
-export BOSH_internal_gw=$(fromEnvironment '.network1.vCenterGateway')
-export BOSH_internal_ip=$(fromEnvironment '.directorIP')
-export BOSH_network_name=$(fromEnvironment '.network1.vCenterVLAN')
-export BOSH_reserved_range="[$(fromEnvironment '.network1.reservedRange')]"
 
 cat > director-creds.yml <<EOF
 internal_ip: $BOSH_internal_ip
@@ -32,6 +27,11 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/dns.yml \
   --vars-store director-creds.yml \
   -v director_name=stemcell-smoke-tests-director \
+  -v "internal_cidr=$(fromEnvironment '.network1.vCenterCIDR')" \
+  -v "internal_gw=$(fromEnvironment '.network1.vCenterGateway')" \
+  -v "internal_ip=$(fromEnvironment '.directorIP')" \
+  -v "network_name=$(fromEnvironment '.network1.vCenterVLAN')" \
+  -v "reserved_range=[$(fromEnvironment '.network1.reservedRange')]" \
   --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml > director.yml
 
 set +e

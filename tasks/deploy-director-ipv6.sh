@@ -11,16 +11,6 @@ function fromEnvironment() {
   cat $environment | jq -r "$key"
 }
 
-export BOSH_internal_cidr=$(fromEnvironment '.network1.vCenterCIDR')
-export BOSH_internal_gw=$(fromEnvironment '.network1.vCenterGateway')
-export BOSH_internal_ip=$(fromEnvironment '.directorIP')
-export BOSH_network_name=$(fromEnvironment '.network1.vCenterVLAN')
-export BOSH_reserved_range="[$(fromEnvironment '.network1.reservedRange')]"
-export BOSH_second_network_name=$BOSH_network_name
-export BOSH_second_internal_gw=$(fromEnvironment '.network1IPv6.vCenterGateway')
-export BOSH_second_internal_cidr=$(fromEnvironment '.network1IPv6["vCenterCIDR"]')
-export BOSH_second_internal_ip=$(fromEnvironment '.network1IPv6["staticIP-1"]')
-
 if [ ! -f director-creds.yml ]; then
   cat > director-creds.yml <<EOF
 internal_ip: $BOSH_internal_ip
@@ -41,6 +31,15 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-stemcells-ci/ops-files/ipv6-director.yml \
   --vars-store director-creds.yml \
   -v director_name=stemcell-smoke-tests-director \
+  -v "internal_cidr=$(fromEnvironment '.network1.vCenterCIDR')" \
+  -v "internal_gw=$(fromEnvironment '.network1.vCenterGateway')" \
+  -v "internal_ip=$(fromEnvironment '.directorIP')" \
+  -v "network_name=$(fromEnvironment '.network1.vCenterVLAN')" \
+  -v "reserved_range=[$(fromEnvironment '.network1.reservedRange')]" \
+  -v "second_network_name=$(fromEnvironment '.network1IPv6.vCenterVLAN')" \
+  -v "second_internal_gw=$(fromEnvironment '.network1IPv6.vCenterGateway')" \
+  -v "second_internal_cidr=$(fromEnvironment '.network1IPv6["vCenterCIDR"]')" \
+  -v "second_internal_ip=$(fromEnvironment '.network1IPv6["staticIP-1"]')" \
   --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml > director.yml
 
 set +e
