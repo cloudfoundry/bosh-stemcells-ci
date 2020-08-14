@@ -33,8 +33,8 @@ properties:
   instances: 1
   second_static_ip: ((network1.staticIP-2))
   datacenters:
-  - name: ((DATACENTER_NAME))
-    clusters: ((CLUSTERS))
+  - name: "$( manifest_path /instance_groups/name=bosh/properties/vcenter/datacenters/0/name 2>/dev/null )"
+    clusters: "$( manifest_path /instance_groups/name=bosh/properties/vcenter/datacenters/0/clusters 2>/dev/null )"
   stemcell:
     name: ((STEMCELL_NAME))
     version: latest
@@ -60,7 +60,5 @@ EOF
 bosh-cli interpolate \
  --vars-file environment/metadata \
  -v STEMCELL_NAME=$STEMCELL_NAME \
- -v DATACENTER_NAME=$DATACENTER_NAME \
- -v CLUSTERS=$CLUSTERS \
  interpolate.yml \
  > bats-config/bats-config.yml
