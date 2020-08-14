@@ -13,14 +13,11 @@ function fromEnvironment() {
 
 cat > director-creds.yml <<EOF
 internal_ip: $(fromEnvironment '.directorIP')
-EOF
-
-cat > network-variables.yml <<EOF
 director_name: stemcell-smoke-tests-director
 internal_cidr: $(fromEnvironment '.network1.vCenterCIDR')
 internal_gw: $(fromEnvironment '.network1.vCenterGateway')
 network_name: $(fromEnvironment '.network1.vCenterVLAN')
-reserved_range: ["$(fromEnvironment '.network1.reservedRange')"]
+reserved_range: [$(fromEnvironment '.network1.reservedRange')]
 EOF
 
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
@@ -33,7 +30,6 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/ntp.yml \
   -o bosh-deployment/misc/dns.yml \
   --vars-store director-creds.yml \
-  --vars-file network-variables.yml \
   --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml > director.yml
 
 set +e

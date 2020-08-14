@@ -14,21 +14,18 @@ function fromEnvironment() {
 if [ ! -f director-creds.yml ]; then
   cat > director-creds.yml <<EOF
 internal_ip: $BOSH_internal_ip
+director_name: stemcell-smoke-tests-director
+internal_cidr: $(fromEnvironment '.network1.vCenterCIDR')
+internal_gw: $(fromEnvironment '.network1.vCenterGateway')
+internal_ip: $(fromEnvironment '.directorIP')
+network_name: $(fromEnvironment '.network1.vCenterVLAN')
+reserved_range: [$(fromEnvironment '.network1.reservedRange')]
+second_network_name: $(fromEnvironment '.network1IPv6.vCenterVLAN')
+second_internal_gw: $(fromEnvironment '.network1IPv6.vCenterGateway')
+second_internal_cidr: $(fromEnvironment '.network1IPv6["vCenterCIDR"]')
+second_internal_ip: $(fromEnvironment '.network1IPv6["staticIP-1"]')
 EOF
 fi
-
-  cat > network-vars.yml <<EOF
-   director_name: stemcell-smoke-tests-director
-   internal_cidr: $(fromEnvironment '.network1.vCenterCIDR')
-   internal_gw: $(fromEnvironment '.network1.vCenterGateway')
-   internal_ip: $(fromEnvironment '.directorIP')
-   network_name: $(fromEnvironment '.network1.vCenterVLAN')
-   reserved_range: [$(fromEnvironment '.network1.reservedRange')]
-   second_network_name: $(fromEnvironment '.network1IPv6.vCenterVLAN')
-   second_internal_gw: $(fromEnvironment '.network1IPv6.vCenterGateway')
-   second_internal_cidr: $(fromEnvironment '.network1IPv6["vCenterCIDR"]')
-   second_internal_ip: $(fromEnvironment '.network1IPv6["staticIP-1"]')
-EOF
 
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
 chmod +x $bosh_cli
@@ -43,7 +40,6 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/dns.yml \
   -o bosh-stemcells-ci/ops-files/ipv6-director.yml \
   --vars-store director-creds.yml \
-  --vars-file network-vars.yml \
   --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml > director.yml
 
 set +e
