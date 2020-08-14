@@ -22,7 +22,7 @@ export BAT_NETWORKING=manual
 export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
 EOF
 
-export VARS_DATACENTERS=$(bosh-cli int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters 2>/dev/null")
+export VARS_DATACENTERS=$(bosh-cli int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters" 2>/dev/null)
 
 cat > interpolate.yml <<EOF
 ---
