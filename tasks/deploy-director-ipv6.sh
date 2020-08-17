@@ -69,5 +69,6 @@ export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_passwo
 $bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --ops-file bosh-stemcells-ci/ops-files/ipv6-cc.yml \
+          --ops-file bosh-stemcells-ci/ops-files/resource-pool-cc.yml \
           --vars-file network-vars.yml \
           --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml
