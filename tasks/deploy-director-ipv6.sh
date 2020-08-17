@@ -13,7 +13,7 @@ function fromEnvironment() {
 
 if [ ! -f director-creds.yml ]; then
   cat > director-creds.yml <<EOF
-internal_ip: $BOSH_internal_ip
+internal_ip: $(fromEnvironment '.directorIP')
 EOF
 fi
 
@@ -21,7 +21,6 @@ fi
    director_name: stemcell-smoke-tests-director
    internal_cidr: $(fromEnvironment '.network1.vCenterCIDR')
    internal_gw: $(fromEnvironment '.network1.vCenterGateway')
-   internal_ip: $(fromEnvironment '.directorIP')
    network_name: $(fromEnvironment '.network1.vCenterVLAN')
    reserved_range: [$(fromEnvironment '.network1.reservedRange')]
    second_network_name: $(fromEnvironment '.network1IPv6.vCenterVLAN')
