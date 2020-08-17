@@ -20,7 +20,7 @@ director_name: stemcell-smoke-tests-director
 internal_cidr: $(fromEnvironment '.network1.vCenterCIDR')
 internal_gw: $(fromEnvironment '.network1.vCenterGateway')
 network_name: $(fromEnvironment '.network1.vCenterVLAN')
-reserved_range: ["$(fromEnvironment '.network1.reservedRange')"]
+reserved_range: [$(fromEnvironment '.network1.reservedRange')]
 EOF
 
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
