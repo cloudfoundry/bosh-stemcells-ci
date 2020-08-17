@@ -22,7 +22,10 @@ export BAT_NETWORKING=manual
 export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
 EOF
 
-export VARS_DATACENTERS=$(bosh-cli int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters" 2>/dev/null)
+cat > more-vars.yml <<EOF
+datacenters: $(bosh-cli int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters" 2>/dev/null)
+stemcell_name: $STEMCELL_NAME
+EOF
 
 cat > interpolate.yml <<EOF
 ---
@@ -31,9 +34,9 @@ properties:
   pool_size: 1
   instances: 1
   second_static_ip: ((network1.staticIP-2))
-  datacenters: ((DATACENTERS))
+  datacenters: ((datacenters))
   stemcell:
-    name: ((STEMCELL_NAME))
+    name: ((stemcell_name))
     version: latest
   networks:
     - name: static
@@ -56,7 +59,6 @@ EOF
 
 bosh-cli interpolate \
  --vars-file environment/metadata \
- -v STEMCELL_NAME=$STEMCELL_NAME \
- -v "DATACENTERS=$VARS_DATACENTERS" \
+ --vars-file more-vars.yml \
  interpolate.yml \
  > bats-config/bats-config.yml
