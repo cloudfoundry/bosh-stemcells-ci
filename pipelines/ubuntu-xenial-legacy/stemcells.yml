@@ -1,0 +1,28 @@
+#@data/values
+---
+stemcells:
+- version: "170.x"
+  bosh_agent_version: "2.160"
+  branch: "ubuntu-xenial/170.x"
+  bump_version: "minor"
+  agent_bump_version: "patch"
+  agent_promote_from: "170.x"
+  agent_metalink_version: '2.160.*'
+  agent_branch: "2.160.x"
+  agent_initial_version: "2.160.0"
+  agent_version_key: "agent-2.160-current-version"
+  initial_version: "170.0.0"
+  include_alicloud: true
+
+- version: "97.x"
+  bosh_agent_version: "2.117"
+  branch: "ubuntu-xenial/97.x"
+  agent_bump_version: "patch"
+  agent_promote_from: "97.x"
+  agent_metalink_version: '2.117.*'
+  agent_branch: "2.117.x"
+  agent_initial_version: "2.117.0"
+  agent_version_key: "agent-2.117-current-version"
+  bump_version: "minor"
+  initial_version: "97.0.0"
+  include_alicloud: false
