@@ -1,0 +1,17 @@
+#@data/values
+---
+stemcells:
+- version: "master"
+  bosh_agent_version: "*"
+  branch: "ubuntu-bionic/master"
+  bump_version: "major"
+  agent_bump_version: "minor"
+  agent_promote_from: "develop"
+  agent_metalink_version: '*'
+  agent_branch: "master"
+  agent_initial_version: "0.0.1"
+  agent_version_key: "agent-current-version"
+  initial_version: "0.0.0"
+  include_alicloud: false
+  os: bionic
+  os_name: ubuntu-bionic
