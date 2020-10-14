@@ -29,9 +29,7 @@ groups:
   - test-integration-bosh-agent-(@= stemcell.version @)
   - promote-bosh-agent-(@= stemcell.version @)
   - bump-bosh-agent-(@= stemcell.version @)
-#@ if stemcell.version != "97.x" and stemcell.version != "170.x":
   - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
-#@ end
 #@ if stemcell.version == "master":
   - bump-deps-bosh-agent-(@= stemcell.version @)
   - windows-test-unit-bosh-agent-(@= stemcell.version @)
@@ -1009,7 +1007,6 @@ jobs:
         AWS_REGION: ((integration_aws_region))
         AWS_BUCKET: ((integration_aws_bucket))
 
-#@ if stemcell.version != "97.x" and stemcell.version != "170.x":
 - name: bosh-integration-tests-bosh-agent-(@= stemcell.version @)
   public: true
   serial: true
@@ -1033,10 +1030,6 @@ jobs:
     tags: ["bosh-integration"]
     params:
       DB: postgresql
-#@ if stemcell.version == "250.x":
-      SKIP_RUN_SCRIPT_ENV: true
-#@ end
-#@ end
 
 - name: promote-bosh-agent-(@= stemcell.version @)
   public: true
@@ -1045,12 +1038,7 @@ jobs:
   - in_parallel:
     - trigger: true
       passed:
-#@ if stemcell.version == "170.x" or stemcell.version == "97.x":
-      - test-unit-bosh-agent-(@= stemcell.version @)
-      - test-integration-bosh-agent-(@= stemcell.version @)
-#@ else:
       - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
-#@ end
 #@ if stemcell.version == "master":
       - windows-test-integration-2019-bosh-agent-(@= stemcell.version @)
       - windows-test-integration-2012R2-bosh-agent-(@= stemcell.version @)
