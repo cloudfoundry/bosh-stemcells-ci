@@ -13,6 +13,8 @@ stemcells:
   agent_version_key: "agent-current-version"
   initial_version: "0.0.0"
   include_alicloud: true
+  os: xenial
+  os_name: ubuntu-xenial
 
 - version: "621.x"
   bosh_agent_version: "2.268"
@@ -26,6 +28,8 @@ stemcells:
   agent_version_key: "agent-2.268-current-version"
   initial_version: "621.0.0"
   include_alicloud: true
+  os: xenial
+  os_name: ubuntu-xenial
 
 - version: "456.x"
   bosh_agent_version: "2.234"
@@ -39,6 +43,8 @@ stemcells:
   agent_version_key: "agent-2.234-current-version"
   initial_version: "456.0.0"
   include_alicloud: true
+  os: xenial
+  os_name: ubuntu-xenial
 
 - version: "315.x"
   bosh_agent_version: "2.215"
@@ -52,3 +58,5 @@ stemcells:
   agent_version_key: "agent-2.215-current-version"
   initial_version: "315.0.0"
   include_alicloud: true
+  os: xenial
+  os_name: ubuntu-xenial
