@@ -2,13 +2,15 @@
 
 set -e
 
+FLY="${FLY_CLI:-fly}"
+
 until lpass status;do
   LPASS_DISABLE_PINENTRY=1 lpass ls a
   sleep 1
 done
 
-until fly -t main status;do
-  fly -t main login
+until "$FLY" -t "${CONCOURSE_TARGET:-main}" status;do
+  "$FLY" -t "${CONCOURSE_TARGET:-main}" login
   sleep 1
 done
 
@@ -17,7 +19,7 @@ ytt --dangerous-allow-all-symlink-destinations \
     -f "$(dirname $0)" > $pipeline_config
 
 name="$( basename $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd ))"
-fly -t main set-pipeline \
+"$FLY" -t "${CONCOURSE_TARGET:-main}" set-pipeline \
   -p "bosh:stemcells:${name}" \
   -l <(lpass show --notes "concourse:production pipeline:os-images" ) \
   -l <(lpass show --notes "concourse:production pipeline:bosh:stemcells" ) \
