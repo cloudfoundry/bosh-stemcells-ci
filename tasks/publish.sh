@@ -16,7 +16,7 @@ meta4_path=$PWD/stemcells-index-output/$TO_INDEX/$OS_NAME-$OS_VERSION/$VERSION/s
 mkdir -p "$( dirname "$meta4_path" )"
 meta4 create --metalink="$meta4_path"
 
-find stemcells-index-output/$FROM_INDEX/$OS_NAME-$OS_VERSION/$VERSION -name *.meta4 \
+find stemcells-index-output/$FROM_INDEX/$OS_NAME-$OS_VERSION/$VERSION -name "*.meta4" \
   | xargs -n1 -- meta4 import-metalink --metalink="$meta4_path"
 
 # Import stemcell-trigger
