@@ -45,18 +45,3 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
-
-- version: "315.x"
-  bosh_agent_version: "2.215"
-  branch: "ubuntu-xenial/315.x"
-  bump_version: "minor"
-  agent_bump_version: "patch"
-  agent_promote_from: "315.x"
-  agent_metalink_version: '2.215.*'
-  agent_branch: "2.215.x"
-  agent_initial_version: "2.215.0"
-  agent_version_key: "agent-2.215-current-version"
-  initial_version: "315.0.0"
-  include_alicloud: true
-  os: xenial
-  os_name: ubuntu-xenial
