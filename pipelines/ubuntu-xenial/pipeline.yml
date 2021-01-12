@@ -54,7 +54,7 @@ jobs:
 - name: create-story-(@= stemcell.version @)
   plan:
   - in_parallel:
-    - get: every-3-weeks-on-monday
+    - get: every-3-weeks-on-monday-(@= stemcell.version @)
       trigger: true
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
@@ -1384,6 +1384,23 @@ resources:
     region_name: ((AWS_S3_BUCKET_REGION))
     access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
     secret_access_key: ((AWS_S3_BUCKET_SECRET_KEY))
+- name: every-3-weeks-on-monday-(@= stemcell.version @)
+  source:
+    days:
+      - Monday
+    interval: 499h
+    location: America/Los_Angeles
+#@ if stemcell.version == "621.x":
+    start: "4:00"
+    stop: "6:30"
+#@ elif stemcell.version == "456.x":
+    start: "5:00"
+    stop: "7:30"
+#@ else:
+    start: "6:00"
+    stop: "8:30"
+#@ end
+  type: time
 #@ end
 
 - name: bosh-stemcells-ci
@@ -1441,15 +1458,6 @@ resources:
     bucket: ((deployments_core_bucket_name))
     json_key: ((gcp_credentials_json))
     versioned_file: nimbus-vcenter-vars.yml
-- name: every-3-weeks-on-monday
-  source:
-    days:
-    - Monday
-    interval: 499h
-    location: America/Los_Angeles
-    start: "6:00"
-    stop: "8:30"
-  type: time
 - name: (@= stemcell.os @)-usn
   source:
     os: ubuntu-16.04-lts
