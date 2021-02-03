@@ -153,6 +153,12 @@ jobs:
       OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
     privileged: true
     task: build
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - params:
       files:
       - os-image/(@= stemcell.os_name @).tgz
@@ -377,6 +383,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -422,6 +434,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -467,6 +485,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -512,6 +536,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -557,6 +587,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -602,6 +638,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -647,6 +689,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -693,6 +741,12 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
     task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
   - in_parallel:
     - attempts: 3
       params:
