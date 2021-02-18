@@ -67,7 +67,11 @@ jobs:
       BRANCH: (@= stemcell.branch @)
       #@ end
       DESCRIPTION: periodic bump
+      #@ if stemcell.os == "bionic":
+      PROJECT_ID: ((bionic_story_creator_tracker_project_id))
+      #@ else:
       PROJECT_ID: ((story_creator_tracker_project_id))
+      #@ end
       TOKEN: ((story_creator_tracker_token))
     task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
@@ -101,7 +105,11 @@ jobs:
       BRANCH: (@= stemcell.branch @)
       #@ end
       DESCRIPTION: ubuntu *security* notice
+      #@ if stemcell.os == "bionic":
+      PROJECT_ID: ((bionic_story_creator_private_tracker_project_id))
+      #@ else:
       PROJECT_ID: ((story_creator_private_tracker_project_id))
+      #@ end
       TOKEN: ((story_creator_tracker_token))
     task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
