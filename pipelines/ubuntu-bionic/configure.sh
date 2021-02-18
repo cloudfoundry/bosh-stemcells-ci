@@ -26,5 +26,6 @@ name="$( basename $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pw
   -l <(lpass show --notes "bosh-agent concourse secrets" ) \
   -l <(lpass show --notes "bats-concourse-pool:vsphere secrets" ) \
   -l <(lpass show --notes "bats-concourse-pool:vsphere nimbus secrets" ) \
+  -l <(lpass show --notes "bosh:docker-images concourse secrets" ) \
   -l <(lpass show --notes "stemcell-reminder-bot") \
   -c "$pipeline_config"

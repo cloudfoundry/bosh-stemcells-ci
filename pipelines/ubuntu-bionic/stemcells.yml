@@ -18,14 +18,14 @@ stemcells:
 
 - version: "0.x"
   bosh_agent_version: "*"
-  branch: "ubuntu-bionic/master"
+  branch: "ubuntu-bionic/0.x"
   bump_version: "minor"
   agent_bump_version: "patch"
-  agent_promote_from: "develop"
+  agent_promote_from: "master"
   agent_metalink_version: '*'
   agent_branch: "master"
   agent_initial_version: "0.0.1"
-  agent_version_key: "agent-current-version"
+  agent_version_key: "agent-bionic-master-current-version"
   initial_version: "0.0.0"
   include_alicloud: true
   os: bionic
