@@ -1,21 +1,6 @@
 #@data/values
 ---
 stemcells:
-- version: "master"
-  bosh_agent_version: "*"
-  branch: "master"
-  bump_version: "major"
-  agent_bump_version: "minor"
-  agent_promote_from: "develop"
-  agent_metalink_version: '*'
-  agent_branch: "master"
-  agent_initial_version: "0.0.1"
-  agent_version_key: "agent-current-version"
-  initial_version: "0.0.0"
-  include_alicloud: true
-  os: xenial
-  os_name: ubuntu-xenial
-
 - version: "621.x"
   bosh_agent_version: "2.268"
   branch: "ubuntu-xenial/621.x"

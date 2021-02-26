@@ -30,12 +30,6 @@ groups:
   - promote-bosh-agent-(@= stemcell.version @)
   - bump-bosh-agent-(@= stemcell.version @)
   - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
-#@ if stemcell.version == "master":
-  - bump-deps-bosh-agent-(@= stemcell.version @)
-  - windows-test-unit-bosh-agent-(@= stemcell.version @)
-  - windows-test-integration-2019-bosh-agent-(@= stemcell.version @)
-  - windows-test-integration-2012R2-bosh-agent-(@= stemcell.version @)
-#@ end
 #@ end
 - name: automatic-triggers
   jobs:
@@ -43,9 +37,6 @@ groups:
   - create-story-(@= stemcell.version @)
   - create-story-usn-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
-#@ if stemcell.version == "master":
-  - notify-of-usn
-#@ end
 #@ end
 
 #@yaml/text-templated-strings
@@ -61,11 +52,7 @@ jobs:
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
   - file: bosh-stemcells-ci/tasks/create-story.yml
     params:
-      #@ if stemcell.version == "master":
-      BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
-      #@ else:
       BRANCH: (@= stemcell.branch @)
-      #@ end
       DESCRIPTION: periodic bump
       #@ if stemcell.os == "bionic":
       PROJECT_ID: ((bionic_story_creator_tracker_project_id))
@@ -99,11 +86,7 @@ jobs:
     task: commit-usn-information
   - file: bosh-stemcells-ci/tasks/create-story.yml
     params:
-      #@ if stemcell.version == "master":
-      BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
-      #@ else:
       BRANCH: (@= stemcell.branch @)
-      #@ end
       DESCRIPTION: ubuntu *security* notice
       #@ if stemcell.os == "bionic":
       PROJECT_ID: ((bionic_story_creator_private_tracker_project_id))
@@ -909,135 +892,6 @@ jobs:
       put: stemcells-index
 #@ end
 #@ end
-- name: notify-of-usn
-  plan:
-  - get: (@= stemcell.os @)-usn
-    trigger: true
-  - config:
-      image_resource:
-        source:
-          repository: bosh/main
-        type: registry-image
-      inputs:
-      - name: (@= stemcell.os @)-usn
-      outputs:
-      - name: slack-message
-      platform: linux
-      run:
-        args:
-        - -c
-        - |
-          set -exu -o pipefail
-          cat <<EOF > template.json
-          {
-            "attachments": {
-              "color": "#ff0000",
-                "thumb_url": "http://www.free-icons-download.net/images/lock-icon-66412.png",
-                "footer": "USN Notification",
-                "footer_icon": "https://i.imgur.com/7H8ZIq1.png",
-                "mrkdwn_in": ["fields"],
-                "fields": [
-                {"title": "Priorities", "short": true, "value": (.priorities | join(", "))},
-                {"title": "Date", "short": true, "value": .date},
-                {"title": "Description", "short": false, "value": .description},
-                {"title": "CVEs", "short": false, "value": (.cves | join("\n"))}
-                ]
-            }
-          }
-          EOF
-          cat (@= stemcell.os @)-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
-          cat (@= stemcell.os @)-usn/usn.json | jq -r '"New USN for (@= stemcell.os @): *<\(.url)|\(.title)>*"' | tee slack-message/message
-        path: /bin/bash
-    task: build-slack-message
-  - params:
-      attachments_file: slack-message/attachments
-      channel: ((usn_notifications_slack_channel_name))
-      icon_url: https://i.imgur.com/A0Vlw5t.png
-      text_file: slack-message/message
-    put: slack-alert
-
-- name: bump-deps-bosh-agent-master
-  public: true
-  plan:
-  - get: weekly
-    resource: weekly-bosh-agent-develop
-    trigger: true
-  - get: bosh-agent
-    resource: bosh-agent-src-develop
-  - task: bump-deps
-    file: bosh-agent/ci/tasks/bump-deps.yml
-  - task: test-unit
-    input_mapping:
-      bosh-agent: bumped-bosh-agent
-    file: bosh-agent/ci/tasks/test-unit.yml
-  - put: bosh-agent
-    resource: bosh-agent-src-develop
-    params:
-      repository: bumped-bosh-agent
-      rebase: true
-
-- name: windows-test-unit-bosh-agent-master
-  serial: true
-  plan:
-  - get: bosh-agent
-    resource: bosh-agent-src-develop
-    trigger: true
-  - task: test-unit
-    file: bosh-agent/ci/tasks/test-unit-windows.yml
-
-- name: windows-test-integration-2019-bosh-agent-master
-  serial: true
-  plan:
-  - get: windows-ami-2019
-    resource: windows-ami-2019-bosh-agent-develop
-  - get: bosh-agent
-    resource: bosh-agent-src-develop
-    trigger: true
-    passed:
-    - test-unit-bosh-agent-master
-    - test-integration-bosh-agent-master
-    - windows-test-unit-bosh-agent-master
-  - task: test-integration
-    privileged: true
-    file: bosh-agent/ci/tasks/test-integration-windows.yml
-    input_mapping:
-      windows-ami: windows-ami-2019
-    params:
-      AWS_ACCESS_KEY: ((WINDOWS_AWS_ACCESS_KEY))
-      AWS_SECRET_KEY: ((WINDOWS_AWS_SECRET_KEY))
-      AWS_SUBNET: ((WINDOWS_AWS_SUBNET))
-      AWS_SSH_KEY: ((WINDOWS_AWS_SSH_KEY))
-      KEYPAIR_NAME: ((WINDOWS_AWS_KEYPAIR_NAME))
-      VAGRANT_PROVIDER: aws
-      WINRM_PASSWORD: ((WINRM_PASSWORD))
-      WINDOWS_OS_VERSION: 2019
-
-- name: windows-test-integration-2012R2-bosh-agent-master
-  serial: true
-  plan:
-  - get: windows-ami-2012R2
-    resource: windows-ami-2012R2-bosh-agent-develop
-  - get: bosh-agent
-    resource: bosh-agent-src-develop
-    trigger: true
-    passed:
-    - test-unit-bosh-agent-master
-    - test-integration-bosh-agent-master
-    - windows-test-unit-bosh-agent-master
-  - task: test-integration
-    privileged: true
-    file: bosh-agent/ci/tasks/test-integration-windows.yml
-    input_mapping:
-      windows-ami: windows-ami-2012R2
-    params:
-      AWS_ACCESS_KEY: ((WINDOWS_AWS_ACCESS_KEY))
-      AWS_SECRET_KEY: ((WINDOWS_AWS_SECRET_KEY))
-      AWS_SUBNET: ((WINDOWS_AWS_SUBNET))
-      AWS_SSH_KEY: ((WINDOWS_AWS_SSH_KEY))
-      KEYPAIR_NAME: ((WINDOWS_AWS_KEYPAIR_NAME))
-      VAGRANT_PROVIDER: aws
-      WINRM_PASSWORD: ((WINRM_PASSWORD))
-      WINDOWS_OS_VERSION: 2012R2
 
 #@ for stemcell in data.values.stemcells:
 - name: test-unit-bosh-agent-(@= stemcell.version @)
@@ -1085,9 +939,6 @@ jobs:
       passed:
       - test-unit-bosh-agent-(@= stemcell.version @)
       - test-integration-bosh-agent-(@= stemcell.version @)
-#@ if stemcell.version == "master":
-      - windows-test-unit-bosh-agent-(@= stemcell.version @)
-#@ end
   - task: tests
     privileged: true
     file: bosh-src/ci/tasks/test-integration.yml
@@ -1103,10 +954,6 @@ jobs:
     - trigger: true
       passed:
       - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
-#@ if stemcell.version == "master":
-      - windows-test-integration-2019-bosh-agent-(@= stemcell.version @)
-      - windows-test-integration-2012R2-bosh-agent-(@= stemcell.version @)
-#@ end
       get: bosh-agent
       resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
     - get: version-semver
@@ -1118,13 +965,6 @@ jobs:
   - put: version-semver-bosh-agent-(@= stemcell.version @)
     params:
       file: version-semver/number
-#@ if stemcell.version == "master":
-  - put: bosh-agent-commit-status
-    resource: bosh-agent-commit-status-bosh-agent-(@= stemcell.version @)
-    params:
-      state: success
-      commit: bosh-agent
-#@ end
   - put: bosh-agent-src-(@= stemcell.version @)
     params:
 #@ if stemcell.version != "master":
@@ -1536,68 +1376,8 @@ resources:
     - high
     - critical
   type: usn
-- name: slack-alert
-  source:
-    url: ((slack_hook_url))
-  type: slack-notification
 - name: bosh-src
   type: git
   source:
     uri: https://github.com/cloudfoundry/bosh.git
     branch: master
-
-- name: bosh-agent-src-develop
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry/bosh-agent.git
-    branch: develop
-    private_key: ((BOSH_GITHUB_DEPLOYMENT_KEY))
-
-- name: bosh-agent-commit-status-bosh-agent-master
-  type: github-status
-  source:
-    repository: cloudfoundry/bosh-agent
-    access_token: ((repo_github_token))
-    branch: develop
-    context: ci/published
-
-- name: windows-ami-2012R2-bosh-agent-develop
-  type: ami-resource
-  source:
-    access_key_id: ((WINDOWS_AWS_ACCESS_KEY))
-    secret_access_key: ((WINDOWS_AWS_SECRET_KEY))
-    region: us-east-1
-    search_options:
-      filters:
-      - name: name
-        values:
-        - Windows_Server-2012-R2_RTM-English-64Bit-Base*
-      - name: state
-        values:
-        - available
-      owners:
-      - amazon
-
-- name: windows-ami-2019-bosh-agent-develop
-  type: ami-resource
-  source:
-    access_key_id: ((WINDOWS_AWS_ACCESS_KEY))
-    secret_access_key: ((WINDOWS_AWS_SECRET_KEY))
-    region: us-east-1
-    search_options:
-      filters:
-      - name: name
-        values:
-        - Windows_Server-2019-English-Core-Base*
-      - name: state
-        values:
-        - available
-      owners:
-      - amazon
-
-- name: weekly-bosh-agent-develop
-  type: time
-  source:
-    start: 3:00 -0700
-    stop: 4:30 -0700
-    days: [Saturday]
