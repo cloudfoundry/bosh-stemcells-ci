@@ -14,6 +14,10 @@ function fromEnvironment() {
 if [ ! -f director-creds.yml ]; then
   cat > director-creds.yml <<EOF
 internal_ip: $(fromEnvironment '.directorIP')
+EOF
+fi
+
+cat > director-vars.yml <<EOF
 vcenter_ip: "${VCENTER_IP}"
 vcenter_user: "${VCENTER_USER}"
 vcenter_password: "${VCENTER_PASSWORD}"
@@ -25,7 +29,6 @@ vcenter_disks: BOSH-STEMCELL-CI-DISKS
 vcenter_templates: BOSH-STEMCELL-CI-TEMPLATES
 vcenter_vms: BOSH-STEMCELL-CI-VMS
 EOF
-fi
 
 cat > network-vars.yml <<EOF
 director_name: stemcell-smoke-tests-director
@@ -55,6 +58,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/dns.yml \
   -o bosh-stemcells-ci/ops-files/ipv6-director.yml \
   --vars-store director-creds.yml \
+  --vars-file director-vars.yml \
   --vars-file network-vars.yml > director.yml
 
 set +e
@@ -81,4 +85,5 @@ $bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --ops-file bosh-stemcells-ci/ops-files/ipv6-cc.yml \
           --ops-file bosh-stemcells-ci/ops-files/resource-pool-cc.yml \
-          --vars-file network-vars.yml
+          --vars-file network-vars.yml \
+          --vars-file director-vars.yml

@@ -13,6 +13,9 @@ function fromEnvironment() {
 
 cat > director-creds.yml <<EOF
 internal_ip: $(fromEnvironment '.directorIP')
+EOF
+
+cat > director-vars.yml <<EOF
 vcenter_ip: "${VCENTER_IP}"
 vcenter_user: "${VCENTER_USER}"
 vcenter_password: "${VCENTER_PASSWORD}"
@@ -45,6 +48,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/ntp.yml \
   -o bosh-deployment/misc/dns.yml \
   --vars-store director-creds.yml \
+  --vars-file director-vars.yml \
   --vars-file network-variables.yml > director.yml
 
 set +e
@@ -70,4 +74,5 @@ export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_passwo
 $bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --ops-file bosh-stemcells-ci/ops-files/resource-pool-cc.yml \
-          --vars-file network-variables.yml
+          --vars-file network-variables.yml \
+          --vars-file director-vars.yml
