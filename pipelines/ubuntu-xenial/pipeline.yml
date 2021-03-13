@@ -224,7 +224,6 @@ jobs:
       - get: bosh-cli
       - get: syslog-release
       - get: os-conf-release
-      - get: nimbus-vcenter-vars
       - get: stemcell
         passed:
         - build-vsphere-esxi-(@= stemcell.version @)
@@ -250,6 +249,14 @@ jobs:
         tags:
         - nimbus
         task: deploy-director
+        params:
+          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
+          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
+          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
+          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
+          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
       - attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
@@ -290,7 +297,6 @@ jobs:
       - get: bosh-stemcells-ci
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-      - get: nimbus-vcenter-vars
       - get: bosh-deployment
       - get: bosh-cli
       - get: syslog-release
@@ -320,6 +326,14 @@ jobs:
         tags:
         - nimbus
         task: deploy-director-ipv6
+        params:
+          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
+          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
+          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
+          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
+          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
       - attempts: 1
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
@@ -769,7 +783,6 @@ jobs:
       - get: bosh-deployment
       - get: bosh-stemcells-ci
       - get: main-ruby-go-docker-image
-      - get: nimbus-vcenter-vars
       - get: bosh-linux-stemcell-builder
         passed:
         - build-warden-boshlite-(@= stemcell.version @)
@@ -807,6 +820,14 @@ jobs:
     - do:
       - task: deploy-director
         file: bosh-stemcells-ci/tasks/deploy-director.yml
+        params:
+          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
+          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
+          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
+          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
+          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
         tags:
         - nimbus
       - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
@@ -1363,12 +1384,6 @@ resources:
     private_key: ((github_deployment_key__bosh-cpi-environments))
     uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
   type: pool
-- name: nimbus-vcenter-vars
-  type: gcs-resource
-  source:
-    bucket: ((deployments_core_bucket_name))
-    json_key: ((gcp_credentials_json))
-    versioned_file: nimbus-vcenter-vars.yml
 - name: (@= stemcell.os @)-usn
   source:
     os: ubuntu-16.04-lts

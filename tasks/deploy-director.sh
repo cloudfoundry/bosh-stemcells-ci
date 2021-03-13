@@ -13,6 +13,16 @@ function fromEnvironment() {
 
 cat > director-creds.yml <<EOF
 internal_ip: $(fromEnvironment '.directorIP')
+vcenter_ip: "${VCENTER_IP}"
+vcenter_user: "${VCENTER_USER}"
+vcenter_password: "${VCENTER_PASSWORD}"
+vcenter_cluster: "${VCENTER_CLUSTER}"
+vcenter_dc: "${VCENTER_DC}"
+vcenter_ds: "${VCENTER_DS}"
+vcenter_rp: "${VCENTER_RP}"
+vcenter_disks: BOSH-STEMCELL-CI-DISKS
+vcenter_templates: BOSH-STEMCELL-CI-TEMPLATES
+vcenter_vms: BOSH-STEMCELL-CI-VMS
 EOF
 
 cat > network-variables.yml <<EOF
@@ -21,6 +31,8 @@ internal_cidr: $(fromEnvironment '.network1.vCenterCIDR')
 internal_gw: $(fromEnvironment '.network1.vCenterGateway')
 network_name: $(fromEnvironment '.network1.vCenterVLAN')
 reserved_range: [$(fromEnvironment '.network1.reservedRange')]
+internal_dns: $(fromEnvironment '.dns')
+internal_ntp: $(fromEnvironment '.ntp')
 EOF
 
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
@@ -33,8 +45,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/ntp.yml \
   -o bosh-deployment/misc/dns.yml \
   --vars-store director-creds.yml \
-  --vars-file network-variables.yml \
-  --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml > director.yml
+  --vars-file network-variables.yml > director.yml
 
 set +e
 $bosh_cli create-env director.yml -l director-creds.yml
@@ -59,5 +70,4 @@ export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_passwo
 $bosh_cli -n update-cloud-config bosh-deployment/vsphere/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --ops-file bosh-stemcells-ci/ops-files/resource-pool-cc.yml \
-          --vars-file network-variables.yml \
-          --vars-file nimbus-vcenter-vars/nimbus-vcenter-vars.yml
+          --vars-file network-variables.yml

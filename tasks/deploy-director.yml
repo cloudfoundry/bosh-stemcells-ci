@@ -11,10 +11,18 @@ inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-cli
   - name: environment
-  - name: nimbus-vcenter-vars
 
 outputs:
   - name: director-state
+
+params:
+  VCENTER_IP:
+  VCENTER_USER:
+  VCENTER_PASSWORD:
+  VCENTER_CLUSTER:
+  VCENTER_DC:
+  VCENTER_DS:
+  VCENTER_RP:
 
 run:
   path: bosh-stemcells-ci/tasks/deploy-director.sh
