@@ -54,11 +54,7 @@ jobs:
     params:
       BRANCH: (@= stemcell.branch @)
       DESCRIPTION: periodic bump
-      #@ if stemcell.os == "bionic":
       PROJECT_ID: ((bionic_story_creator_tracker_project_id))
-      #@ else:
-      PROJECT_ID: ((story_creator_tracker_project_id))
-      #@ end
       TOKEN: ((story_creator_tracker_token))
     task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
@@ -88,11 +84,7 @@ jobs:
     params:
       BRANCH: (@= stemcell.branch @)
       DESCRIPTION: ubuntu *security* notice
-      #@ if stemcell.os == "bionic":
       PROJECT_ID: ((bionic_story_creator_private_tracker_project_id))
-      #@ else:
-      PROJECT_ID: ((story_creator_private_tracker_project_id))
-      #@ end
       TOKEN: ((story_creator_tracker_token))
     task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
@@ -145,11 +137,7 @@ jobs:
     privileged: true
     task: build
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - params:
       files:
       - os-image/(@= stemcell.os_name @).tgz
@@ -389,11 +377,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -440,11 +424,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -491,11 +471,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -542,11 +518,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -593,11 +565,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -644,11 +612,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -695,11 +659,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -747,11 +707,7 @@ jobs:
     privileged: true
     task: create-stemcell
     vars:
-      #@ if stemcell.os == "bionic":
       image_os_tag: (@= stemcell.os @)
-      #@ else:
-      image_os_tag: latest
-      #@ end
   - in_parallel:
     - attempts: 3
       params:
@@ -1254,9 +1210,6 @@ resources:
     branch: (@= stemcell.branch @)
     ignore_paths:
     - VERSION
-    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
-    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
-    #! TODO: do we need ignore xenial if bionic and vice versa?
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
 
@@ -1315,16 +1268,8 @@ resources:
       - Monday
     interval: 499h
     location: America/Los_Angeles
-#@ if stemcell.version == "621.x":
-    start: "4:00"
-    stop: "6:30"
-#@ elif stemcell.version == "456.x":
-    start: "5:00"
-    stop: "7:30"
-#@ else:
     start: "6:00"
     stop: "8:30"
-#@ end
   type: time
 #@ end
 
