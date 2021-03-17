@@ -1,1 +1,1398 @@
-../ubuntu-xenial/pipeline.yml
+#@ load("@ytt:data", "data")
+#@yaml/text-templated-strings
+groups:
+#@ for stemcell in data.values.stemcells:
+- name: build-(@= stemcell.version @)
+  jobs:
+  - build-stemcell-(@= stemcell.version @)
+  - test-unit-(@= stemcell.version @)
+  - build-os-image-(@= stemcell.version @)
+  - build-vcloud-esxi-(@= stemcell.version @)
+  - build-vsphere-esxi-(@= stemcell.version @)
+  - build-openstack-kvm-(@= stemcell.version @)
+  - build-google-kvm-(@= stemcell.version @)
+#@ if stemcell.include_alicloud:
+  - build-alicloud-kvm-(@= stemcell.version @)
+#@ end
+  - build-azure-hyperv-(@= stemcell.version @)
+  - build-aws-xen-hvm-(@= stemcell.version @)
+  - build-warden-boshlite-(@= stemcell.version @)
+  - bats-(@= stemcell.version @)
+  - test-stemcells-(@= stemcell.version @)-ipv4
+  - test-stemcells-(@= stemcell.version @)-ipv6
+#@ if stemcell.version != "master":
+  - aggregate-candidate-stemcells-(@= stemcell.version @)
+#@ end
+- name: agent-(@= stemcell.version @)
+  jobs:
+  - test-unit-bosh-agent-(@= stemcell.version @)
+  - test-integration-bosh-agent-(@= stemcell.version @)
+  - promote-bosh-agent-(@= stemcell.version @)
+  - bump-bosh-agent-(@= stemcell.version @)
+  - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
+#@ end
+- name: automatic-triggers
+  jobs:
+#@ for stemcell in data.values.stemcells:
+  - create-story-(@= stemcell.version @)
+  - create-story-usn-(@= stemcell.version @)
+  - log-low-medium-cves-(@= stemcell.version @)
+#@ end
+
+#@yaml/text-templated-strings
+jobs:
+#@ for stemcell in data.values.stemcells:
+- name: create-story-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: every-3-weeks-on-monday-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  - file: bosh-stemcells-ci/tasks/create-story.yml
+    params:
+      BRANCH: (@= stemcell.branch @)
+      DESCRIPTION: periodic bump
+      #@ if stemcell.os == "bionic":
+      PROJECT_ID: ((bionic_story_creator_tracker_project_id))
+      #@ else:
+      PROJECT_ID: ((story_creator_tracker_project_id))
+      #@ end
+      TOKEN: ((story_creator_tracker_token))
+    task: create-story
+  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
+    params:
+      MESSAGE_PREFIX: Periodic bump
+    task: write-message
+  - params:
+      file: message/message.txt
+    put: stemcell-trigger-(@= stemcell.version @)
+
+- name: create-story-usn-(@= stemcell.version @)
+  serial_groups: [log-cves-(@= stemcell.version @)]
+  plan:
+  - in_parallel:
+    - get: bosh-stemcells-ci
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: (@= stemcell.os @)-usn
+      trigger: true
+    - get: usn-log-(@= stemcell.version @)
+  - file: bosh-stemcells-ci/tasks/write-usn-message.yml
+    input_mapping:
+      usn-log-in: usn-log-(@= stemcell.version @)
+      usn-source: (@= stemcell.os @)-usn
+    task: commit-usn-information
+  - file: bosh-stemcells-ci/tasks/create-story.yml
+    params:
+      BRANCH: (@= stemcell.branch @)
+      DESCRIPTION: ubuntu *security* notice
+      #@ if stemcell.os == "bionic":
+      PROJECT_ID: ((bionic_story_creator_private_tracker_project_id))
+      #@ else:
+      PROJECT_ID: ((story_creator_private_tracker_project_id))
+      #@ end
+      TOKEN: ((story_creator_tracker_token))
+    task: create-story
+  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
+    params:
+      MESSAGE_PREFIX: Addresses
+    task: write-message
+  - params:
+      file: message/message.txt
+    put: stemcell-trigger-(@= stemcell.version @)
+  - params:
+      acl: public-read
+      file: usn-log-out/usn-log.json
+    put: usn-log-(@= stemcell.version @)
+
+- name: log-low-medium-cves-(@= stemcell.version @)
+  serial_groups: [log-cves-(@= stemcell.version @)]
+  plan:
+  - in_parallel:
+    - get: bosh-stemcells-ci
+    - get: (@= stemcell.os @)-usn-low-medium
+      trigger: true
+    - get: usn-log-(@= stemcell.version @)
+  - task: commit-usn-information
+    file: bosh-stemcells-ci/tasks/write-usn-message.yml
+    input_mapping:
+      usn-source: (@= stemcell.os @)-usn-low-medium
+      usn-log-in: usn-log-(@= stemcell.version @)
+  - put: usn-log-(@= stemcell.version @)
+    params:
+      file: usn-log-out/usn-log.json
+      acl: public-read
+
+- name: build-os-image-(@= stemcell.version @)
+  plan:
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    trigger: true
+  - get: version
+    params:
+      bump: "major"
+    resource: os-image-version-(@= stemcell.version @)
+  - get: usn-log-(@= stemcell.version @)
+  - get: stemcell-trigger-(@= stemcell.version @)
+    trigger: true
+  - file: bosh-stemcells-ci/tasks/os-images/build.yml
+    params:
+      OPERATING_SYSTEM_NAME: ubuntu
+      OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
+    privileged: true
+    task: build
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - params:
+      files:
+      - os-image/(@= stemcell.os_name @).tgz
+      - usn-log-(@= stemcell.version @)/usn-log.json
+      rename: (@= stemcell.os_name @).meta4
+      options:
+        author_email: ci@localhost
+        author_name: CI Bot
+        message: '[ci skip] bump OS image'
+      version: version/version
+    put: os-image-tarball-(@= stemcell.version @)
+  - params:
+      file: version/number
+    put: os-image-version-(@= stemcell.version @)
+
+- name: test-unit-(@= stemcell.version @)
+  plan:
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    trigger: true
+    passed:
+    - build-os-image-(@= stemcell.version @)
+  - get: stemcell-trigger-(@= stemcell.version @)
+    passed:
+    - build-os-image-(@= stemcell.version @)
+    trigger: true
+  - file: bosh-stemcells-ci/tasks/test-unit.yml
+    task: test-unit
+  serial: true
+
+- name: build-stemcell-(@= stemcell.version @)
+  plan:
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    passed:
+    - test-unit-(@= stemcell.version @)
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    trigger: true
+  - get: stemcell-trigger-(@= stemcell.version @)
+    passed:
+    - test-unit-(@= stemcell.version @)
+    trigger: true
+  - get: version
+    params:
+      bump: (@= stemcell.bump_version @)
+    resource: version-(@= stemcell.version @)
+  - params:
+      file: version/number
+    put: version-(@= stemcell.version @)
+  serial: true
+
+- name: test-stemcells-(@= stemcell.version @)-ipv4
+  plan:
+  - do:
+    - in_parallel:
+      - get: version
+        passed:
+        - build-warden-boshlite-(@= stemcell.version @)
+        - build-aws-xen-hvm-(@= stemcell.version @)
+        - build-azure-hyperv-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        - build-openstack-kvm-(@= stemcell.version @)
+        - build-vsphere-esxi-(@= stemcell.version @)
+        - build-vcloud-esxi-(@= stemcell.version @)
+        resource: version-(@= stemcell.version @)
+        trigger: true
+      - get: bosh-stemcells-ci
+      - get: bosh-linux-stemcell-builder
+        resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+      - get: bosh-deployment
+      - get: bosh-cli
+      - get: syslog-release
+      - get: os-conf-release
+      - get: stemcell
+        passed:
+        - build-vsphere-esxi-(@= stemcell.version @)
+        resource: vsphere-esxi-(@= stemcell.version @)
+        tags:
+        - nimbus
+      - get: stemcell-trigger-(@= stemcell.version @)
+        passed:
+        - build-warden-boshlite-(@= stemcell.version @)
+        - build-aws-xen-hvm-(@= stemcell.version @)
+        - build-azure-hyperv-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        - build-openstack-kvm-(@= stemcell.version @)
+        - build-vsphere-esxi-(@= stemcell.version @)
+        - build-vcloud-esxi-(@= stemcell.version @)
+        trigger: true
+    - params:
+        acquire: true
+      put: environment
+      resource: nimbus-environment
+    - do:
+      - file: bosh-stemcells-ci/tasks/deploy-director.yml
+        tags:
+        - nimbus
+        task: deploy-director
+        params:
+          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
+          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
+          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
+          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
+          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
+      - attempts: 3
+        file: bosh-stemcells-ci/tasks/test-stemcell.yml
+        params:
+          BOSH_os_name: (@= stemcell.os_name @)
+          package: ipv4director
+        tags:
+        - nimbus
+        task: test-stemcell
+    ensure:
+      do:
+      - file: bosh-stemcells-ci/tasks/teardown.yml
+        tags:
+        - nimbus
+        task: teardown
+        attempts: 3
+      - params:
+          release: environment
+        put: environment
+        resource: nimbus-environment
+        attempts: 3
+  serial: true
+
+- name: test-stemcells-(@= stemcell.version @)-ipv6
+  plan:
+  - do:
+    - in_parallel:
+      - get: version
+        passed:
+        - build-warden-boshlite-(@= stemcell.version @)
+        - build-aws-xen-hvm-(@= stemcell.version @)
+        - build-azure-hyperv-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        - build-openstack-kvm-(@= stemcell.version @)
+        - build-vsphere-esxi-(@= stemcell.version @)
+        - build-vcloud-esxi-(@= stemcell.version @)
+        resource: version-(@= stemcell.version @)
+        trigger: true
+      - get: bosh-stemcells-ci
+      - get: bosh-linux-stemcell-builder
+        resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+      - get: bosh-deployment
+      - get: bosh-cli
+      - get: syslog-release
+      - get: os-conf-release
+      - get: stemcell
+        passed:
+        - build-vsphere-esxi-(@= stemcell.version @)
+        resource: vsphere-esxi-(@= stemcell.version @)
+        tags:
+        - nimbus
+      - get: stemcell-trigger-(@= stemcell.version @)
+        passed:
+        - build-warden-boshlite-(@= stemcell.version @)
+        - build-aws-xen-hvm-(@= stemcell.version @)
+        - build-azure-hyperv-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        - build-openstack-kvm-(@= stemcell.version @)
+        - build-vsphere-esxi-(@= stemcell.version @)
+        - build-vcloud-esxi-(@= stemcell.version @)
+        trigger: true
+    - params:
+        acquire: true
+      put: environment
+      resource: nimbus-environment
+    - do:
+      - file: bosh-stemcells-ci/tasks/deploy-director-ipv6.yml
+        tags:
+        - nimbus
+        task: deploy-director-ipv6
+        params:
+          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
+          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
+          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
+          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
+          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
+      - attempts: 1
+        file: bosh-stemcells-ci/tasks/test-stemcell.yml
+        params:
+          BOSH_os_name: (@= stemcell.os_name @)
+          package: ipv6director
+        tags:
+        - nimbus
+        task: test-stemcell-ipv6
+    ensure:
+      do:
+      - file: bosh-stemcells-ci/tasks/teardown.yml
+        tags:
+        - nimbus
+        task: teardown
+        attempts: 3
+      - params:
+          release: environment
+        put: environment
+        resource: nimbus-environment
+        attempts: 3
+  serial: true
+
+- name: build-warden-boshlite-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: boshlite
+      IAAS: warden
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/warden-boshlite-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: warden-boshlite-(@= stemcell.version @)
+
+- name: build-aws-xen-hvm-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: xen-hvm
+      IAAS: aws
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/aws-xen-hvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: aws-xen-hvm-(@= stemcell.version @)
+
+- name: build-azure-hyperv-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: hyperv
+      IAAS: azure
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/azure-hyperv-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: azure-hyperv-(@= stemcell.version @)
+
+- name: build-google-kvm-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: kvm
+      IAAS: google
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/google-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: google-kvm-(@= stemcell.version @)
+
+- name: build-openstack-kvm-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: kvm
+      IAAS: openstack
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/openstack-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: openstack-kvm-(@= stemcell.version @)
+
+- name: build-vsphere-esxi-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: esxi
+      IAAS: vsphere
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/vsphere-esxi-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: vsphere-esxi-(@= stemcell.version @)
+
+- name: build-vcloud-esxi-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: esxi
+      IAAS: vcloud
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/vcloud-esxi-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: vcloud-esxi-(@= stemcell.version @)
+
+#@ if stemcell.include_alicloud:
+- name: build-alicloud-kvm-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - build-stemcell-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: os-image-tarball
+      resource: os-image-tarball-(@= stemcell.version @)
+      passed:
+      - build-os-image-(@= stemcell.version @)
+  - attempts: 3
+    file: bosh-stemcells-ci/tasks/build.yml
+    params:
+      HYPERVISOR: kvm
+      IAAS: alicloud
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+    privileged: true
+    task: create-stemcell
+    vars:
+      #@ if stemcell.os == "bionic":
+      image_os_tag: (@= stemcell.os @)
+      #@ else:
+      image_os_tag: latest
+      #@ end
+  - in_parallel:
+    - attempts: 3
+      params:
+        files:
+        - stemcell/*.tgz
+        rename: "{{.Version}}/alicloud-kvm-go_agent.meta4"
+        options:
+          author_email: ci@localhost
+          author_name: CI Bot
+          message: 'dev: (@= stemcell.os_name @)'
+        version: candidate-build-number/number
+      put: alicloud-kvm-(@= stemcell.version @)
+#@ end
+
+- name: bats-(@= stemcell.version @)
+  serial: true
+  plan:
+  - do:
+    - in_parallel:
+      - get: stemcell
+        passed:
+        - build-vsphere-esxi-(@= stemcell.version @)
+        resource: vsphere-esxi-(@= stemcell.version @)
+        tags:
+        - nimbus
+        trigger: true
+      - get: bosh-cli
+      - get: bats
+      - get: bosh-deployment
+      - get: bosh-stemcells-ci
+      - get: main-ruby-go-docker-image
+      - get: bosh-linux-stemcell-builder
+        passed:
+        - build-warden-boshlite-(@= stemcell.version @)
+        - build-aws-xen-hvm-(@= stemcell.version @)
+        - build-azure-hyperv-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        - build-openstack-kvm-(@= stemcell.version @)
+        - build-vsphere-esxi-(@= stemcell.version @)
+        - build-vcloud-esxi-(@= stemcell.version @)
+        resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+      - get: version
+        passed:
+        - build-warden-boshlite-(@= stemcell.version @)
+        - build-aws-xen-hvm-(@= stemcell.version @)
+        - build-azure-hyperv-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        - build-openstack-kvm-(@= stemcell.version @)
+        - build-vsphere-esxi-(@= stemcell.version @)
+        - build-vcloud-esxi-(@= stemcell.version @)
+        resource: version-(@= stemcell.version @)
+      - get: stemcell-trigger-(@= stemcell.version @)
+        passed:
+        - build-warden-boshlite-(@= stemcell.version @)
+        - build-aws-xen-hvm-(@= stemcell.version @)
+        - build-azure-hyperv-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        - build-openstack-kvm-(@= stemcell.version @)
+        - build-vsphere-esxi-(@= stemcell.version @)
+        - build-vcloud-esxi-(@= stemcell.version @)
+        trigger: true
+    - params:
+        acquire: true
+      put: environment
+      resource: nimbus-environment
+    - do:
+      - task: deploy-director
+        file: bosh-stemcells-ci/tasks/deploy-director.yml
+        params:
+          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
+          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
+          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
+          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
+          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
+        tags:
+        - nimbus
+      - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
+        params:
+          STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent
+        tags:
+        - nimbus
+        task: prepare-bats
+      - file: bats/ci/tasks/run-bats.yml
+        image: main-ruby-go-docker-image
+        tags:
+        - nimbus
+        task: run-bats
+    ensure:
+      do:
+      - file: bosh-stemcells-ci/tasks/teardown.yml
+        tags:
+        - nimbus
+        task: teardown
+        attempts: 3
+      - params:
+          release: environment
+        put: environment
+        resource: nimbus-environment
+        attempts: 3
+
+#@ if stemcell.version != "master":
+- name: aggregate-candidate-stemcells-(@= stemcell.version @)
+  serial: true
+  plan:
+  - in_parallel:
+    - get: version
+      passed:
+      - test-stemcells-(@= stemcell.version @)-ipv4
+      - test-stemcells-(@= stemcell.version @)-ipv6
+      - bats-(@= stemcell.version @)
+      resource: version-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+    - get: bosh-linux-stemcell-builder
+      passed:
+      - bats-(@= stemcell.version @)
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: stemcells-index
+    - get: stemcell-trigger-(@= stemcell.version @)
+      passed:
+      - test-stemcells-(@= stemcell.version @)-ipv4
+      - test-stemcells-(@= stemcell.version @)-ipv6
+      - bats-(@= stemcell.version @)
+      trigger: true
+  - file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
+    task: assert-version-aligns
+  - file: bosh-stemcells-ci/tasks/publish.yml
+    params:
+      AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
+      AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
+      COMMIT_PREFIX: candidate
+      COPY_KEYS: |
+        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        google/bosh-stemcell-%s-google-kvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-(@= stemcell.os @)-go_agent-raw.tgz
+        warden/bosh-stemcell-%s-warden-boshlite-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
+        azure/bosh-stemcell-%s-azure-hyperv-ubuntu-(@= stemcell.os @)-go_agent.tgz
+      FROM_BUCKET_NAME: bosh-core-stemcells-candidate
+      FROM_INDEX: dev
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)
+      TO_BUCKET_NAME: bosh-core-stemcells-candidate
+      TO_INDEX: candidate
+    task: copy-artifacts
+  - in_parallel:
+    - params:
+        only_tag: true
+        repository: bosh-linux-stemcell-builder
+        tag: version-tag/tag
+      put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+    - params:
+        rebase: true
+        repository: stemcells-index
+      put: stemcells-index
+#@ end
+#@ end
+
+#@ for stemcell in data.values.stemcells:
+- name: test-unit-bosh-agent-(@= stemcell.version @)
+  public: true
+  plan:
+  - get: bosh-agent
+    resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+    trigger: true
+  - task: test-unit
+    file: bosh-agent/ci/tasks/test-unit.yml
+
+- name: test-integration-bosh-agent-(@= stemcell.version @)
+  public: false
+  plan:
+    - get: bosh-agent
+      trigger: true
+      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+    - task: test-integration
+      privileged: true
+      file: bosh-agent/ci/tasks/test-integration.yml
+      params:
+        BOSH_AWS_ACCESS_KEY_ID: ((BOSH_AWS_ACCESS_KEY_ID))
+        BOSH_AWS_SECRET_ACCESS_KEY: ((BOSH_AWS_SECRET_ACCESS_KEY))
+        BOSH_LITE_KEYPAIR: ((BOSH_LITE_KEYPAIR))
+        BOSH_LITE_SUBNET_ID: ((BOSH_LITE_SUBNET_ID))
+        BOSH_LITE_NAME: ((BOSH_LITE_NAME))
+        BOSH_LITE_SECURITY_GROUP: ((BOSH_LITE_SECURITY_GROUP))
+        BOSH_LITE_PRIVATE_KEY: ((BOSH_LITE_PRIVATE_KEY))
+        AWS_ACCESS_KEY: ((integration_aws_access_key))
+        AWS_SECRET_ACCESS_KEY: ((integration_aws_secret_access_key))
+        AWS_REGION: ((integration_aws_region))
+        AWS_BUCKET: ((integration_aws_bucket))
+
+- name: bosh-integration-tests-bosh-agent-(@= stemcell.version @)
+  public: true
+  serial: true
+  build_logs_to_retain: 250
+  plan:
+  - in_parallel:
+    - get: bosh-src
+    - get: bosh-cli
+    - get: bosh-agent
+      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+      trigger: true
+      passed:
+      - test-unit-bosh-agent-(@= stemcell.version @)
+      - test-integration-bosh-agent-(@= stemcell.version @)
+  - task: tests
+    privileged: true
+    file: bosh-src/ci/tasks/test-integration.yml
+    tags: ["bosh-integration"]
+    params:
+      DB: postgresql
+
+- name: promote-bosh-agent-(@= stemcell.version @)
+  public: true
+  serial: true
+  plan:
+  - in_parallel:
+    - trigger: true
+      passed:
+      - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
+      get: bosh-agent
+      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
+    - get: version-semver
+      resource: version-semver-bosh-agent-(@= stemcell.version @)
+      params:
+        bump: (@= stemcell.agent_bump_version @)
+  - task: assert-version-aligns
+    file: bosh-agent/ci/tasks/assert-version-aligns.yml
+  - put: version-semver-bosh-agent-(@= stemcell.version @)
+    params:
+      file: version-semver/number
+  - put: bosh-agent-src-(@= stemcell.version @)
+    params:
+#@ if stemcell.version != "master":
+      only_tag: true
+#@ end
+      repository: bosh-agent
+      tag: version-semver/number
+      tag_prefix: v
+  - in_parallel:
+    - task: build-windows
+      file: bosh-agent/ci/tasks/build-windows.yml
+    - task: build-linux
+      file: bosh-agent/ci/tasks/build-linux.yml
+  - put: bosh-agent-(@= stemcell.version @)
+    params:
+      files:
+      - compiled-linux-*/*
+      - compiled-windows-amd64/*
+      version: version-semver/number
+
+- name: bump-bosh-agent-(@= stemcell.version @)
+  plan:
+  - get: bosh-agent
+    params:
+      skip_download: true
+    resource: bosh-agent-(@= stemcell.version @)
+    passed:
+    - promote-bosh-agent-(@= stemcell.version @)
+    trigger: true
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
+    task: bump
+  - params:
+      rebase: true
+      repository: bosh-linux-stemcell-builder
+    put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+  serial: true
+#@ end
+
+resource_types:
+- name: ami-resource
+  type: registry-image
+  source:
+    repository: pivotalgreenhouse/ami-resource
+    tag: latest
+- name: github-status
+  type: registry-image
+  source:
+    repository: dpb587/github-status-resource
+    tag: master
+- name: usn
+  source:
+    repository: bosh/usn-resource
+  type: registry-image
+- name: metalink-repository
+  source:
+    repository: dpb587/metalink-repository-resource
+  type: registry-image
+- name: slack-notification
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+  type: registry-image
+- name: gcs-resource
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
+
+#@yaml/text-templated-strings
+resources:
+#@ for stemcell in data.values.stemcells:
+- name: warden-boshlite-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/warden/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/warden-boshlite-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+- name: aws-xen-hvm-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/aws/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/aws-xen-hvm-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+#@ if stemcell.include_alicloud:
+- name: alicloud-kvm-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/alicloud/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/alicloud-kvm-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+#@ end
+
+- name: azure-hyperv-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/azure/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/azure-hyperv-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+- name: openstack-kvm-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/openstack/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/openstack-kvm-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+- name: google-kvm-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/google/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/google-kvm-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+- name: vsphere-esxi-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/vsphere/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/vsphere-esxi-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+- name: vcloud-esxi-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/vcloud/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    filters:
+    - repositorypath: "*/vcloud-esxi-go_agent.meta4"
+    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((stemcell_aws_access_key))
+        secret_key: ((stemcell_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+- name: os-image-tarball-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://s3.amazonaws.com/((osimage_bucket))/(@= stemcell.version @)/{{.Name}}
+    options:
+      private_key: ((bosh_src_key))
+    filters:
+    - repositorypath: "(@= stemcell.os_name @).meta4"
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/#(@= stemcell.branch @)
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((osimage_aws_access_key))
+        secret_key: ((osimage_aws_secret_key))
+      type: s3
+  type: metalink-repository
+
+- name: version-(@= stemcell.version @)
+  source:
+    access_key_id: ((stemcell_aws_access_key))
+    bucket: ((candidate_stemcell_bucket))
+    driver: s3
+    initial_version: (@= stemcell.initial_version @)
+    key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
+    secret_access_key: ((stemcell_aws_secret_key))
+  type: semver
+- name: os-image-version-(@= stemcell.version @)
+  source:
+    access_key_id: ((stemcell_aws_access_key))
+    bucket: ((candidate_stemcell_bucket))
+    driver: s3
+    initial_version: "0.0.0"
+    key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
+    secret_access_key: ((stemcell_aws_secret_key))
+  type: semver
+
+- name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+  source:
+    branch: (@= stemcell.branch @)
+    private_key: ((bosh_src_key))
+    uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
+  type: git
+
+- name: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  source:
+    branch: (@= stemcell.branch @)
+    ignore_paths:
+    - VERSION
+    - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
+    - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
+    #! TODO: do we need ignore xenial if bionic and vice versa?
+    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
+  type: git
+
+- name: usn-log-(@= stemcell.version @)
+  source:
+    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+    bucket: bosh-stemcell-triggers
+    initial_context_text: ""
+    initial_version: '-'
+    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    versioned_file: (@= stemcell.version @)/usn-log.json
+  type: s3
+
+- name: bosh-agent-(@= stemcell.version @)
+  type: metalink-repository
+  source:
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-agent-index.git//
+    version: (@= stemcell.agent_metalink_version @)
+    mirror_files:
+    - destination: s3://s3-external-1.amazonaws.com/((RELEASE_BUCKET_AGENT))/{{.Name}}
+    options:
+      private_key: ((BOSH_AGENT_INDEX_DEPLOYMENT_PRIVATE_KEY))
+    url_handlers:
+    - type: s3
+      options:
+        access_key: ((AWS_S3_BUCKET_ACCESS_KEY))
+        secret_key: ((AWS_S3_BUCKET_SECRET_KEY))
+
+- name: stemcell-trigger-(@= stemcell.version @)
+  source:
+    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+    bucket: bosh-stemcell-triggers
+    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    versioned_file: (@= stemcell.version @)/stemcell-trigger
+  type: s3
+
+- name: bosh-agent-src-(@= stemcell.version @)
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bosh-agent.git
+    branch: (@= stemcell.agent_branch @)
+    private_key: ((BOSH_GITHUB_DEPLOYMENT_KEY))
+
+- name: version-semver-bosh-agent-(@= stemcell.version @)
+  type: semver
+  source:
+    initial_version: (@= stemcell.agent_initial_version @)
+    key: (@= stemcell.agent_version_key @)
+    bucket: ((SEMVER_BUCKET))
+    region_name: ((AWS_S3_BUCKET_REGION))
+    access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
+    secret_access_key: ((AWS_S3_BUCKET_SECRET_KEY))
+- name: every-3-weeks-on-monday-(@= stemcell.version @)
+  source:
+    days:
+      - Monday
+    interval: 499h
+    location: America/Los_Angeles
+#@ if stemcell.version == "621.x":
+    start: "4:00"
+    stop: "6:30"
+#@ elif stemcell.version == "456.x":
+    start: "5:00"
+    stop: "7:30"
+#@ else:
+    start: "6:00"
+    stop: "8:30"
+#@ end
+  type: time
+#@ end
+
+- name: bosh-stemcells-ci
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-stemcells-ci
+  type: git
+- name: bats
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-acceptance-tests.git
+  type: git
+- name: main-ruby-go-docker-image
+  type: docker-image
+  source:
+    repository: bosh/main-ruby-go
+    tag: master
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
+- name: stemcells-index
+  source:
+    branch: master
+    private_key: ((boshio_stemcells_index_key))
+    uri: git@github.com:bosh-io/stemcells-core-index.git
+  type: git
+- name: syslog-release
+  source:
+    repository: cloudfoundry/syslog-release
+  type: bosh-io-release
+- name: os-conf-release
+  source:
+    repository: cloudfoundry/os-conf-release
+  type: bosh-io-release
+- name: bosh-deployment
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment
+  type: git
+- name: (@= stemcell.os @)-usn-low-medium
+  source:
+    os: ubuntu-16.04-lts
+    priorities:
+    - low
+    - medium
+  type: usn
+- name: bosh-cli
+  source:
+    regexp: alpha-bosh-cli-(.*)-linux-amd64
+    bucket: ((bosh_cli_aws_s3_alpha_release_bucket))
+    region_name: ((bosh_cli_aws_s3_release_bucket_region))
+  type: s3
+- name: nimbus-environment
+  source:
+    branch: master
+    pool: nimbus
+    private_key: ((github_deployment_key__bosh-cpi-environments))
+    uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
+  type: pool
+- name: (@= stemcell.os @)-usn
+  source:
+    os: ubuntu-16.04-lts
+    priorities:
+    - high
+    - critical
+  type: usn
+- name: bosh-src
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/bosh.git
+    branch: master
