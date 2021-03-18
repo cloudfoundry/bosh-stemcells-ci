@@ -19,7 +19,7 @@ pushd "stemcells-index/published/${stemcell_line}" > /dev/null
   echo "Latest Cut Stemcell Time: ${latest_commit_date}"
 popd > /dev/null
 
-trigger_file_modified_time=$(aws --profile bosh-usn s3 ls ${s3_trigger_file} | cut -f 1,2 -d " ")
+trigger_file_modified_time=$(aws s3 ls ${s3_trigger_file} | cut -f 1,2 -d " ")
 trigger_file_modified_epoch_time=$(date --date="${trigger_file_modified_time}" "+%s")
 echo "Trigger File Modified Time: ${trigger_file_modified_epoch_time}"
 
