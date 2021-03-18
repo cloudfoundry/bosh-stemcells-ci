@@ -25,8 +25,11 @@ echo "Trigger File Modified Time: ${trigger_file_modified_epoch_time}"
 
 if [ ${latest_commit_date} -lt ${three_weeks_ago} -a ${trigger_file_modified_epoch_time} -lt ${three_weeks_ago} ]
 then
+  echo "Time for a new stemcell"
   echo "Periodic bump ($(date "+%b %e, %Y"))" > stemcell-trigger
   aws s3 cp ./stemcell-trigger ${s3_trigger_file}
 
   bosh-stemcells-ci/tasks/create-story.sh
+else
+  echo "Not yet time for a new stemcell"
 fi
