@@ -12,7 +12,7 @@ three_weeks=1814400
 let three_weeks_ago=now-${three_weeks}
 echo "Three Weeks Ago: ${three_weeks_ago}"
 
-pushd "stemcell-index/published/${stemcell_line}" > /dev/null
+pushd "stemcells-index/published/${stemcell_line}" > /dev/null
   latest_version=$(ls | sort --version-sort | grep "^${stemcell_series}" | tail -1)
   echo "Latest Cut Stemcell: ${latest_version}"
   latest_commit_date=$(git log --pretty="format:%ct" "${latest_version}" | head -n 1)

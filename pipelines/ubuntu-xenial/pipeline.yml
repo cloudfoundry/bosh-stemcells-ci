@@ -1302,8 +1302,6 @@ resources:
 
 - name: hourly
   source:
-    days:
-      - Monday
     interval: 1h
   type: time
 - name: bosh-stemcells-ci

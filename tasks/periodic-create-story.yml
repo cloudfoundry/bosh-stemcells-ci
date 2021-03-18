@@ -15,7 +15,7 @@ params:
   TOKEN:
 
 inputs:
-  - name: stemcell-index
+  - name: stemcells-index
   - name: bosh-stemcells-ci
 
 run:
