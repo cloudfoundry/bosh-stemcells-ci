@@ -1,0 +1,22 @@
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: bosh/os-image-stemcell-publisher
+
+params:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
+  BRANCH:
+  BUCKET:
+  DESCRIPTION:
+  PROJECT_ID:
+  TOKEN:
+
+inputs:
+  - name: stemcell-index
+  - name: bosh-stemcells-ci
+
+run:
+  path: bosh-stemcells-ci/tasks/periodic-create-story.sh

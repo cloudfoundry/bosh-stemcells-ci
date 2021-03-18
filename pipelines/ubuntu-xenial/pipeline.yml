@@ -34,7 +34,7 @@ groups:
 - name: automatic-triggers
   jobs:
 #@ for stemcell in data.values.stemcells:
-  - create-story-(@= stemcell.version @)
+  - create-story-periodic-(@= stemcell.version @)
   - create-story-usn-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
 #@ end
@@ -42,40 +42,29 @@ groups:
 #@yaml/text-templated-strings
 jobs:
 #@ for stemcell in data.values.stemcells:
-- name: create-story-(@= stemcell.version @)
+- name: create-story-periodic-(@= stemcell.version @)
   plan:
   - in_parallel:
-    - get: every-3-weeks-on-monday-(@= stemcell.version @)
+    - get: hourly
       trigger: true
+    - get: stemcells-index
     - get: bosh-stemcells-ci
-    - get: bosh-linux-stemcell-builder
-      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/create-story.yml
+  - file: bosh-stemcells-ci/tasks/periodic-create-story.yml
     params:
+      AWS_ACCESS_KEY_ID: ((bosh_usn_and_periodic_aws_access_key_id))
+      AWS_SECRET_ACCESS_KEY: ((bosh_usn_and_periodic_aws_secret_access_key))
       BRANCH: (@= stemcell.branch @)
+      BUCKET: bosh-stemcell-triggers
       DESCRIPTION: periodic bump
-      #@ if stemcell.os == "bionic":
-      PROJECT_ID: ((bionic_story_creator_tracker_project_id))
-      #@ else:
       PROJECT_ID: ((story_creator_tracker_project_id))
-      #@ end
       TOKEN: ((story_creator_tracker_token))
     task: create-story
-  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
-    params:
-      MESSAGE_PREFIX: Periodic bump
-    task: write-message
-  - params:
-      file: message/message.txt
-    put: stemcell-trigger-(@= stemcell.version @)
 
 - name: create-story-usn-(@= stemcell.version @)
   serial_groups: [log-cves-(@= stemcell.version @)]
   plan:
   - in_parallel:
     - get: bosh-stemcells-ci
-    - get: bosh-linux-stemcell-builder
-      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: (@= stemcell.os @)-usn
       trigger: true
     - get: usn-log-(@= stemcell.version @)
@@ -1309,25 +1298,14 @@ resources:
     region_name: ((AWS_S3_BUCKET_REGION))
     access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
     secret_access_key: ((AWS_S3_BUCKET_SECRET_KEY))
-- name: every-3-weeks-on-monday-(@= stemcell.version @)
+#@ end
+
+- name: hourly
   source:
     days:
       - Monday
-    interval: 499h
-    location: America/Los_Angeles
-#@ if stemcell.version == "621.x":
-    start: "4:00"
-    stop: "6:30"
-#@ elif stemcell.version == "456.x":
-    start: "5:00"
-    stop: "7:30"
-#@ else:
-    start: "6:00"
-    stop: "8:30"
-#@ end
+    interval: 1h
   type: time
-#@ end
-
 - name: bosh-stemcells-ci
   source:
     branch: master

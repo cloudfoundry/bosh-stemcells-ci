@@ -12,7 +12,6 @@ params:
   DESCRIPTION: ~
 
 inputs:
-  - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
 
 run:
