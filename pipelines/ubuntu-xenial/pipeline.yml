@@ -38,6 +38,7 @@ groups:
   - create-story-usn-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
 #@ end
+  - notify-of-usn
 
 #@yaml/text-templated-strings
 jobs:
@@ -903,6 +904,53 @@ jobs:
 #@ end
 #@ end
 
+- name: notify-of-usn
+  plan:
+  - get: (@= stemcell.os @)-usn
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: bosh/main
+        type: registry-image
+      inputs:
+      - name: (@= stemcell.os @)-usn
+      outputs:
+      - name: slack-message
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          set -exu -o pipefail
+          cat <<EOF > template.json
+          {
+            "attachments": {
+              "color": "#ff0000",
+                "thumb_url": "http://www.free-icons-download.net/images/lock-icon-66412.png",
+                "footer": "USN Notification",
+                "footer_icon": "https://i.imgur.com/7H8ZIq1.png",
+                "mrkdwn_in": ["fields"],
+                "fields": [
+                {"title": "Priorities", "short": true, "value": (.priorities | join(", "))},
+                {"title": "Date", "short": true, "value": .date},
+                {"title": "Description", "short": false, "value": .description},
+                {"title": "CVEs", "short": false, "value": (.cves | join("\n"))}
+                ]
+            }
+          }
+          EOF
+          cat (@= stemcell.os @)-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
+          cat (@= stemcell.os @)-usn/usn.json | jq -r '"New USN for (@= stemcell.os @): *<\(.url)|\(.title)>*"' | tee slack-message/message
+        path: /bin/bash
+    task: build-slack-message
+  - params:
+      attachments_file: slack-message/attachments
+      channel: ((usn_notifications_slack_channel_name))
+      icon_url: https://i.imgur.com/A0Vlw5t.png
+      text_file: slack-message/message
+    put: slack-alert
+
 #@ for stemcell in data.values.stemcells:
 - name: test-unit-bosh-agent-(@= stemcell.version @)
   public: true
@@ -1367,6 +1415,10 @@ resources:
     - high
     - critical
   type: usn
+- name: slack-alert
+  source:
+    url: ((slack_hook_url))
+  type: slack-notification
 - name: bosh-src
   type: git
   source:
