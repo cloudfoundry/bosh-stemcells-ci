@@ -19,7 +19,7 @@ ytt -f "$(dirname $0)" > $pipeline_config
 # ytt -f "$(dirname $0)"
 
 "$FLY" -t "${CONCOURSE_TARGET:-main}" set-pipeline \
-  -p "bosh:stemcells:ubuntu-xenial" \
+  -p "stemcells-ubuntu-xenial" \
   -l <(lpass show --notes "concourse:production pipeline:os-images" ) \
   -l <(lpass show --notes "concourse:production pipeline:bosh:stemcells" ) \
   -l <(lpass show --notes "bosh-agent concourse secrets" ) \
