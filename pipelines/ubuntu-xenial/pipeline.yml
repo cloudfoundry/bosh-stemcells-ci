@@ -89,13 +89,13 @@ jobs:
     params:
       MESSAGE_PREFIX: Addresses
     task: write-message
-  - params:
-      file: message/message.txt
-    put: stemcell-trigger-(@= stemcell.version @)
-  - params:
+  - put: usn-log-(@= stemcell.version @)
+    params:
       acl: public-read
       file: usn-log-out/usn-log.json
-    put: usn-log-(@= stemcell.version @)
+  - put: stemcell-trigger-(@= stemcell.version @)
+    params:
+      file: message/message.txt
 
 - name: log-low-medium-cves-(@= stemcell.version @)
   serial_groups: [log-cves-(@= stemcell.version @)]
