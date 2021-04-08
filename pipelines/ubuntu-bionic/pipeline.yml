@@ -1450,7 +1450,7 @@ resources:
   type: git
 - name: (@= stemcell.os @)-usn-low-medium
   source:
-    os: ubuntu-16.04-lts
+    os: ubuntu-(@= stemcell.os_version @)-lts
     priorities:
     - low
     - medium
@@ -1476,7 +1476,7 @@ resources:
     versioned_file: nimbus-vcenter-vars.yml
 - name: (@= stemcell.os @)-usn
   source:
-    os: ubuntu-16.04-lts
+    os: ubuntu-(@= stemcell.os_version @)-lts
     priorities:
     - high
     - critical
