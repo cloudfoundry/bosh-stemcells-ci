@@ -1,0 +1,11 @@
+#@data/values
+---
+lts: []
+
+oss:
+- os: ubuntu-bionic
+  version: 0
+  os_name: ubuntu
+  os_version: bionic
+  build_aws: true
+  branch: ubuntu-bionic/master
