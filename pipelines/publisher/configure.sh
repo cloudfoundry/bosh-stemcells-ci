@@ -21,8 +21,4 @@ ytt -f "$(dirname $0)" > $pipeline_config
   -p stemcells:publisher \
   -c $pipeline_config \
 bosh int /tmp/used_variables.txt \
--l <(lpass show --notes "light aws stemcell secrets") \
--l <(lpass show --notes "google stemcell concourse secrets") \
--l <(lpass show --notes "concourse:production pipeline:os-images") \
--l <(lpass show --notes "concourse:production pipeline:bosh:stemcells") \
--l <(lpass show --notes "concourse:production pipeline:bosh:stemcells lts")
+-l <(lpass show --notes "bionic_oss_stemcell_publisher.yml")
