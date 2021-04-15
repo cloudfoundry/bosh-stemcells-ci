@@ -3,7 +3,7 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: bosh/os-image-stemcell-publisher
+    repository: bosh/main-base
 
 params:
   AWS_ACCESS_KEY_ID:
