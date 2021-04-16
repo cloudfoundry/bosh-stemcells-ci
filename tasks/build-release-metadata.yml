@@ -1,0 +1,26 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: bosh/os-image-stemcell-builder
+
+inputs:
+  - name: bosh-stemcells-ci
+  - name: bosh-linux-stemcell-builder
+  - name: stemcell-metalink
+  - name: stemcell-trigger
+    optional: true
+
+outputs:
+  - name: release-metadata
+  - name: bosh-linux-stemcell-builder
+  - name: usn-log
+
+params:
+  OS_NAME: ~
+  OS_VERSION: ~
+
+run:
+  path: bosh-stemcells-ci/tasks/build-release-metadata.sh

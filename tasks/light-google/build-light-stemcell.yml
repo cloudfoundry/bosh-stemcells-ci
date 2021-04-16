@@ -1,0 +1,25 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: boshcpi/light-stemcell-builder
+
+inputs:
+  - name: builder-src
+  - name: bosh-stemcells-ci
+  - name: stemcell
+
+outputs:
+  - name: light-stemcell
+  - name: raw-stemcell
+
+run:
+  path: bosh-stemcells-ci/tasks/light-google/build-light-stemcell.sh
+
+params:
+  BUCKET_NAME:           ""
+  STEMCELL_BUCKET_PATH:  ""
+  AWS_ACCESS_KEY_ID:     ""
+  AWS_SECRET_ACCESS_KEY: ""

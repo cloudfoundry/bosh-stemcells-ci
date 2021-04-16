@@ -1,0 +1,25 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: bosh/main-ruby-go
+
+inputs:
+  - name: bosh-cli
+  - name: bosh-stemcells-ci
+  - name: bosh-cpi-release
+  - name: builder-src
+  - name: light-stemcell
+  - name: terraform
+
+outputs:
+  - name: deployment-state
+
+run:
+  path: bosh-stemcells-ci/tasks/light-google/deploy-skeletal.sh
+
+params:
+  SSH_PRIVATE_KEY:      ""
+  GCE_CREDENTIALS_JSON: ""

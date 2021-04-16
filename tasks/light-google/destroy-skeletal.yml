@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: bosh/main-ruby-go
+
+inputs:
+  - name: deployment-state
+  - name: bosh-stemcells-ci
+  - name: builder-src
+
+run:
+  path: bosh-stemcells-ci/tasks/light-google/destroy-skeletal.sh

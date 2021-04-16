@@ -1,0 +1,21 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: boshcpi/aws-cpi-release}
+
+inputs:
+  - name: bosh-cpi-src
+  - name: bosh-stemcells-ci
+  - name: environment
+  - name: stemcell
+  - name: director-state
+  - name: builder-src
+  - name: bosh-cli
+
+run:
+  path: bosh-stemcells-ci/tasks/light-aws/run-upload-test.sh
+
+params:
+  BOSH_DEBUG_LEVEL:     info
