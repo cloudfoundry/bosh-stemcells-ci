@@ -8,4 +8,9 @@ oss:
   os_name: ubuntu
   os_version: bionic
   build_aws: true
-  branch: ubuntu-bionic/master
+
+- os: ubuntu-bionic
+  version: 1
+  os_name: ubuntu
+  os_version: bionic
+  build_aws: true
