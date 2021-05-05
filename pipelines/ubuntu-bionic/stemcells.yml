@@ -17,6 +17,24 @@ stemcells:
   os_version: "18.04"
   os_name: ubuntu-bionic
 
+- version: "1.x"
+  #! TODO change bosh_agent_version to '*' once network issue on aws is resolved,
+  #! which was introduced by: https://github.com/cloudfoundry/bosh-agent/pull/238
+  bosh_agent_version: "2.346"
+  branch: "ubuntu-bionic/1.x"
+  bump_version: "minor"
+  agent_bump_version: "patch"
+  agent_promote_from: "master"
+  agent_metalink_version: '*'
+  agent_branch: "master"
+  agent_initial_version: "2.346.0"
+  agent_version_key: "agent-bionic-1.0-current-version"
+  initial_version: "1.0.0"
+  include_alicloud: true
+  os: bionic
+  os_version: "18.04"
+  os_name: ubuntu-bionic
+
 - version: "0.x"
   bosh_agent_version: "*"
   branch: "ubuntu-bionic/0.x"
