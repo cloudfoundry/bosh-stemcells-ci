@@ -368,7 +368,7 @@ jobs:
       IAAS: warden
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -416,7 +416,7 @@ jobs:
       IAAS: aws
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -464,7 +464,7 @@ jobs:
       IAAS: azure
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -512,7 +512,7 @@ jobs:
       IAAS: google
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -560,7 +560,7 @@ jobs:
       IAAS: openstack
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -608,7 +608,7 @@ jobs:
       IAAS: vsphere
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -656,7 +656,7 @@ jobs:
       IAAS: vcloud
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -705,7 +705,7 @@ jobs:
       IAAS: alicloud
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
       ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
@@ -853,11 +853,11 @@ jobs:
         vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
         vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
         azure/bosh-stemcell-%s-azure-hyperv-ubuntu-(@= stemcell.os @)-go_agent.tgz
-      FROM_BUCKET_NAME: bosh-core-stemcells-candidate
+      FROM_BUCKET_NAME: ((candidate_stemcell_bucket))
       FROM_INDEX: dev
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      TO_BUCKET_NAME: bosh-core-stemcells-candidate
+      TO_BUCKET_NAME: ((candidate_stemcell_bucket))
       TO_INDEX: candidate
     task: copy-artifacts
   - in_parallel:
