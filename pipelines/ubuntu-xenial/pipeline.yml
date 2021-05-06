@@ -128,6 +128,7 @@ jobs:
     params:
       OPERATING_SYSTEM_NAME: ubuntu
       OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: build
     vars:
@@ -368,6 +369,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -415,6 +417,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -462,6 +465,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -509,6 +513,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -556,6 +561,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -603,6 +609,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -650,6 +657,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -698,6 +706,7 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
+      ESM_TOKEN: ((esm_token))
     privileged: true
     task: create-stemcell
     vars:
@@ -1060,10 +1069,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/warden/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/warden-boshlite-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1078,10 +1087,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/aws/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/aws-xen-hvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1097,10 +1106,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/alicloud/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/alicloud-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1116,10 +1125,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/azure/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/azure-hyperv-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1134,10 +1143,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/openstack/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/openstack-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1152,10 +1161,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/google/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/google-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1170,10 +1179,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/vsphere/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/vsphere-esxi-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1188,10 +1197,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/vcloud/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/vcloud-esxi-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1206,10 +1215,10 @@ resources:
     mirror_files:
     - destination: s3://s3.amazonaws.com/((osimage_bucket))/(@= stemcell.version @)/{{.Name}}
     options:
-      private_key: ((bosh_src_key))
+      private_key: ((github_stemcells_index_key.private_key))
     filters:
     - repositorypath: "(@= stemcell.os_name @).meta4"
-    uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/#(@= stemcell.branch @)
+    uri: git+ssh://((stemcells_index_uri))//os-images
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1241,7 +1250,7 @@ resources:
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   source:
     branch: (@= stemcell.branch @)
-    private_key: ((bosh_src_key))
+    private_key: ((github_bosh_linux_stemcell_builder.private_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
 
@@ -1330,8 +1339,8 @@ resources:
 - name: stemcells-index
   source:
     branch: master
-    private_key: ((boshio_stemcells_index_key))
-    uri: git@github.com:bosh-io/stemcells-core-index.git
+    private_key: ((github_stemcells_index_key.private_key))
+    uri: ((stemcells_index_uri))
   type: git
 - name: syslog-release
   source:
