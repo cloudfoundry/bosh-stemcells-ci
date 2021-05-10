@@ -4,12 +4,6 @@ lts: []
 
 oss:
 - os: ubuntu-bionic
-  version: 0
-  os_name: ubuntu
-  os_version: bionic
-  build_aws: true
-
-- os: ubuntu-bionic
   version: 1
   os_name: ubuntu
   os_version: bionic
