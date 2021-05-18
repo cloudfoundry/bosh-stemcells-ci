@@ -137,7 +137,7 @@ jobs:
       files:
       - os-image/(@= stemcell.os_name @).tgz
       - usn-log-(@= stemcell.version @)/usn-log.json
-      rename: (@= stemcell.os_name @).meta4
+      rename: (@= stemcell.os_name @)-(@= stemcell.version @).meta4
       options:
         author_email: ci@localhost
         author_name: CI Bot
@@ -1217,7 +1217,7 @@ resources:
     options:
       private_key: ((github_stemcells_index_key.private_key))
     filters:
-    - repositorypath: "(@= stemcell.os_name @).meta4"
+    - repositorypath: "(@= stemcell.os_name @)-(@= stemcell.version @).meta4"
     uri: git+ssh://((stemcells_index_uri))//os-images
     url_handlers:
     - include:
