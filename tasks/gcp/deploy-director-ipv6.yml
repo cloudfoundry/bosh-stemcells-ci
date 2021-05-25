@@ -1,0 +1,30 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: boshcpi/cpi-certification}
+
+inputs:
+  - name: bosh-deployment
+  - name: bosh-stemcells-ci
+  - name: bosh-linux-stemcell-builder
+  - name: bosh-cli
+  - name: environment
+
+outputs:
+  - name: director-state
+
+params:
+  GCP_PROJECT_ID: cloud-foundry-310819
+  GCP_ZONE: europe-west4
+  TAG: test-stemcell
+  GCP_JSON_KEY: REPLACE-ME
+  GCP_NETWORK_NAME: default
+  GCP_SUBNET_NAME: default
+  INTERNAL_CIDR: 10.0.0.0/24
+  INTERNAL_GW: 10.0.0.1
+  INTERNAL_IP: 10.0.0.6
+
+run:
+  path: bosh-stemcells-ci/tasks/deploy-director-ipv6.sh

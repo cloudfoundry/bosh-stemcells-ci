@@ -24,7 +24,7 @@ mkdir -p stemcell-trigger
 touch stemcell-trigger/stemcell-trigger
 
 meta4 import-file --metalink="$meta4_path" --version="$VERSION" "stemcell-trigger/stemcell-trigger"
-meta4 file-set-url --metalink="$meta4_path" --file="stemcell-trigger" "https://s3.amazonaws.com/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
+meta4 file-set-url --metalink="$meta4_path" --file="stemcell-trigger" "https://${S3_API_ENDPOINT}/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
 
 cd stemcells-index-output
 
@@ -38,6 +38,7 @@ cd ..
 #
 # copy s3 objects into the public bucket
 #
+#TODO: use gcp or use aws and use google s3 url s3://storage.googleapis.com/$FROM_BUCKET_NAME
 
 if [ "$FROM_BUCKET_NAME" == "$TO_BUCKET_NAME" ]; then
   echo "Skipping upload since buckets are the same..."
@@ -49,7 +50,7 @@ else
 
     # occasionally this fails for unexpected reasons; retry a few times
     for i in {1..4}; do
-      aws s3 cp "s3://$FROM_BUCKET_NAME/$file" "s3://$TO_BUCKET_NAME/$file" \
+      aws --endpoint-url=${AWS_ENDPOINT} s3 cp "s3://$FROM_BUCKET_NAME/$file" "s3://$TO_BUCKET_NAME/$file" \
         && break \
         || sleep 5
     done
@@ -58,7 +59,7 @@ else
   done
 fi
 
-aws s3 cp stemcell-trigger/stemcell-trigger "s3://${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
+aws s3 cp stemcell-trigger/stemcell-trigger "s3://storage.googleapis.com/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
 
 echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > version-tag/tag
 
