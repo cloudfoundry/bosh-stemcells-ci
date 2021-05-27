@@ -31,8 +31,6 @@ chmod +x $bosh_cli
 $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/gcp/cpi.yml \
   -o bosh-deployment/jumpbox-user.yml \
-  # -o bosh-deployment/misc/ntp.yml \
-  # -o bosh-deployment/misc/dns.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
   --var-file gcp_credentials_json gcp_creds.json \
