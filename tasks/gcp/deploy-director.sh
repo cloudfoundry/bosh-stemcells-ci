@@ -33,7 +33,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/jumpbox-user.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
-  --var-file gcp_credentials_json gcp_creds.json \
+  --var-file gcp_credentials_json=gcp_creds.json \
   --vars-file network-variables.yml > director.yml
 
 set +e
