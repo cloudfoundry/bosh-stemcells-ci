@@ -21,6 +21,7 @@ internal_cidr: ${INTERNAL_CIDR}
 internal_gw: ${INTERNAL_GW}
 network:    ${GCP_NETWORK_NAME}
 subnetwork: ${GCP_SUBNET_NAME}
+reserved_range: [${RESERVED_RANGE}]
 EOF
 
 echo ${GCP_JSON_KEY} > gcp_creds.json
@@ -58,6 +59,5 @@ export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_passwo
 
 $bosh_cli -n update-cloud-config bosh-deployment/gcp/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
-          --ops-file bosh-stemcells-ci/ops-files/resource-pool-cc.yml \
           --vars-file network-variables.yml \
           --vars-file director-vars.yml
