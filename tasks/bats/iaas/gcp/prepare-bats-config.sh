@@ -22,52 +22,46 @@ export BAT_NETWORKING=manual
 export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
 EOF
 
-export VARS_DATACENTERS="$(bosh-cli int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters" 2>/dev/null)"
-
 cat > interpolate.yml <<EOF
 ---
 cpi: gcp
 properties:
   pool_size: 1
   instances: 1
-  second_static_ip: ((network1.staticIP-2))
+  second_static_ip: ((STATIC_IP_DEFAULT-2))
   stemcell:
     name: ((stemcell_name))
     version: latest
   networks:
     - name: default
       type: manual
-      static_ip: 10.0.1.30 # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
+      static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
       dns: [8.8.8.8]
       cloud_properties:
-        network_name: ((network))
-        subnetwork_name: ((subnetwork))
+        network_name: ((NETWORK_DEFAULT))
+        subnetwork_name: ((SUBNETWORK_DEFAULT))
         ephemeral_external_ip: true
         tags: ((tags))
-      cidr: 10.0.1.0/24
-      reserved: ['10.0.1.2 - 10.0.1.9']
-      static: ['10.0.1.10 - 10.0.1.30']
-      gateway: 10.0.1.1
-    - name: static
-      type: manual
-      static_ip: ((network1.staticIP-1))
-      cidr: ((network1.vCenterCIDR))
-      reserved: ((network1.reservedRange))
-      static: ((network1.staticRange))
-      gateway: ((network1.vCenterGateway))
-      subnet: ((network1.vCenterVLAN))
+      cidr: ((CIDR_DEFAULT))
+      reserved: ((RESERVERD_DEFAULT))
+      static: ((STATIC_DEFAULT))
+      gateway: ((STATIC_GATEWAY))
     - name: second
       type: manual
-      static_ip: ((network2.staticIP-1))
-      cidr: ((network2.vCenterCIDR))
-      reserved: ((network2.reservedRange))
-      static: ((network2.staticRange))
-      gateway: ((network2.vCenterGateway))
-      vlan: ((network2.vCenterVLAN))
+      static_ip: ((STATIC_IP_SECOND)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
+      dns: [8.8.8.8]
+      cloud_properties:
+        network_name: ((NETWORK_SECOND))
+        subnetwork_name: ((SUBNETWORK_SECOND))
+        ephemeral_external_ip: true
+        tags: ((tags))
+      cidr: ((CIDR_SECOND))
+      reserved: ((RESERVERD_SECOND))
+      static: ((STATIC_SECOND))
+      gateway: ((STATIC_SECOND))
 EOF
 
 bosh-cli interpolate \
- --vars-file environment/metadata \
  --vars-env VARS \
  -v "stemcell_name=$STEMCELL_NAME" \
  interpolate.yml \
