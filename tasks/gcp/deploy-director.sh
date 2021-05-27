@@ -23,7 +23,7 @@ network:    ${GCP_NETWORK_NAME}
 subnetwork: ${GCP_SUBNET_NAME}
 EOF
 
-cat ${GCP_JSON_KEY} > gcp_creds.json
+echo ${GCP_JSON_KEY} > gcp_creds.json
 
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
 chmod +x $bosh_cli
