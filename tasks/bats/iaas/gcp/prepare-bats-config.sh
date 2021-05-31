@@ -40,7 +40,7 @@ properties:
       cloud_properties:
         network_name: ((NETWORK_DEFAULT))
         subnetwork_name: ((SUBNETWORK_DEFAULT))
-        ephemeral_external_ip: true
+        ephemeral_external_ip: false
         tags: ((tags))
       cidr: ((CIDR_DEFAULT))
       reserved: ((RESERVERD_DEFAULT))
@@ -53,7 +53,7 @@ properties:
       cloud_properties:
         network_name: ((NETWORK_SECOND))
         subnetwork_name: ((SUBNETWORK_SECOND))
-        ephemeral_external_ip: true
+        ephemeral_external_ip: false
         tags: ((tags))
       cidr: ((CIDR_SECOND))
       reserved: ((RESERVERD_SECOND))

@@ -9,7 +9,6 @@ image_resource:
 inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
-  - name: environment
   - name: director-state
 
 params:
