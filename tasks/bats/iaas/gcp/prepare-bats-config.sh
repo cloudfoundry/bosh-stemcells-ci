@@ -30,7 +30,7 @@ properties:
   instances: 1
   second_static_ip: ((STATIC_IP_DEFAULT-2))
   stemcell:
-    name: ((stemcell_name))
+    name: ((STEMCELL_NAME))
     version: latest
   networks:
     - name: default
@@ -63,6 +63,5 @@ EOF
 
 bosh-cli interpolate \
  --vars-env VARS \
- -v "stemcell_name=$STEMCELL_NAME" \
  interpolate.yml \
  > bats-config/bats-config.yml
