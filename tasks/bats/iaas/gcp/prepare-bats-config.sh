@@ -24,7 +24,7 @@ EOF
 
 cat > interpolate.yml <<EOF
 ---
-cpi: gcp
+cpi: google
 properties:
   pool_size: 1
   instances: 1
