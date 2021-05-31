@@ -59,5 +59,6 @@ export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_passwo
 
 $bosh_cli -n update-cloud-config bosh-deployment/gcp/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
+          --ops-file bosh-stemcells-ci/ops-files/disable-ephemeral-ip.yml \
           --vars-file network-variables.yml \
           --vars-file director-vars.yml
