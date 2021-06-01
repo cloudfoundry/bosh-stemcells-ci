@@ -35,7 +35,7 @@ properties:
     name: ((STEMCELL_NAME))
     version: latest
   networks:
-    - name: static
+    - name: default
       type: manual
       static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
       subnets:
