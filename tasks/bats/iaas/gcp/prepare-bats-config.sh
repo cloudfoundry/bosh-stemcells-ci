@@ -50,7 +50,7 @@ properties:
     - name: second
       type: manual
       subnets:
-        range: ((CIDR_SECOND))
+      - range: ((CIDR_SECOND))
         static: ((STATIC_SECOND))
         gateway: ((GATEWAY_SECOND))
         cloud_properties:
