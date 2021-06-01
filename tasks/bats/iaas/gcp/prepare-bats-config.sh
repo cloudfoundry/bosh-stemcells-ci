@@ -36,9 +36,7 @@ properties:
     - name: second
       type: manual
       subnets:
-        static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
-        dns: [8.8.8.8]
-        range: ((CIDR_DEFAULT))
+      - range: ((CIDR_DEFAULT))
         # reserved: ((RESERVERD_DEFAULT))
         static: ((STATIC_DEFAULT))
         gateway: ((STATIC_GATEWAY))
@@ -47,6 +45,8 @@ properties:
           subnetwork_name: ((SUBNETWORK_DEFAULT))
           ephemeral_external_ip: false
           tags: [((tags))]
+        static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
+        dns: [8.8.8.8]
 
     # - name: second
     #   type: manual
