@@ -19,7 +19,7 @@ export BAT_DNS_HOST="$( manifest_path /instance_groups/name=bosh/networks/name=d
 export BAT_INFRASTRUCTURE=gcp
 export BAT_NETWORKING=manual
 
-export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
+export BAT_RSPEC_FLAGS="-- tag ~multiple_manual_networks --tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
 EOF
 
 cat > interpolate.yml <<EOF
