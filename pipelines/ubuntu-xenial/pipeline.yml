@@ -78,8 +78,8 @@ jobs:
     params:
       BRANCH: (@= stemcell.branch @)
       DESCRIPTION: ubuntu *security* notice
-      COLUMN_ID: ((github_project_column_id))
-      TOKEN: ((story_creator_github_token))
+      PROJECT_ID: ((story_creator_private_tracker_project_id))
+      TOKEN: ((story_creator_tracker_token))
     task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:

@@ -59,7 +59,7 @@ jobs:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/create-story.yml
+  - file: bosh-stemcells-ci/tasks/create-github-story.yml
     params:
       #@ if stemcell.version == "master":
       BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
@@ -93,7 +93,7 @@ jobs:
       usn-log-in: usn-log-(@= stemcell.version @)
       usn-source: (@= stemcell.os @)-usn
     task: commit-usn-information
-  - file: bosh-stemcells-ci/tasks/create-story.yml
+  - file: bosh-stemcells-ci/tasks/create-github-story.yml
     params:
       #@ if stemcell.version == "master":
       BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
