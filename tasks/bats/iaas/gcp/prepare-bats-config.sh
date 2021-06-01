@@ -33,32 +33,35 @@ properties:
     name: ((STEMCELL_NAME))
     version: latest
   networks:
-    - name: default
-      type: manual
-      static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
-      dns: [8.8.8.8]
-      cloud_properties:
-        network_name: ((NETWORK_DEFAULT))
-        subnetwork_name: ((SUBNETWORK_DEFAULT))
-        ephemeral_external_ip: false
-        tags: ((tags))
-      cidr: ((CIDR_DEFAULT))
-      reserved: ((RESERVERD_DEFAULT))
-      static: ((STATIC_DEFAULT))
-      gateway: ((STATIC_GATEWAY))
     - name: second
       type: manual
-      static_ip: ((STATIC_IP_SECOND)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
-      dns: [8.8.8.8]
-      cloud_properties:
-        network_name: ((NETWORK_SECOND))
-        subnetwork_name: ((SUBNETWORK_SECOND))
-        ephemeral_external_ip: false
-        tags: ((tags))
-      cidr: ((CIDR_SECOND))
-      reserved: ((RESERVERD_SECOND))
-      static: ((STATIC_SECOND))
-      gateway: ((STATIC_SECOND))
+      subnets:
+        static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
+        dns: [8.8.8.8]
+        range: ((CIDR_DEFAULT))
+        # reserved: ((RESERVERD_DEFAULT))
+        static: ((STATIC_DEFAULT))
+        gateway: ((STATIC_GATEWAY))
+        cloud_properties:
+          network_name: ((NETWORK_DEFAULT))
+          subnetwork_name: ((SUBNETWORK_DEFAULT))
+          ephemeral_external_ip: false
+          tags: [((tags))]
+
+    # - name: second
+    #   type: manual
+    #   subnets:
+    #     static_ip: ((STATIC_IP_SECOND)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
+    #     dns: [8.8.8.8]
+    #     cloud_properties:
+    #       network_name: ((NETWORK_SECOND))
+    #       subnetwork_name: ((SUBNETWORK_SECOND))
+    #       ephemeral_external_ip: false
+    #       tags: [((tags))]
+    #     cidr: ((CIDR_SECOND))
+    #     reserved: ((RESERVERD_SECOND))
+    #     static: ((STATIC_SECOND))
+    #     gateway: ((STATIC_SECOND))
 EOF
 
 bosh-cli interpolate \
