@@ -19,7 +19,7 @@ groups:
   - build-warden-boshlite-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)-ipv4
-  - test-stemcells-(@= stemcell.version @)-ipv6
+  #! - test-stemcells-(@= stemcell.version @)-ipv6
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
@@ -151,7 +151,6 @@ jobs:
     params:
       OPERATING_SYSTEM_NAME: ubuntu
       OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
-      S3_API_ENDPOINT: storage.googleapis.com
     privileged: true
     task: build
     vars:
@@ -209,6 +208,8 @@ jobs:
   serial: true
 
 - name: test-stemcells-(@= stemcell.version @)-ipv4
+  #! build_log_retention:
+  #!   builds: 1
   plan:
   - do:
     - in_parallel:
@@ -232,8 +233,8 @@ jobs:
       - get: os-conf-release
       - get: stemcell
         passed:
-        - build-vsphere-esxi-(@= stemcell.version @)
-        resource: vsphere-esxi-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        resource: google-kvm-(@= stemcell.version @)
       - get: stemcell-trigger-(@= stemcell.version @)
         passed:
         - build-warden-boshlite-(@= stemcell.version @)
@@ -247,6 +248,17 @@ jobs:
     - do:
       - file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
         task: deploy-director
+        params:
+          GCP_PROJECT_ID: ((gcp_project_id))
+          GCP_ZONE: europe-west4-a
+          GCP_NETWORK_NAME: default
+          GCP_SUBNET_NAME: bosh-integration1
+          GCP_JSON_KEY: ((gcp_json_key))
+          INTERNAL_IP: 10.100.0.10
+          INTERNAL_CIDR: 10.100.0.0/24
+          INTERNAL_GW: 10.100.0.1
+          RESERVED_RANGE: '10.100.0.2 - 10.100.0.9'
+          TAG: test-stemcells-ipv4
       - attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
@@ -698,8 +710,8 @@ jobs:
     - in_parallel:
       - get: stemcell
         passed:
-        - build-vsphere-esxi-(@= stemcell.version @)
-        resource: vsphere-esxi-(@= stemcell.version @)
+        - build-google-kvm-(@= stemcell.version @)
+        resource: google-kvm-(@= stemcell.version @)
         trigger: true
       - get: bosh-cli
       - get: bats
@@ -739,9 +751,36 @@ jobs:
     - do:
       - task: deploy-director
         file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
+        params:
+          GCP_PROJECT_ID: ((gcp_project_id))
+          GCP_ZONE: europe-west4-a
+          GCP_NETWORK_NAME: default
+          GCP_SUBNET_NAME: bosh-integration2
+          GCP_JSON_KEY: ((gcp_json_key))
+          INTERNAL_IP: 10.100.1.10
+          INTERNAL_CIDR: 10.100.1.0/24
+          INTERNAL_GW: 10.100.1.1
+          RESERVED_RANGE: '10.100.1.2 - 10.100.1.9'
+          TAG: test-stemcells-bats
       - file: bosh-stemcells-ci/tasks/bats/iaas/gcp/prepare-bats-config.yml
         params:
-          STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= stemcell.os @)-go_agent
+          VARS_STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= stemcell.os @)-go_agent
+          VARS_NETWORK_DEFAULT: default
+          VARS_SUBNETWORK_DEFAULT: bosh-integration3
+          VARS_CIDR_DEFAULT: "10.100.2.0/24"
+          VARS_RESERVED_DEFAULT: '10.100.2.2 - 10.100.2.9'
+          VARS_STATIC_DEFAULT: '10.100.2.10 - 10.100.2.30'
+          VARS_STATIC_IP_DEFAULT: 10.100.2.30
+          VARS_STATIC_IP_DEFAULT-2: 10.100.2.15
+          VARS_GATEWAY_DEFAULT: 10.100.2.1
+          VARS_NETWORK_SECOND: default
+          VARS_SUBNETWORK_SECOND: bosh-integration4
+          VARS_CIDR_SECOND: "10.100.3.0/24"
+          VARS_RESERVED_SECOND: "['10.100.3.2 - 10.100.3.9']"
+          VARS_STATIC_SECOND: "['10.100.3.10 - 10.100.3.30']"
+          VARS_STATIC_IP_SECOND: 10.100.3.30
+          VARS_GATEWAY_SECOND: 10.100.3.1
+          VARS_TAG: test-stemcells-bats
         task: prepare-bats
       - file: bats/ci/tasks/run-bats.yml
         image: main-ruby-go-docker-image
@@ -760,7 +799,7 @@ jobs:
     - get: version
       passed:
       - test-stemcells-(@= stemcell.version @)-ipv4
-      - test-stemcells-(@= stemcell.version @)-ipv6
+      #! - test-stemcells-(@= stemcell.version @)-ipv6
       - bats-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
@@ -773,7 +812,7 @@ jobs:
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
       - test-stemcells-(@= stemcell.version @)-ipv4
-      - test-stemcells-(@= stemcell.version @)-ipv6
+      #! - test-stemcells-(@= stemcell.version @)-ipv6
       - bats-(@= stemcell.version @)
       trigger: true
   - file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
@@ -1271,6 +1310,7 @@ resources:
     access_key_id: ((hmac_accesskey))
     secret_access_key: ((hmac_secret))
     bucket: bosh-core-stemcells-candidate
+    endpoint: "https://storage.googleapis.com"
     driver: s3
     initial_version: (@= stemcell.initial_version @)
     key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
@@ -1281,6 +1321,7 @@ resources:
     access_key_id: ((hmac_accesskey))
     secret_access_key: ((hmac_secret))
     bucket: bosh-core-stemcells-candidate
+    endpoint: "https://storage.googleapis.com"
     driver: s3
     initial_version: "0.0.0"
     key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
@@ -1308,7 +1349,8 @@ resources:
     access_key_id: ((hmac_accesskey))
     secret_access_key: ((hmac_secret))
     bucket: bosh-stemcell-triggers
-    initial_context_text: ""
+    endpoint: "https://storage.googleapis.com"
+    initial_content_text: ""
     initial_version: '-'
     versioned_file: (@= stemcell.version @)/usn-log.json
   type: s3
@@ -1333,6 +1375,9 @@ resources:
     access_key_id: ((hmac_accesskey))
     secret_access_key: ((hmac_secret))
     bucket: bosh-stemcell-triggers
+    endpoint: "https://storage.googleapis.com"
+    initial_content_text: ""
+    initial_version: '-'
     versioned_file: (@= stemcell.version @)/stemcell-trigger
   type: s3
 
@@ -1366,7 +1411,7 @@ resources:
 - name: bosh-stemcells-ci
   source:
     branch: community-stemcells
-    uri: https://github.com/cloudfoundry/bosh-stemcells-ci
+    uri: https://github.com/ramonskie/bosh-stemcells-ci
   type: git
 - name: bats
   source:
