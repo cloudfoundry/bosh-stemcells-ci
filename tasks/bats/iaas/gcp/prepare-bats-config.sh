@@ -35,8 +35,9 @@ properties:
     name: ((STEMCELL_NAME))
     version: latest
   networks:
-    - name: default
+    - name: static
       type: manual
+      static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
       subnets:
       - range: ((CIDR_DEFAULT))
         static: ((STATIC_DEFAULT))
@@ -45,19 +46,6 @@ properties:
           network_name: ((NETWORK_DEFAULT))
           subnetwork_name: ((SUBNETWORK_DEFAULT))
           ephemeral_external_ip: false
-        static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
-        dns: [8.8.8.8]
-    - name: second
-      type: manual
-      subnets:
-      - range: ((CIDR_SECOND))
-        static: ((STATIC_SECOND))
-        gateway: ((GATEWAY_SECOND))
-        cloud_properties:
-          network_name: ((NETWORK_SECOND))
-          subnetwork_name: ((SUBNETWORK_SECOND))
-          ephemeral_external_ip: false
-        static_ip: ((STATIC_IP_SECOND)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
         dns: [8.8.8.8]
 EOF
 
