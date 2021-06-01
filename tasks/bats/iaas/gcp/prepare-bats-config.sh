@@ -39,7 +39,7 @@ properties:
       - range: ((CIDR_DEFAULT))
         # reserved: ((RESERVERD_DEFAULT))
         static: ((STATIC_DEFAULT))
-        gateway: ((STATIC_GATEWAY))
+        gateway: ((GATEWAY_DEFAULT))
         cloud_properties:
           network_name: ((NETWORK_DEFAULT))
           subnetwork_name: ((SUBNETWORK_DEFAULT))
@@ -61,7 +61,7 @@ properties:
     #     cidr: ((CIDR_SECOND))
     #     reserved: ((RESERVERD_SECOND))
     #     static: ((STATIC_SECOND))
-    #     gateway: ((STATIC_SECOND))
+    #     gateway: ((GATEWAY_SECOND))
 EOF
 
 bosh-cli interpolate \
