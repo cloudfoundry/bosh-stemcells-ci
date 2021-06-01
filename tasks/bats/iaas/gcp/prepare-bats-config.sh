@@ -37,7 +37,7 @@ properties:
       type: manual
       subnets:
       - range: ((CIDR_DEFAULT))
-        # reserved: ((RESERVERD_DEFAULT))
+        # reserved: [((RESERVERD_DEFAULT))]
         static: ((STATIC_DEFAULT))
         gateway: ((GATEWAY_DEFAULT))
         cloud_properties:
