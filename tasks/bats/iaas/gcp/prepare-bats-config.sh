@@ -35,7 +35,7 @@ properties:
     name: ((STEMCELL_NAME))
     version: latest
   networks:
-    - name: second
+    - name: default
       type: manual
       subnets:
       - range: ((CIDR_DEFAULT))
