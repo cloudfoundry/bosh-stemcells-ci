@@ -39,7 +39,6 @@ properties:
       type: manual
       subnets:
       - range: ((CIDR_DEFAULT))
-        # reserved: [((RESERVERD_DEFAULT))]
         static: ((STATIC_DEFAULT))
         gateway: ((GATEWAY_DEFAULT))
         cloud_properties:
@@ -48,21 +47,18 @@ properties:
           ephemeral_external_ip: false
         static_ip: ((STATIC_IP_DEFAULT)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
         dns: [8.8.8.8]
-
-    # - name: second
-    #   type: manual
-    #   subnets:
-    #     static_ip: ((STATIC_IP_SECOND)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
-    #     dns: [8.8.8.8]
-    #     cloud_properties:
-    #       network_name: ((NETWORK_SECOND))
-    #       subnetwork_name: ((SUBNETWORK_SECOND))
-    #       ephemeral_external_ip: false
-    #       tags: [((tags))]
-    #     cidr: ((CIDR_SECOND))
-    #     reserved: ((RESERVERD_SECOND))
-    #     static: ((STATIC_SECOND))
-    #     gateway: ((GATEWAY_SECOND))
+    - name: second
+      type: manual
+      subnets:
+        range: ((CIDR_SECOND))
+        static: ((STATIC_SECOND))
+        gateway: ((GATEWAY_SECOND))
+        cloud_properties:
+          network_name: ((NETWORK_SECOND))
+          subnetwork_name: ((SUBNETWORK_SECOND))
+          ephemeral_external_ip: false
+        static_ip: ((STATIC_IP_SECOND)) # Primary (private) IP assigned to the bat-release job vm (primary NIC), must be in the primary static range
+        dns: [8.8.8.8]
 EOF
 
 bosh-cli interpolate \
