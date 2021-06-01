@@ -67,8 +67,8 @@ jobs:
       BRANCH: (@= stemcell.branch @)
       #@ end
       DESCRIPTION: periodic bump
-      PROJECT_ID: ((bionic_story_creator_tracker_project_id))
-      TOKEN: ((story_creator_tracker_token))
+      COLUMN_ID: ((github_project_column_id))
+      TOKEN: ((story_creator_github_token))
     task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
@@ -101,8 +101,8 @@ jobs:
       BRANCH: (@= stemcell.branch @)
       #@ end
       DESCRIPTION: ubuntu *security* notice
-      PROJECT_ID: ((bionic_story_creator_private_tracker_project_id))
-      TOKEN: ((story_creator_tracker_token))
+      COLUMN_ID: ((github_project_column_id))
+      TOKEN: ((story_creator_github_token))
     task: create-story
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
