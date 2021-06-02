@@ -6,13 +6,13 @@ image_resource:
     repository: bosh/main-base
 
 params:
-  BRANCH: ~
-  PROJECT_ID: ~
   TOKEN: ~
+  COLUMN_ID: ~
+  BRANCH: ~
   DESCRIPTION: ~
 
 inputs:
   - name: bosh-stemcells-ci
 
 run:
-  path: bosh-stemcells-ci/tasks/create-story.sh
+  path: bosh-stemcells-ci/tasks/create-github-story.sh
