@@ -59,7 +59,7 @@ else
   done
 fi
 
-aws s3 cp stemcell-trigger/stemcell-trigger "s3://storage.googleapis.com/${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
+aws --endpoint-url=${AWS_ENDPOINT} s3 cp stemcell-trigger/stemcell-trigger "s3://${TO_BUCKET_NAME}/stemcell-trigger-${VERSION}"
 
 echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > version-tag/tag
 
