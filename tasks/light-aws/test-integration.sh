@@ -13,10 +13,10 @@ trap '{ rm -rf ${tmpdir}; }' EXIT
 : ${bucket_name:?must be set}
 : ${region:?must be set}
 : ${copy_region:?must be set}
-: ${cn_access_key:?must be set}
-: ${cn_secret_key:?must be set}
-: ${cn_bucket_name:?must be set}
-: ${cn_region:?must be set}
+# : ${cn_access_key:?must be set}
+# : ${cn_secret_key:?must be set}
+# : ${cn_bucket_name:?must be set}
+# : ${cn_region:?must be set}
 
 # US Regions
 export AWS_ACCESS_KEY_ID=$access_key
@@ -25,11 +25,11 @@ export AWS_BUCKET_NAME=$bucket_name
 export AWS_REGION=$region
 export AWS_DESTINATION_REGION=${copy_region}
 
-# China Region
-export AWS_CN_ACCESS_KEY_ID=$cn_access_key
-export AWS_CN_SECRET_ACCESS_KEY=$cn_secret_key
-export AWS_CN_BUCKET_NAME=$cn_bucket_name
-export AWS_CN_REGION=$cn_region
+# # China Region
+# export AWS_CN_ACCESS_KEY_ID=$cn_access_key
+# export AWS_CN_SECRET_ACCESS_KEY=$cn_secret_key
+# export AWS_CN_BUCKET_NAME=$cn_bucket_name
+# export AWS_CN_REGION=$cn_region
 
 echo "Downloading machine image"
 export MACHINE_IMAGE_PATH=${tmp_dir}/image.iso
