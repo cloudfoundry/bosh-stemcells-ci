@@ -44,7 +44,7 @@ if [ "${ami_virtualization_type}" = "hvm" ]; then
   fi
 fi
 
-bosh_io_light_stemcell_url="https://s3.amazonaws.com/$bosh_io_bucket_name/$light_stemcell_name"
+bosh_io_light_stemcell_url="https://$S3_API_ENDPOINT/$bosh_io_bucket_name/$light_stemcell_name"
 set +e
 wget --spider "$bosh_io_light_stemcell_url"
 if [[ "$?" == "0" ]]; then

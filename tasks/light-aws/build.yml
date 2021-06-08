@@ -27,3 +27,4 @@ params:
   ami_server_side_encryption: ""
   ami_kms_key_id:             ""
   ami_encrypted:              false
+  S3_API_ENDPOINT:            s3.amazonaws.com
