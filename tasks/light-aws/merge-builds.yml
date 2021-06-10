@@ -8,7 +8,6 @@ image_resource:
 inputs:
 - name: builder-src
 - name: bosh-stemcells-ci
-- name: cn-north-light-stemcell
 - name: us-light-stemcell
 
 outputs:
@@ -17,5 +16,4 @@ outputs:
 run:
   path: bosh-stemcells-ci/tasks/light-aws/merge-builds
   args:
-    - cn-north-light-stemcell
     - us-light-stemcell
