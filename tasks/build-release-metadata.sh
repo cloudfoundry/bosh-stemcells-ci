@@ -24,7 +24,7 @@ install_jq() {
 install_jq
 
 pushd bosh-linux-stemcell-builder
-  bosh_agent_version=$(git log --pretty=format:%s --grep="bump bosh-agent" -1 -- | cut -d '/' -f2)
+  bosh_agent_version=$(cat stemcell_builder/stages/bosh_go_agent/assets/bosh-agent-version)
   echo "## Metadata:" >> "${root_dir}/release-metadata/body"
   echo "**BOSH Agent Version**: ${bosh_agent_version}" >> "${root_dir}/release-metadata/body"
   if [[ "${OS_NAME}" == "ubuntu" ]]; then
