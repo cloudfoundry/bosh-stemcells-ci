@@ -1,8 +1,8 @@
 #@ load("@ytt:data", "data")
 
-#@ def build_light_aws_stemcell_new(name, lts, stemcell_os, stemcell_version, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations):
+#@ def build_light_aws_stemcell_new(name, stemcell_os, stemcell_version, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations):
 do:
-- #@ get_aws_light_stemcells(input_stemcell, lts, stemcell_os, stemcell_version, builder_src, tag)
+- #@ get_aws_light_stemcells(input_stemcell, stemcell_os, stemcell_version, builder_src, tag)
 - #@ build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations)
 #@ end
 
@@ -17,32 +17,33 @@ input_mapping:
 output_mapping:
   light-stemcell: (@= output_stemcell @)
 params:
-  ami_access_key: ((publish__(@= prefix @)_access_key))
-  ami_bucket_name: ((publish__(@= bucket_prefix @)_bucket))
-  ami_description: ((publish__ami_description))
+  ami_access_key: ((aws_publish_(@= prefix @)_access_key))
+  ami_secret_key: ((aws_publish_(@= prefix @)_secret_key))
+  ami_region: ((aws_publish_(@= region @)_region))
+  ami_bucket_name: ((aws_publish_(@= bucket_prefix @)_bucket))
+  ami_description: Light Stemcell Builder Prod AMI
   #@ if ami_destinations != "":
   ami_destinations: (@= ami_destinations @)
   #@ end
-  ami_encrypted: ((publish__ami_encrypted))
-  ami_kms_key_id: ((publish__ami_kms_key_id))
-  ami_region: ((publish__(@= region @)_region))
-  ami_secret_key: ((publish__(@= prefix @)_secret_key))
-  ami_server_side_encryption: ((publish__(@= prefix @)_server_side_encryption))
+  ami_encrypted: false
+  ami_kms_key_id: ""
+  ami_server_side_encryption: ""
   ami_virtualization_type: hvm
-  ami_visibility: ((publish__ami_visibility))
+  ami_visibility: public
+  S3_API_ENDPOINT: storage.googleapis.com
   #@ if tag != "":
-tags:
-- #@ tag
+  tags:
+  - #@ tag
   #@ end
 #@ end
 
-#@ def get_aws_light_stemcells(input_stemcell, lts, stemcell_os, stemcell_version, builder_src, tag):
+#@ def get_aws_light_stemcells(input_stemcell, stemcell_os, stemcell_version, builder_src, tag):
 in_parallel:
 - get: (@= input_stemcell @)
   params:
     include_files:
     - bosh-stemcell-*-aws-xen-hvm-(@= stemcell_os @)-go_agent.tgz
-  resource: candidate-(@= stemcell_os @)-stemcell-(@= stemcell_version @)(@= lts @)
+  resource: candidate-(@= stemcell_os @)-stemcell-(@= stemcell_version @)
   trigger: true
   version: every
   #@ if tag != "":
@@ -61,13 +62,13 @@ in_parallel:
   #@ end
 #@ end
 
-#@ def get_google_light_inputs(stemcell_os, stemcell_version, lts):
+#@ def get_google_light_inputs(stemcell_os, stemcell_version):
 in_parallel:
 - get: stemcell
   params:
     include_files:
     - bosh-stemcell-*-google-kvm-(@= stemcell_os @)-go_agent.tgz
-  resource: candidate-(@= stemcell_os @)-stemcell-(@= str(stemcell_version) @)(@= lts @)
+  resource: candidate-(@= stemcell_os @)-stemcell-(@= str(stemcell_version) @)
   trigger: true
   version: every
 - get: builder-src
@@ -90,7 +91,7 @@ do:
 - file: bosh-stemcells-ci/tasks/light-google/deploy-skeletal.yml
   params:
     GCE_CREDENTIALS_JSON: (@= credentials @)
-    SSH_PRIVATE_KEY: ((ssh_private_key))
+    SSH_PRIVATE_KEY: ((ssh.private_key))
   task: deploy-skeletal
 ensure:
   ensure:
@@ -117,9 +118,9 @@ on_failure:
         * remove artifacts of failed jobs:
         ```bash
         gcloud auth revoke --all # start with clean slate
-        gcloud auth activate-service-account light-stemcell-editor@bosh-cpi.iam.gserviceaccount.com --key-file <(lpass show --note "THE LASTPASS NOTE" | grep -v "^#" )
-        gsutil rm gs://bosh-gce-raw-stemcells/STEMCELL_TO_BE_DELETED_raw.tar.gz
-        gsutil rm gs://bosh-gce-raw-stemcells/STEMCELL_TO_BE_DELETED_raw.tar.gz.sha1
+        gcloud auth activate-service-account concourse@((gcp_project_id)).iam.gserviceaccount.com --key-file <( ((gcp_json_key)) )
+        gsutil rm gs://bosh-gce-raw-stemcells-new/STEMCELL_TO_BE_DELETED_raw.tar.gz
+        gsutil rm gs://bosh-gce-raw-stemcells-new/STEMCELL_TO_BE_DELETED_raw.tar.gz.sha1
         gcloud auth revoke --all
         ```
         * re-fly pipeline after commenting-out `disable_manual_trigger: true`
@@ -147,30 +148,22 @@ do:
   - get: pipelines
     resource: bosh-cpi-certification-concourse-tasks
   - get: bosh-cpi-certification-concourse-tasks
-- params:
+- put: environment
+  resource: light-aws-environment
+  params:
     delete_on_failure: true
     generate_random_name: true
     terraform_source: bosh-cpi-src/ci/assets/terraform
-  put: environment
-  resource: light-aws-environment
 - file: bosh-cpi-certification-concourse-tasks/shared/tasks/prepare-director.yml
   input_mapping:
     stemcell: light-stemcell
   params:
-    DIRECTOR_VARS_FILE: ((alpha_aws_director_vars_file))
+    DIRECTOR_VARS_FILE: ((aws_test_director_vars_file))
     INFRASTRUCTURE: aws
-#@ if os == "trusty":
     OPTIONAL_OPS_FILE: |
       -o pipelines/shared/assets/ops/remove-hm.yml
       -o bosh-deployment/external-ip-with-registry-not-recommended.yml
       -o pipelines/shared/assets/ops/remove-provider-cert.yml
-      -o pipelines/shared/assets/ops/use-supported-trusty-instance-types.yml
-#@ else:
-    OPTIONAL_OPS_FILE: |
-      -o pipelines/shared/assets/ops/remove-hm.yml
-      -o bosh-deployment/external-ip-with-registry-not-recommended.yml
-      -o pipelines/shared/assets/ops/remove-provider-cert.yml
-#@ end
   task: prepare-director
 - file: bosh-cpi-certification-concourse-tasks/shared/tasks/deploy-director.yml
   input_mapping:
@@ -187,24 +180,20 @@ ensure:
     task: teardown
   - file: bosh-cpi-src/ci/tasks/ensure-terminated.yml
     params:
-      AWS_ACCESS_KEY_ID: ((alpha_aws_access_key__primary))
-      AWS_DEFAULT_REGION: ((alpha_aws_region__primary))
-      AWS_SECRET_ACCESS_KEY: ((alpha_aws_secret_key__primary))
+      AWS_ACCESS_KEY_ID: ((aws_publish_us_access_key))
+      AWS_SECRET_ACCESS_KEY: ((aws_publish_us_secret_key))
+      AWS_DEFAULT_REGION: ((aws_publish_us_region))
     task: ensure-terminated
-  - get_params:
+  - put: environment
+    resource: light-aws-environment
+    get_params:
       action: destroy
     params:
       action: destroy
       env_name_file: environment/name
       terraform_source: bosh-cpi-src/ci/assets/terraform
-    put: environment
-    resource: light-aws-environment
 #@ end
 ---
-
-#@ def build_china_light_stemcells():
-- #@ build_light_aws_stemcell("build-china-north-stemcell", "cn-builder-src", "cn-input-stemcell", "cn-north-light-stemcell", "cn", "cn_north", "cn", "asia", "[]")
-#@ end
 
 #@yaml/text-templated-strings
 ---
@@ -222,12 +211,6 @@ groups:
   - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
   - publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
   #@ end
-
-  #@ for stemcell in data.values.lts:
-  - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  - publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  #@ end
 - name: oss
   jobs:
   #@ for stemcell in data.values.oss:
@@ -237,26 +220,12 @@ groups:
   - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
   - publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
   #@ end
-- name: lts
-  jobs:
-  #@ for stemcell in data.values.lts:
-  - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  - publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  #@ end
 #@ for stemcell in data.values.oss:
-- name: (@= stemcell.os @)/(@= str(stemcell.version) @)
+- name: (@= stemcell.os @)-(@= str(stemcell.version) @)
   jobs:
   #@ if stemcell.build_aws:
   - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
   #@ end
-  - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  - publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
-#@ end
-#@ for stemcell in data.values.lts:
-- name: (@= stemcell.os @)/(@= str(stemcell.version) @)
-  jobs:
-  - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
   - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
   - publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
 #@ end
@@ -280,16 +249,18 @@ jobs:
     trigger: true
   - file: bosh-stemcells-ci/tasks/light-aws/test-drivers.yml
     params:
-      access_key: ((test__access_key))
-      ami_fixture_id: ((test__ami_fixture_id))
-      bucket_name: ((test__bucket_name))
-      copy_region: ((test__copy_region))
-      existing_snapshot_id: ((test__snapshot_fixture_id))
-      existing_volume_id: ((test__volume_fixture_id))
-      kms_key_id: ((test__kms_key_id))
-      region: ((test__region))
-      secret_key: ((test__secret_key))
-      uploaded_machine_image_url: ((test__machine_image_fixture_url))
+      access_key: ((aws_test_access_key))
+      secret_key: ((aws_test_secret_key))
+      bucket_name: ((aws_test_bucket_name))
+      copy_region: ((aws_test_copy_region))
+      region: ((aws_test_region))
+      ami_fixture_id: ((aws_test_ami_fixture_id))
+      existing_snapshot_id: ((aws_test_snapshot_fixture_id))
+      existing_volume_id: ((aws_test_volume_fixture_id))
+      #! kms key id should be the one created in the region of "copy_region"
+      kms_key_id: ((aws_test_kms_key_id))
+
+      uploaded_machine_image_url: https://s3.amazonaws.com/bosh-cpi-light-stemcell-builder-ci-fixtures/root.img
     task: test
   serial: true
 
@@ -301,15 +272,16 @@ jobs:
     trigger: true
   - file: bosh-stemcells-ci/tasks/light-aws/test-integration.yml
     params:
-      access_key: ((test__access_key))
-      bucket_name: ((test__bucket_name))
-      cn_access_key: ((test__cn_access_key))
-      cn_bucket_name: ((test__cn_bucket_name))
-      cn_region: ((test__cn_region))
-      cn_secret_key: ((test__cn_secret_key))
-      copy_region: ((test__copy_region))
-      region: ((test__region))
-      secret_key: ((test__secret_key))
+      access_key: ((aws_test_access_key))
+      secret_key: ((aws_test_secret_key))
+      bucket_name: ((aws_test_bucket_name))
+      #! cn_access_key: ((test__cn_access_key))
+      #! cn_bucket_name: ((test__cn_bucket_name))
+      #! cn_region: ((test__cn_region))
+      #! cn_secret_key: ((test__cn_secret_key))
+      copy_region: ((aws_test_copy_region))
+      region: ((aws_test_region))
+
     task: test
   serial: true
 
@@ -320,75 +292,18 @@ jobs:
     trigger: true
   serial: true
 
-#@ for stemcell in data.values.lts:
-- name: build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  plan:
-  - get: bosh-stemcells-ci
-  - in_parallel:
-    - do:
-      - #@ get_aws_light_stemcells("cn-input-stemcell", "-lts", stemcell.os, str(stemcell.version), "cn-builder-src", "asia")
-      - in_parallel: #@ build_china_light_stemcells()
-    - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", "-lts", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "[]")
-    - #@ build_light_aws_stemcell_new("build-us-stemcell", "-lts", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "")
-  - file: bosh-stemcells-ci/tasks/light-aws/us-gov-merge-builds.yml
-    input_mapping:
-      builder-src: us-builder-src
-    task: merge-builds
-  - #@ run_stemcell_upload_tests("trusty")
-  - params:
-      files:
-      - light-stemcell/*.tgz
-      options:
-        author_email: ci@localhost
-        author_name: CI Bot
-        message: 'candidate (light aws): ubuntu-trusty/(@= str(stemcell.version) @).x'
-      version: us-input-stemcell/.resource/version
-    put: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  serial: true
-
-- name: build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  plan:
-  - #@ get_google_light_inputs(stemcell.os, str(stemcell.version), "-lts")
-  - file: bosh-stemcells-ci/tasks/light-google/build-light-stemcell.yml
-    params:
-      AWS_ACCESS_KEY_ID: ((lts_light_bucket_access_key))
-      AWS_SECRET_ACCESS_KEY: ((lts_light_bucket_secret_key))
-      BUCKET_NAME: ((lts_google_raw_stemcells_bucket_name))
-      STEMCELL_BUCKET_PATH: pcf-lts-stemcells-candidate
-    task: create-light-stemcell
-  - in_parallel:
-    - params:
-        file: raw-stemcell/bosh-stemcell-*-google-kvm-ubuntu-*-go_agent-raw-*.tar.gz
-        predefined_acl: publicRead
-      put: base-lts-google-ubuntu-stemcell
-    - params:
-        file: raw-stemcell/bosh-stemcell-*-google-kvm-ubuntu-*-go_agent-raw-*.tar.gz.sha1
-        predefined_acl: publicRead
-      put: base-lts-google-ubuntu-stemcell-sha1
-  - #@ deploy_skeletal_google_light_stemcell("light-google-environment-lts", "((lts_gce_credentials_json))")
-  - params:
-      files:
-      - light-stemcell/*.tgz
-      options:
-        author_email: ci@localhost
-        author_name: CI Bot
-        message: 'candidate (light google): (@= stemcell.os @)/(@= str(stemcell.version) @).x'
-      version: stemcell/.resource/version
-    put: candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  serial: true
-#@ end
 
 #@ for stemcell in data.values.oss:
   #@ if stemcell.build_aws:
 - name: build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
+  build_log_retention:
+    builds: 1
   plan:
   - get: bosh-stemcells-ci
   - in_parallel:
     - do:
-      - #@ get_aws_light_stemcells("cn-input-stemcell", "", stemcell.os, str(stemcell.version), "cn-builder-src", "asia")
-      - in_parallel: #@ build_china_light_stemcells()
-    - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", "", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "[]")
-    - #@ build_light_aws_stemcell_new("build-us-stemcell", "", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "")
+    - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "[]")
+    - #@ build_light_aws_stemcell_new("build-us-stemcell", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "")
   - file: bosh-stemcells-ci/tasks/light-aws/us-gov-merge-builds.yml
     input_mapping:
       builder-src: us-builder-src
@@ -408,12 +323,13 @@ jobs:
 
 - name: build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
   plan:
-  - #@ get_google_light_inputs(stemcell.os, str(stemcell.version), "")
+  - #@ get_google_light_inputs(stemcell.os, str(stemcell.version))
   - task: make-raw-from-heavy-stemcell
     file: bosh-stemcells-ci/tasks/light-google/make-raw-from-heavy-stemcell.yml
     params:
-      BUCKET_NAME: ((google_raw_stemcells_bucket_name))
-      STEMCELL_BUCKET_PATH: ((bosh_io_light_stemcell_bucket))
+      BUCKET_NAME: bosh-gce-raw-stemcells-new
+      STEMCELL_BUCKET_PATH: bosh-gce-light-stemcells
+      S3_API_ENDPOINT: storage.googleapis.com
   - params:
       file: raw-stemcell/bosh-stemcell-*-google-kvm-(@= stemcell.os_name @)-*-go_agent-raw-*.tar.gz
       predefined_acl: publicRead
@@ -421,10 +337,10 @@ jobs:
   - task: create-public-image
     file: bosh-stemcells-ci/tasks/light-google/create-public-image.yml
     params:
-      GCP_SERVICE_ACCOUNT_KEY: ((gce_credentials_json))
-      PROJECT_NAME: ((gce_project_id))
+      GCP_SERVICE_ACCOUNT_KEY: ((gcp_json_key))
+      PROJECT_NAME: ((gcp_project_id))
 
-  - #@ deploy_skeletal_google_light_stemcell("light-google-environment-oss", "((gce_credentials_json))")
+  - #@ deploy_skeletal_google_light_stemcell("light-google-environment-oss", "((gcp_json_key))")
   - params:
       files:
       - light-stemcell/*.tgz
@@ -437,80 +353,6 @@ jobs:
   serial: true
 #@ end
 
-#@ for stemcell in data.values.lts:
-- name: publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  plan:
-  - in_parallel:
-    - get: bosh-stemcells-ci
-    - get: bosh-linux-stemcell-builder
-      resource: bosh-linux-stemcell-builder-(@= stemcell.os @)-(@= str(stemcell.version) @).x
-    - get: stemcell-metalink
-      params:
-        skip_download: true
-      passed:
-      - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
-      - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-      resource: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-    - get: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-      passed:
-      - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
-      - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-    - get: candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-      passed:
-      - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-    - get: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-      passed:
-      - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  - file: bosh-stemcells-ci/tasks/build-release-metadata.yml
-    params:
-      OS_NAME: (@= stemcell.os_name @)
-      OS_VERSION: (@= stemcell.os_version @)
-    task: build-release-metadata
-  - params:
-      files:
-      - candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts/*.tgz
-      options:
-        author_email: ci@localhost
-        author_name: CI Bot
-        message: 'publish (heavy): (@= stemcell.os @)/(@= str(stemcell.version) @).x'
-      rename: '{{.Version}}/stemcells.meta4'
-      version: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts/.resource/version
-    put: published-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  - params:
-      files:
-      - candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts/*.tgz
-      options:
-        author_email: ci@localhost
-        author_name: CI Bot
-        message: 'publish (light aws): (@= stemcell.os @)/(@= str(stemcell.version) @).x'
-      rename: '{{.Version}}.meta4'
-      version: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts/.resource/version
-    put: published-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  - params:
-      files:
-      - candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts/*.tgz
-      options:
-        author_email: ci@localhost
-        author_name: CI Bot
-        message: 'publish (light google): (@= stemcell.os @)/(@= str(stemcell.version) @).x'
-      rename: '{{.Version}}.meta4'
-      version: candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts/.resource/version
-    put: published-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  - params:
-      body: release-metadata/body
-      name: release-metadata/name
-      tag: release-metadata/tag
-    put: gh-release-lts
-  - params:
-      rebase: true
-      repository: bosh-linux-stemcell-builder
-    put: bosh-linux-stemcell-builder-(@= stemcell.os @)-(@= str(stemcell.version) @).x
-  - params:
-      acl: public-read
-      file: usn-log/usn-log.json
-    put: usn-log-(@= str(stemcell.version) @).x
-  serial: true
-#@ end
 #@ for stemcell in data.values.oss:
 - name: publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
   plan:
@@ -542,11 +384,12 @@ jobs:
       - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
     #@ end
   - file: bosh-stemcells-ci/tasks/build-release-metadata.yml
+    task: build-release-metadata
     params:
       OS_NAME: (@= stemcell.os_name @)
       OS_VERSION: (@= str(stemcell.os_version) @)
-    task: build-release-metadata
-  - params:
+  - put: published-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
+    params:
       files:
       - candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/*.tgz
       options:
@@ -555,7 +398,7 @@ jobs:
         message: 'publish (heavy): (@= stemcell.os @)/(@= str(stemcell.version) @).x'
       rename: '{{.Version}}/stemcells.meta4'
       version: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/.resource/version
-    put: published-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
+
 
   #@ if stemcell.build_aws:
   - params:
@@ -618,40 +461,6 @@ resources:
     owner: cloudfoundry
     repository: bosh-linux-stemcell-builder
 
-#@ if data.values.lts != [] :
-- name: gh-release-lts
-  type: github-release
-  source:
-    access_token: ((github_bosh_linux_stemcell_builder_release_maker_token))
-    drafts: true
-    owner: pivotal-cf
-    repository: bosh-linux-stemcell-builder-lts
-- name: light-google-environment-lts
-  source:
-    delete_on_failure: true
-    storage:
-      access_key_id: ((lts_terraform_bucket_access_key))
-      bucket: ((lts_terraform_bucket_name))
-      bucket_path: stemcell-ci-terraform/
-      secret_access_key: ((lts_terraform_bucket_secret_key))
-    vars:
-      gce_credentials_json: ((lts_gce_credentials_json))
-      gce_project_id: ((lts_gce_project_id))
-  type: terraform_type
-- name: base-lts-google-ubuntu-stemcell
-  source:
-    bucket: ((lts_google_raw_stemcells_bucket_name))
-    json_key: ((lts_gce_credentials_json))
-    regexp: bosh-stemcell-([0-9\.]+)-google-kvm-ubuntu-*-go_agent-raw.tar.gz
-  type: gcs-resource
-- name: base-lts-google-ubuntu-stemcell-sha1
-  source:
-    bucket: ((lts_google_raw_stemcells_bucket_name))
-    json_key: ((lts_gce_credentials_json))
-    regexp: bosh-stemcell-([0-9\.]+)-google-kvm-ubuntu-*-go_agent-raw.tar.gz.sha1
-  type: gcs-resource
-#@ end
-
 - name: bosh-cpi-certification-concourse-tasks
   type: git
   source:
@@ -679,9 +488,8 @@ resources:
 - name: bosh-stemcells-ci
   type: git
   source:
-    branch: master
-    private_key: ((bosh_stemcells_ci_private_key))
-    uri: git@github.com:cloudfoundry/bosh-stemcells-ci
+    branch: community-stemcells
+    uri: https://github.com/ramonskie/bosh-stemcells-ci
 
 - name: light-aws-builder-src
   type: git
@@ -700,24 +508,27 @@ resources:
 
 - name: light-aws-environment
   source:
-    storage:
-      access_key_id: ((alpha_aws_access_key__primary))
-      bucket: ((alpha_terraform_bucket))
-      bucket_path: terraform-state
-      secret_access_key: ((alpha_aws_secret_key__primary))
+    backend_type: s3
+    backend_config:
+      access_key: ((aws_publish_us_access_key))
+      secret_key: ((aws_publish_us_secret_key))
+      bucket: bosh-aws-light-terraform
+      key: state/terraform.tfstate
+      region: ((aws_publish_us_region))
     vars:
-      access_key: ((alpha_aws_access_key__primary))
-      public_key: ((alpha_pipeline_public_key))
-      region: ((alpha_aws_region__primary))
-      secret_key: ((alpha_aws_secret_key__primary))
+      access_key: ((aws_publish_us_access_key))
+      secret_key: ((aws_publish_us_secret_key))
+      public_key: ((aws_test_public_key_file))
+      region: ((aws_publish_us_region))
   type: terraform_type
+
 - name: bosh-aws-cpi-dev-artifacts
   source:
-    access_key_id: ((alpha_cpi_access_key__primary))
+    access_key_id: ((aws_cpi_access_key))
+    secret_access_key: ((aws_cpi_secret_key))
     bucket: bosh-aws-cpi-pipeline
     regexp: bosh-aws-cpi-(\d+\.\d+\.\d+)\.tgz
     region_name: us-east-1
-    secret_access_key: ((alpha_cpi_secret_key__primary))
   type: s3
 
 - name: bosh-google-cpi-release
@@ -732,155 +543,38 @@ resources:
 - name: light-google-environment-oss
   source:
     delete_on_failure: true
-    storage:
-      access_key_id: ((terraform_bucket_access_key))
-      bucket: ((terraform_bucket_name))
-      bucket_path: stemcell-ci-terraform/
-      secret_access_key: ((terraform_bucket_secret_key))
+    backend_type: gcs
+    backend_config:
+      credentials: ((gcp_json_key))
+      bucket: bosh-gce-light-stemcell-ci-terraform-state
+      prefix: stemcell-ci-terraform/
     vars:
-      gce_credentials_json: ((gce_credentials_json))
-      gce_project_id: ((gce_project_id))
+      gce_credentials_json: ((gcp_json_key))
+      gce_project_id: ((gcp_project_id))
   type: terraform_type
 - name: base-oss-google-ubuntu-stemcell
   source:
-    bucket: ((google_raw_stemcells_bucket_name))
-    json_key: ((gce_credentials_json))
+    bucket: bosh-gce-raw-stemcells-new
+    json_key: ((gcp_json_key))
     regexp: bosh-stemcell-([0-9\.]+)-google-kvm-ubuntu-*-go_agent-raw.tar.gz
   type: gcs-resource
 
-#@ for stemcell in data.values.lts:
-- name: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  source:
-    mirror_files:
-    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate/{{.Version}}/{{.Name}}
-    options:
-      private_key: ((lts_stemcells_private_key))
-    uri: git+ssh://git@github.com:pivotal-cf/bosh-core-lts-stemcells-index.git//candidate-aws-light/(@= stemcell.os @)
-    url_handlers:
-    - include:
-      - (s3|https)://.*
-      options:
-        access_key: ((lts_light_bucket_access_key))
-        secret_key: ((lts_light_bucket_secret_key))
-      type: s3
-    version: (@= str(stemcell.version) @).x
-  type: metalink-repository
-- name: candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  source:
-    mirror_files:
-    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate/{{.Version}}/{{.Name}}
-    options:
-      private_key: ((lts_stemcells_private_key))
-    uri: git+ssh://git@github.com:pivotal-cf/bosh-core-lts-stemcells-index.git//candidate-gcp-light/(@= stemcell.os @)
-    url_handlers:
-    - include:
-      - (s3|https)://.*
-      options:
-        access_key: ((lts_light_bucket_access_key))
-        secret_key: ((lts_light_bucket_secret_key))
-      type: s3
-    version: (@= str(stemcell.version) @).x
-  type: metalink-repository
-- name: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  source:
-    filters:
-    - repositorypath: '*/stemcells.meta4'
-    options:
-      private_key: ((lts_stemcells_private_key))
-    uri: git+ssh://git@github.com:pivotal-cf/bosh-core-lts-stemcells-index.git//candidate/(@= stemcell.os @)
-    url_handlers:
-    - include:
-      - (s3|https)://.*
-      options:
-        access_key: ((lts_stemcell_aws_access_key))
-        secret_key: ((lts_stemcell_aws_secret_key))
-      type: s3
-    version: (@= str(stemcell.version) @).x
-  type: metalink-repository
-- name: bosh-linux-stemcell-builder-(@= stemcell.os @)-(@= str(stemcell.version) @).x
-  source:
-    branch: (@= str(stemcell.version) @).x
-    private_key: ((bosh_linux_stemcell_builder_lts_private_key))
-    uri: ((bosh_linux_stemcell_builder_lts_uri))
-  type: git
-- name: usn-log-(@= str(stemcell.version) @).x
-  source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
-    bucket: bosh-stemcell-triggers
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
-    versioned_file: (@= str(stemcell.version) @).x/usn-log.json
-  type: s3
-- name: published-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  source:
-    filters:
-    - repositorypath: (@= str(stemcell.version) @).*.meta4
-    mirror_files:
-    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells/{{.Version}}/{{.Name}}
-    options:
-      private_key: ((lts_stemcells_private_key))
-    uri: git+ssh://git@github.com:pivotal-cf/bosh-core-lts-stemcells-index.git//published-aws-light/(@= stemcell.os @)
-    url_handlers:
-    - include:
-      - (s3|https)://.*
-      options:
-        access_key: ((lts_light_bucket_access_key))
-        secret_key: ((lts_light_bucket_secret_key))
-      type: s3
-    version: (@= str(stemcell.version) @).x
-  type: metalink-repository
-- name: published-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  source:
-    filters:
-    - repositorypath: (@= str(stemcell.version) @).*.meta4
-    mirror_files:
-    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells/{{.Version}}/{{.Name}}
-    options:
-      private_key: ((lts_stemcells_private_key))
-    uri: git+ssh://git@github.com:pivotal-cf/bosh-core-lts-stemcells-index.git//published-gcp-light/(@= stemcell.os @)
-    url_handlers:
-    - include:
-      - (s3|https)://.*
-      options:
-        access_key: ((lts_light_bucket_access_key))
-        secret_key: ((lts_light_bucket_secret_key))
-      type: s3
-    version: (@= str(stemcell.version) @).x
-  type: metalink-repository
-- name: published-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)-lts
-  source:
-    filters:
-    - repositorypath: '*/stemcells.meta4'
-    mirror_files:
-    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells/{{.Version}}/{{.Name}}
-    options:
-      private_key: ((lts_stemcells_private_key))
-    uri: git+ssh://git@github.com:pivotal-cf/bosh-core-lts-stemcells-index.git//published/(@= stemcell.os @)
-    url_handlers:
-    - include:
-      - (s3|https)://.*
-      options:
-        access_key: ((lts_stemcell_aws_access_key))
-        secret_key: ((lts_stemcell_aws_secret_key))
-      type: s3
-    version: (@= str(stemcell.version) @).x
-  type: metalink-repository
-#@ end
 
 #@ for stemcell in data.values.oss:
   #@ if stemcell.build_aws:
 - name: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/bosh-aws-light-stemcells-candidate/{{.Version}}/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-aws-light-stemcells-candidate/{{.Version}}/{{.Name}}
     options:
-      private_key: ((stemcells_index__github_key))
+      private_key: ((boshio_cpi_index_key.private_key))
     uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//candidate-aws-light/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((output__bucket_access_key))
-        secret_key: ((output__bucket_secret_key))
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
@@ -888,16 +582,16 @@ resources:
 - name: candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/bosh-gce-light-stemcells-candidate/{{.Version}}/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-gce-light-stemcells-candidate/{{.Version}}/{{.Name}}
     options:
-      private_key: ((stemcells_index__github_key))
+      private_key: ((boshio_cpi_index_key.private_key))
     uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//candidate-gcp-light/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((google_light_stemcells_access_key_id))
-        secret_key: ((google_light_stemcells_secret_access_key))
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
@@ -923,12 +617,11 @@ resources:
   type: git
 
 - name: usn-log-(@= str(stemcell.version) @).x
+  type: gcs-resource
   source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
     bucket: bosh-stemcell-triggers
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    json_key: ((gcp_json_key))
     versioned_file: (@= str(stemcell.version) @).x/usn-log.json
-  type: s3
 
   #@ if stemcell.build_aws:
 - name: published-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
@@ -936,16 +629,16 @@ resources:
     filters:
     - repositorypath: '*/stemcells.aws.meta4'
     mirror_files:
-    - destination: s3://bosh-aws-light-stemcells.s3-accelerate.amazonaws.com/{{.Version}}/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-aws-light-stemcells/{{.Version}}/{{.Name}}
     options:
-      private_key: ((stemcells_index__github_key))
+      private_key: ((boshio_cpi_index_key.private_key))
     uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((output__bucket_access_key))
-        secret_key: ((output__bucket_secret_key))
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
@@ -956,16 +649,16 @@ resources:
     filters:
     - repositorypath: '*/stemcells.gcp.meta4'
     mirror_files:
-    - destination: s3://bosh-gce-light-stemcells.s3-accelerate.amazonaws.com/{{.Version}}/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-gce-light-stemcells/{{.Version}}/{{.Name}}
     options:
-      private_key: ((stemcells_index__github_key))
+      private_key: ((boshio_cpi_index_key.private_key))
     uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((google_light_stemcells_access_key_id))
-        secret_key: ((google_light_stemcells_secret_access_key))
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
@@ -975,7 +668,7 @@ resources:
     filters:
     - repositorypath: '*/stemcells.meta4'
     mirror_files:
-    - destination: s3://bosh-core-stemcells.s3-accelerate.amazonaws.com/{{.Version}}/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-core-stemcells/{{.Version}}/{{.Name}}
     options:
       private_key: ((boshio_stemcells_index_key))
     uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//published/(@= stemcell.os @)
@@ -983,8 +676,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
