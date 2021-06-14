@@ -2,6 +2,7 @@
 ---
 stemcells:
 - version: "master"
+  build_agent: false
   bosh_agent_version: "*"
   branch: "ubuntu-bionic/master"
   bump_version: "minor"
@@ -18,6 +19,7 @@ stemcells:
   os_name: ubuntu-bionic
 
 - version: "1.x"
+  build_agent: false
   #! TODO change bosh_agent_version to '*' once network issue on aws is resolved,
   #! which was introduced by: https://github.com/cloudfoundry/bosh-agent/pull/238
   bosh_agent_version: "2.346"
