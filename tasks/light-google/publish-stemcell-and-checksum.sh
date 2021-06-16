@@ -28,7 +28,7 @@ mkdir -p "$(dirname "${meta4_path}")"
 meta4 create --metalink="$meta4_path"
 
 meta4 import-file --metalink="$meta4_path" --version="$STEMCELL_VERSION" "light-stemcell/${light_stemcell_name}"
-meta4 file-set-url --metalink="$meta4_path" --file="${light_stemcell_name}" "https://s3.amazonaws.com/${OUTPUT_BUCKET}/${light_stemcell_name}"
+meta4 file-set-url --metalink="$meta4_path" --file="${light_stemcell_name}" "https://${S3_API_ENDPOINT}/${OUTPUT_BUCKET}/${light_stemcell_name}"
 
 pushd stemcells-index-output > /dev/null
   git add -A
