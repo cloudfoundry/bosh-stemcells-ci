@@ -250,7 +250,7 @@ jobs:
         task: deploy-director
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
-          GCP_ZONE: europe-west4-a
+          GCP_ZONE: europe-west4-b
           GCP_NETWORK_NAME: default
           GCP_SUBNET_NAME: bosh-integration1
           GCP_JSON_KEY: ((gcp_json_key))
@@ -754,7 +754,7 @@ jobs:
         file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
-          GCP_ZONE: europe-west4-a
+          GCP_ZONE: europe-west4-c
           GCP_NETWORK_NAME: default
           GCP_SUBNET_NAME: bosh-integration2
           GCP_JSON_KEY: ((gcp_json_key))
