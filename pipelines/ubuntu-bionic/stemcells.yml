@@ -17,6 +17,7 @@ stemcells:
   os: bionic
   os_version: "18.04"
   os_name: ubuntu-bionic
+  subnet_int: "0"
 
 - version: "1.x"
   build_agent: false
@@ -36,3 +37,4 @@ stemcells:
   os: bionic
   os_version: "18.04"
   os_name: ubuntu-bionic
+  subnet_int: "1"
