@@ -82,3 +82,67 @@ Concourse will want to publish its artifacts. Create an IAM user with the [requi
     ]
 }
 ```
+
+## GCP
+as from the bionic line we are hosting the the creating of the stemcells on gcp
+the pipeline it self is currently running on a gke hosted concourse see https://github.com/cloudfoundry/bosh-community-stemcell-ci-infra
+
+
+Concourse will want to publish its artifacts on gcs.
+
+Create the needed buckets
+```
+gsutil mb -l europe-west4  gs://bosh-aws-light-stemcells
+gsutil mb -l europe-west4  gs://bosh-aws-light-stemcells-candidate
+
+gsutil mb -l europe-west4  gs://bosh-gce-light-stemcell-ci-terraform-state
+
+gsutil mb -l europe-west4  gs://bosh-gce-light-stemcells
+gsutil mb -l europe-west4  gs://bosh-gce-light-stemcells-candidate
+gsutil mb -l europe-west4  gs://bosh-gce-raw-stemcells-new
+gsutil mb -l europe-west4  gs://bosh-gce-light-stemcell-ci-terraform-state
+
+gsutil mb -l europe-west4  gs://bosh-core-stemcells
+gsutil mb -l europe-west4  gs://bosh-core-stemcells-candidate
+gsutil mb -l europe-west4  gs://bosh-os-images
+gsutil mb -l europe-west4  gs://bosh-stemcell-triggers
+gsutil mb -l europe-west4  gs://bosh-gce-light-stemcell-ci-terraform-state
+```
+
+Make buckets publicly readable
+```
+gsutil iam ch allUsers:objectViewer gs://bosh-os-images
+
+gsutil iam ch allUsers:objectViewer gs://bosh-core-stemcell
+gsutil iam ch allUsers:objectViewer gs://bosh-core-stemcells-candidate
+
+gsutil iam ch allUsers:objectViewer gs://bosh-aws-light-stemcells
+gsutil iam ch allUsers:objectViewer gs://bosh-aws-light-stemcells-candidate
+
+gsutil iam ch allUsers:objectViewer gs://bosh-gce-light-stemcells
+gsutil iam ch allUsers:objectViewer gs://bosh-gce-light-stemcells-candidate
+```
+
+Set versioning on the stemcell trigger bucket
+```
+gsutil versioning set on gs://bosh-stemcell-triggers
+```
+
+the `default-allow-internal` should have the following subnet `10.0.0.0/8` on all ports
+```
+gcloud compute firewall-rules update default-allow-internal --source-ranges 10.0.0.0/8
+```
+
+create the bosh-intergration networks for our tests and bats tests
+each stemcell line should get its own subnet that will corrosponds with its subnet_int
+example:
+- subnet_id=44
+-- subnet_range=10.100.44.0/24
+-- subnet_name=bosh-integration-44
+
+```
+# master
+gcloud compute networks subnets create --network default --range 10.100.0.0/24 bosh-integration-0
+# 1.x
+gcloud compute networks subnets create --network default --range 10.100.1.0/24 bosh-integration-1
+```
