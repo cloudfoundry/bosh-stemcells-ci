@@ -1308,8 +1308,8 @@ resources:
 
 - name: bosh-stemcells-ci
   source:
-    branch: community-stemcells
-    uri: https://github.com/ramonskie/bosh-stemcells-ci
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-stemcells-ci
   type: git
 - name: bats
   source:
