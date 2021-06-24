@@ -19,7 +19,6 @@ groups:
   - build-warden-boshlite-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)-ipv4
-  #! - test-stemcells-(@= stemcell.version @)-ipv6
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
@@ -272,58 +271,6 @@ jobs:
         attempts: 3
         timeout: 2m
   serial: true
-
-#! - name: test-stemcells-(@= stemcell.version @)-ipv6
-#!   plan:
-#!   - do:
-#!     - in_parallel:
-#!       - get: version
-#!         passed:
-#!         - build-warden-boshlite-(@= stemcell.version @)
-#!         - build-aws-xen-hvm-(@= stemcell.version @)
-#!         - build-azure-hyperv-(@= stemcell.version @)
-#!         - build-google-kvm-(@= stemcell.version @)
-#!         - build-openstack-kvm-(@= stemcell.version @)
-#!         - build-vsphere-esxi-(@= stemcell.version @)
-#!         - build-vcloud-esxi-(@= stemcell.version @)
-#!         resource: version-(@= stemcell.version @)
-#!         trigger: true
-#!       - get: bosh-stemcells-ci
-#!       - get: bosh-linux-stemcell-builder
-#!         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-#!       - get: bosh-deployment
-#!       - get: bosh-cli
-#!       - get: syslog-release
-#!       - get: os-conf-release
-#!       - get: stemcell
-#!         passed:
-#!         - build-vsphere-esxi-(@= stemcell.version @)
-#!         resource: vsphere-esxi-(@= stemcell.version @)
-#!       - get: stemcell-trigger-(@= stemcell.version @)
-#!         passed:
-#!         - build-warden-boshlite-(@= stemcell.version @)
-#!         - build-aws-xen-hvm-(@= stemcell.version @)
-#!         - build-azure-hyperv-(@= stemcell.version @)
-#!         - build-google-kvm-(@= stemcell.version @)
-#!         - build-openstack-kvm-(@= stemcell.version @)
-#!         - build-vsphere-esxi-(@= stemcell.version @)
-#!         - build-vcloud-esxi-(@= stemcell.version @)
-#!         trigger: true
-#!     - do:
-#!       - file: bosh-stemcells-ci/tasks/deploy-director-ipv6.yml
-#!         task: deploy-director-ipv6
-#!       - attempts: 1
-#!         file: bosh-stemcells-ci/tasks/test-stemcell.yml
-#!         params:
-#!           BOSH_os_name: (@= stemcell.os_name @)
-#!           package: ipv6director
-#!         task: test-stemcell-ipv6
-#!     ensure:
-#!       do:
-#!       - file: bosh-stemcells-ci/tasks/teardown.yml
-#!         task: teardown
-#!         attempts: 3
-#!   serial: true
 
 - name: build-warden-boshlite-(@= stemcell.version @)
   plan:
@@ -793,7 +740,6 @@ jobs:
     - get: version
       passed:
       - test-stemcells-(@= stemcell.version @)-ipv4
-      #! - test-stemcells-(@= stemcell.version @)-ipv6
       - bats-(@= stemcell.version @)
       resource: version-(@= stemcell.version @)
       trigger: true
@@ -806,7 +752,6 @@ jobs:
     - get: stemcell-trigger-(@= stemcell.version @)
       passed:
       - test-stemcells-(@= stemcell.version @)-ipv4
-      #! - test-stemcells-(@= stemcell.version @)-ipv6
       - bats-(@= stemcell.version @)
       trigger: true
   - file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
