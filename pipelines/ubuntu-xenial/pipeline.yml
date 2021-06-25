@@ -44,6 +44,8 @@ groups:
 jobs:
 #@ for stemcell in data.values.stemcells:
 - name: create-story-periodic-(@= stemcell.version @)
+  build_log_retention:
+    builds: 200
   plan:
   - in_parallel:
     - get: hourly
