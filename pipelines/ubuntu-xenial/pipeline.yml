@@ -44,6 +44,8 @@ groups:
 jobs:
 #@ for stemcell in data.values.stemcells:
 - name: create-story-periodic-(@= stemcell.version @)
+  build_log_retention:
+    builds: 200
   plan:
   - in_parallel:
     - get: hourly
@@ -137,7 +139,7 @@ jobs:
       files:
       - os-image/(@= stemcell.os_name @).tgz
       - usn-log-(@= stemcell.version @)/usn-log.json
-      rename: (@= stemcell.os_name @).meta4
+      rename: (@= stemcell.os_name @)-(@= stemcell.version @).meta4
       options:
         author_email: ci@localhost
         author_name: CI Bot
@@ -860,16 +862,10 @@ jobs:
       TO_BUCKET_NAME: ((candidate_stemcell_bucket))
       TO_INDEX: candidate
     task: copy-artifacts
-  - in_parallel:
-    - params:
-        only_tag: true
-        repository: bosh-linux-stemcell-builder
-        tag: version-tag/tag
-      put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-    - params:
-        rebase: true
-        repository: stemcells-index
-      put: stemcells-index
+  - put: stemcells-index
+    params:
+      rebase: true
+      repository: stemcells-index
 #@ end
 #@ end
 
@@ -1217,7 +1213,7 @@ resources:
     options:
       private_key: ((github_stemcells_index_key.private_key))
     filters:
-    - repositorypath: "(@= stemcell.os_name @).meta4"
+    - repositorypath: "(@= stemcell.os_name @)-(@= stemcell.version @).meta4"
     uri: git+ssh://((stemcells_index_uri))//os-images
     url_handlers:
     - include:
