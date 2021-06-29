@@ -23,3 +23,4 @@ params:
   STEMCELL_BUCKET_PATH:  ""
   AWS_ACCESS_KEY_ID:     ""
   AWS_SECRET_ACCESS_KEY: ""
+  S3_API_ENDPOINT: s3.amazonaws.com

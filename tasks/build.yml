@@ -30,3 +30,4 @@ params:
   OS_NAME:         replace-me
   OS_VERSION:      replace-me
   STEMCELL_BUCKET: replace-me
+  S3_API_ENDPOINT: s3.amazonaws.com

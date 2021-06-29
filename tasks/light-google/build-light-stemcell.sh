@@ -15,10 +15,9 @@ stemcell_url() {
     string_to_sign="HEAD\n\n\n${expires}\n${resource}"
     signature=$(echo -en "$string_to_sign" | openssl sha1 -hmac ${AWS_SECRET_ACCESS_KEY} -binary | base64)
     signature=$(python -c "import urllib; print urllib.quote_plus('${signature}')")
-
-    echo -n "https://s3.amazonaws.com${resource}?AWSAccessKeyId=${AWS_ACCESS_KEY_ID}&Expires=${expires}&Signature=${signature}"
+    echo -n "https://${S3_API_ENDPOINT}${resource}?AWSAccessKeyId=${AWS_ACCESS_KEY_ID}&Expires=${expires}&Signature=${signature}"
   else
-    echo -n "https://s3.amazonaws.com${resource}"
+    echo -n "https://${S3_API_ENDPOINT}${resource}"
   fi
 }
 
@@ -69,7 +68,7 @@ pushd working_dir
     -o "${bosh_stemcells_ci}/assets/light-stemcell-ops.yml" \
     -v "light_stemcell_sha1=$light_stemcell_sha1" \
     -v 'stemcell_formats=["google-light"]' \
-    -v "source_url=https://storage.googleapis.com/${BUCKET_NAME}/${raw_stemcell_name}" \
+    -v "source_url=https://${S3_API_ENDPOINT}/${BUCKET_NAME}/${raw_stemcell_name}" \
     -v "raw_disk_sha1=${raw_disk_sha1}" \
     /tmp/stemcell.MF.tmp > stemcell.MF
 

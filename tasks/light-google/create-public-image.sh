@@ -36,7 +36,7 @@ echo ${GCP_SERVICE_ACCOUNT_KEY} | gcloud auth activate-service-account --key-fil
 gcloud compute images create ${image_name} \
  --project=${PROJECT_NAME} \
  --source-uri=${raw_stemcell_uri} \
- --storage-location=us
+ --storage-location=eu
 
 
 gcloud compute images add-iam-policy-binding ${image_name} \

@@ -25,3 +25,4 @@ params:
   AWS_ENDPOINT: "https://s3.amazonaws.com"
   OUTPUT_BUCKET: ""
   META4_FOLDER_SUFFIX: ~
+  S3_API_ENDPOINT: s3.amazonaws.com
