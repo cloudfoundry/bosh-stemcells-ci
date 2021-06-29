@@ -19,7 +19,7 @@ def run_command(cmd)
   end
 end
 
-ARGV.each do | tarball_dir |
+Dir['*-stemcell'].each do | tarball_dir |
   Dir.mktmpdir do | temp_dir |
     matches = Dir.glob("#{tarball_dir}/*.tgz")
     if matches.length == 0
