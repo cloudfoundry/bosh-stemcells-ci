@@ -20,6 +20,7 @@ def run_command(cmd)
 end
 
 Dir['*-stemcell'].each do | tarball_dir |
+  next if tarball_dir == 'light-stemcell'
   Dir.mktmpdir do | temp_dir |
     matches = Dir.glob("#{tarball_dir}/*.tgz")
     if matches.length == 0
