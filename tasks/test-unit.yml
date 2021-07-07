@@ -4,11 +4,12 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: bosh/main-ubuntu-chroot
+    repository: bosh/main-ruby-go
 
 inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
+  - name: os-image-tarball
 
 run:
   path: bosh-stemcells-ci/tasks/test-unit.sh
