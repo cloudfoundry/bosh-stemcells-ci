@@ -3,6 +3,9 @@
 source /etc/profile.d/chruby.sh
 chruby ruby
 
+# we need sudo for our chroot operations in the shellout_types tests
+apt install sudo
+
 pushd bosh-linux-stemcell-builder
   bundle install --local
 
