@@ -43,6 +43,7 @@ groups:
 #@ for stemcell in data.values.stemcells:
   - create-story-(@= stemcell.version @)
   - create-story-usn-(@= stemcell.version @)
+  - check-usn-packages-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
 #@ if stemcell.version == "master":
   - notify-of-usn
@@ -71,13 +72,6 @@ jobs:
       COLUMN_ID: ((github_project_column_id))
       TOKEN: ((story_creator_github_token))
     task: create-story
-  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
-    params:
-      MESSAGE_PREFIX: Periodic bump
-    task: write-message
-  - put: stemcell-trigger-(@= stemcell.version @)
-    params:
-      file: message/message.txt
 
 - name: create-story-usn-(@= stemcell.version @)
   serial_groups: [log-cves-(@= stemcell.version @)]
@@ -109,13 +103,34 @@ jobs:
     params:
       MESSAGE_PREFIX: Addresses
     task: write-message
-  - put: stemcell-trigger-(@= stemcell.version @)
-    params:
-      file: message/message.txt
   - put: usn-log-(@= stemcell.version @)
     params:
         file: usn-log-out/usn-log.json
         predefined_acl: publicRead
+
+- name: check-usn-packages-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: bosh-stemcells-ci
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: usn-log-(@= stemcell.version @)
+      passed:
+      - create-story-usn-(@= stemcell.version @)
+      trigger: true
+  - file: bosh-stemcells-ci/tasks/check-usn-packages.yml
+    input_mapping:
+      usn-log-in: usn-log-(@= stemcell.version @)
+    vars:
+      image_os_tag: (@= stemcell.os @)
+    task: check-usn-packages
+  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
+    params:
+      MESSAGE_PREFIX: Periodic bump
+    task: write-message
+  - put: stemcell-trigger-(@= stemcell.version @)
+    params:
+      file: message/message.txt
 
 - name: log-low-medium-cves-(@= stemcell.version @)
   serial_groups: [log-cves-(@= stemcell.version @)]
