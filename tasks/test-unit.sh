@@ -3,16 +3,14 @@
 source /etc/profile.d/chruby.sh
 chruby ruby
 
-set +e
-#create user for ShelloutTypes::File tests
-chroot /tmp/ubuntu-chroot /bin/bash -c 'useradd -G nogroup shellout'
-set -e
+# we need sudo for our chroot operations in the shellout_types tests
+apt install sudo
 
 pushd bosh-linux-stemcell-builder
   bundle install --local
 
   pushd bosh-stemcell
     bundle exec rspec spec/
-    bundle exec rspec spec/ --tag shellout_types
+    OS_IMAGE="$(readlink -f ../../os-image-tarball/*.tgz)" bundle exec rspec spec/ --tag shellout_types
   popd
 popd

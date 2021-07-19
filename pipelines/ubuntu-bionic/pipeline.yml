@@ -198,8 +198,13 @@ jobs:
     passed:
     - build-os-image-(@= stemcell.version @)
     trigger: true
+  - get: os-image-tarball
+    resource: os-image-tarball-(@= stemcell.version @)
+    passed:
+    - build-os-image-(@= stemcell.version @)
   - file: bosh-stemcells-ci/tasks/test-unit.yml
     task: test-unit
+    privileged: true
   serial: true
 
 - name: build-stemcell-(@= stemcell.version @)
