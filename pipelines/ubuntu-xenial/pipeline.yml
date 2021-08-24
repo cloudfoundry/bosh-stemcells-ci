@@ -25,11 +25,7 @@ groups:
 #@ end
 - name: agent-(@= stemcell.version @)
   jobs:
-  - test-unit-bosh-agent-(@= stemcell.version @)
-  - test-integration-bosh-agent-(@= stemcell.version @)
-  - promote-bosh-agent-(@= stemcell.version @)
   - bump-bosh-agent-(@= stemcell.version @)
-  - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
 #@ end
 - name: automatic-triggers
   jobs:
@@ -922,104 +918,12 @@ jobs:
     put: slack-alert
 
 #@ for stemcell in data.values.stemcells:
-- name: test-unit-bosh-agent-(@= stemcell.version @)
-  public: true
-  plan:
-  - get: bosh-agent
-    resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
-    trigger: true
-  - task: test-unit
-    file: bosh-agent/ci/tasks/test-unit.yml
-
-- name: test-integration-bosh-agent-(@= stemcell.version @)
-  public: false
-  plan:
-    - get: bosh-agent
-      trigger: true
-      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
-    - task: test-integration
-      privileged: true
-      file: bosh-agent/ci/tasks/test-integration.yml
-      params:
-        BOSH_AWS_ACCESS_KEY_ID: ((BOSH_AWS_ACCESS_KEY_ID))
-        BOSH_AWS_SECRET_ACCESS_KEY: ((BOSH_AWS_SECRET_ACCESS_KEY))
-        BOSH_LITE_KEYPAIR: ((BOSH_LITE_KEYPAIR))
-        BOSH_LITE_SUBNET_ID: ((BOSH_LITE_SUBNET_ID))
-        BOSH_LITE_NAME: ((BOSH_LITE_NAME))
-        BOSH_LITE_SECURITY_GROUP: ((BOSH_LITE_SECURITY_GROUP))
-        BOSH_LITE_PRIVATE_KEY: ((BOSH_LITE_PRIVATE_KEY))
-        AWS_ACCESS_KEY: ((integration_aws_access_key))
-        AWS_SECRET_ACCESS_KEY: ((integration_aws_secret_access_key))
-        AWS_REGION: ((integration_aws_region))
-        AWS_BUCKET: ((integration_aws_bucket))
-
-- name: bosh-integration-tests-bosh-agent-(@= stemcell.version @)
-  public: true
-  serial: true
-  build_logs_to_retain: 250
-  plan:
-  - in_parallel:
-    - get: bosh-src
-    - get: bosh-cli
-    - get: bosh-agent
-      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
-      trigger: true
-      passed:
-      - test-unit-bosh-agent-(@= stemcell.version @)
-      - test-integration-bosh-agent-(@= stemcell.version @)
-  - task: tests
-    privileged: true
-    file: bosh-src/ci/tasks/test-integration.yml
-    params:
-      DB: postgresql
-
-- name: promote-bosh-agent-(@= stemcell.version @)
-  public: true
-  serial: true
-  plan:
-  - in_parallel:
-    - trigger: true
-      passed:
-      - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
-      get: bosh-agent
-      resource: bosh-agent-src-(@= stemcell.agent_promote_from @)
-    - get: version-semver
-      resource: version-semver-bosh-agent-(@= stemcell.version @)
-      params:
-        bump: (@= stemcell.agent_bump_version @)
-  - task: assert-version-aligns
-    file: bosh-agent/ci/tasks/assert-version-aligns.yml
-  - put: version-semver-bosh-agent-(@= stemcell.version @)
-    params:
-      file: version-semver/number
-  - put: bosh-agent-src-(@= stemcell.version @)
-    params:
-#@ if stemcell.version != "master":
-      only_tag: true
-#@ end
-      repository: bosh-agent
-      tag: version-semver/number
-      tag_prefix: v
-  - in_parallel:
-    - task: build-windows
-      file: bosh-agent/ci/tasks/build-windows.yml
-    - task: build-linux
-      file: bosh-agent/ci/tasks/build-linux.yml
-  - put: bosh-agent-(@= stemcell.version @)
-    params:
-      files:
-      - compiled-linux-*/*
-      - compiled-windows-amd64/*
-      version: version-semver/number
-
 - name: bump-bosh-agent-(@= stemcell.version @)
   plan:
   - get: bosh-agent
     params:
       skip_download: true
     resource: bosh-agent-(@= stemcell.version @)
-    passed:
-    - promote-bosh-agent-(@= stemcell.version @)
     trigger: true
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
@@ -1297,23 +1201,6 @@ resources:
     secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
     versioned_file: (@= stemcell.version @)/stemcell-trigger
   type: s3
-
-- name: bosh-agent-src-(@= stemcell.version @)
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry/bosh-agent.git
-    branch: (@= stemcell.agent_branch @)
-    private_key: ((BOSH_GITHUB_DEPLOYMENT_KEY))
-
-- name: version-semver-bosh-agent-(@= stemcell.version @)
-  type: semver
-  source:
-    initial_version: (@= stemcell.agent_initial_version @)
-    key: (@= stemcell.agent_version_key @)
-    bucket: ((SEMVER_BUCKET))
-    region_name: ((AWS_S3_BUCKET_REGION))
-    access_key_id: ((AWS_S3_BUCKET_ACCESS_KEY))
-    secret_access_key: ((AWS_S3_BUCKET_SECRET_KEY))
 #@ end
 
 - name: hourly
@@ -1387,8 +1274,3 @@ resources:
   source:
     url: ((slack_hook_url))
   type: slack-notification
-- name: bosh-src
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry/bosh.git
-    branch: master
