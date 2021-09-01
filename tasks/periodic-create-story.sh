@@ -5,7 +5,6 @@ set -euo pipefail
 stemcell_line=$(echo $BRANCH | cut -f 1 -d "/")
 stemcell_series_with_x=$(echo $BRANCH | cut -f 2 -d "/")
 stemcell_series=$(echo $BRANCH | cut -f 2 -d "/" | cut -f 1 -d ".")
-s3_trigger_file="s3://${BUCKET}/${stemcell_series_with_x}/stemcell-trigger"
 
 now=$(date +%s)
 three_weeks=1814400
@@ -19,15 +18,16 @@ pushd "stemcells-index/published/${stemcell_line}" > /dev/null
   echo "Latest Cut Stemcell Time: ${latest_commit_date}"
 popd > /dev/null
 
-trigger_file_modified_time=$(aws s3 ls ${s3_trigger_file} | cut -f 1,2 -d " ")
-trigger_file_modified_epoch_time=$(date --date="${trigger_file_modified_time}" "+%s")
-echo "Trigger File Modified Time: ${trigger_file_modified_epoch_time}"
+stories_count=$(curl --silent -X GET "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/stories?filter=created_since:$(date --date='3 weeks ago' '+%m/%d/%Y')%20name:stemcell%20periodic%20bump" \
+  -H "X-TrackerToken: $TOKEN" \
+  -H "Content-Type: application/json" | jq length)
 
-if [ ${latest_commit_date} -lt ${three_weeks_ago} -a ${trigger_file_modified_epoch_time} -lt ${three_weeks_ago} ]
+echo "We found '$stories_count' stories in the last 3 weeks"
+
+if [ $stories_count -eq 0 -a ${latest_commit_date} -lt ${three_weeks_ago} ]
 then
   echo "Time for a new stemcell"
   echo "Periodic bump ($(date "+%b %e, %Y"))" > stemcell-trigger
-  aws s3 cp ./stemcell-trigger ${s3_trigger_file}
 
   bosh-stemcells-ci/tasks/create-story.sh
 else
