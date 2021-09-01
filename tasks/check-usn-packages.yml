@@ -13,3 +13,7 @@ inputs:
 
 run:
   path: bosh-stemcells-ci/tasks/check-usn-packages.sh
+
+params:
+  OS: bionic
+  ESM_TOKEN:

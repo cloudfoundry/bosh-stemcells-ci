@@ -21,7 +21,10 @@ function process_packages {
 
     if is_package_installed "$package";
     then
+      echo "checking: $package"
       check_package "$package" "$version"
+    else
+      echo "skip: $package"
     fi
   done
 }
@@ -38,15 +41,22 @@ function check_package {
   local version=$2
   local candidate_version
 
-  echo "checking package: $package"
-
   candidate_version=$(candidate_version_to_install "$package")
 
   if ! dpkg --compare-versions "$candidate_version" ge "$version";
   then
     ALL_PACKAGE_VERSIONS_AVAILABLE=false
-    echo "*** PROBLEM FOUND, package: $package, expected version from USN: $version, available in repo: $candidate_version ***"
+    echo -e "L \e[31mexpected version from USN: $version, available in repo: $candidate_version\e[0m"
+  else
+    echo -e "L repo version: $candidate_version matches USN version: $version"
   fi
+}
+
+function enable_esm {
+  apt-get update
+  apt-get install -y ca-certificates ubuntu-advantage-tools
+  ua attach "${ESM_TOKEN}" --no-auto-enable
+  ua enable esm-infra
 }
 
 function process_usns {
@@ -57,10 +67,10 @@ function process_usns {
   for usn_url in "${usn_urls[@]}"
   do
     # list of packages
-    echo -e ">>>>> $usn_url <<<<<\n"
-    mapfile -t package_version_for_usn < <(curl -s "$usn_url.json" | jq -r '.release_packages.bionic[] | select(.is_source==false) | "\(.name):\(.version)"')
+    echo -e "\n>>>>> $usn_url <<<<<"
+
+    mapfile -t package_version_for_usn < <( curl -s "$usn_url.json" | jq --arg os $OS -r '.release_packages[$os][] | select(.is_source==false) | "\(.name):\(.version)"')
     process_packages "${package_version_for_usn[@]}"
-    echo -e ">>>>> ******* <<<<<\n"
   done
 }
 
@@ -70,9 +80,13 @@ function is_package_installed {
   return $?
 }
 
+if [[ ! -z "$ESM_TOKEN" ]]; then
+  enable_esm
+fi
+
 # Depends on apt package list being up-to-date, make sure apt-get update is run before this is executed
 sudo apt-get update
-INSTALLED_PACKAGES=$(cat bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu-bionic*.txt | sort | uniq | sed -e 's/:amd64//g')
+INSTALLED_PACKAGES=$(cat bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu-${OS}*.txt | sort | uniq | sed -e 's/:amd64//g')
 ALL_PACKAGE_VERSIONS_AVAILABLE=true
 process_usns "$USN_JSON_URL"
 
