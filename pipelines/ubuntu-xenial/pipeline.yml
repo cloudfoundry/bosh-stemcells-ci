@@ -106,6 +106,7 @@ jobs:
       usn-log-in: usn-log-(@= stemcell.version @)
     vars:
       image_os_tag: latest
+    params:
       OS: xenial
       ESM_TOKEN: ((esm_token))
     task: check-usn-packages
