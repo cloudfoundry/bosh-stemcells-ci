@@ -822,6 +822,7 @@ jobs:
         tags:
         - nimbus
       - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
+
         params:
           STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent
         tags:
@@ -905,9 +906,9 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        type: registry-image
         source:
           repository: bosh/main
-        type: registry-image
       inputs:
       - name: (@= stemcell.os @)-usn
       outputs:
@@ -967,6 +968,15 @@ jobs:
 #@ end
 
 resource_types:
+- name: registry-image
+  type: registry-image
+  source:
+    repository: concourse/registry-image-resource
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
+  defaults:
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
 - name: ami-resource
   type: registry-image
   source:
@@ -978,20 +988,20 @@ resource_types:
     repository: dpb587/github-status-resource
     tag: master
 - name: usn
+  type: registry-image
   source:
     repository: bosh/usn-resource
-  type: registry-image
 - name: metalink-repository
+  type: registry-image
   source:
     repository: dpb587/metalink-repository-resource
-  type: registry-image
 - name: slack-notification
+  type: registry-image
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
-  type: registry-image
 - name: gcs-resource
-  type: docker-image
+  type: registry-image
   source:
     repository: frodenas/gcs-resource
 
@@ -1251,8 +1261,6 @@ resources:
   source:
     repository: bosh/main-ruby-go
     tag: master
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
 - name: stemcells-index
   source:
     branch: master
