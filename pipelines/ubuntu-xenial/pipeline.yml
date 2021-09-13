@@ -48,8 +48,10 @@ jobs:
     - get: hourly
       trigger: true
     - get: stemcells-index
+    - get: bosh-ecosystem-docker-image
     - get: bosh-stemcells-ci
   - file: bosh-stemcells-ci/tasks/periodic-create-story.yml
+    image: bosh-ecosystem-docker-image
     params:
       AWS_ACCESS_KEY_ID: ((bosh_usn_and_periodic_aws_access_key_id))
       AWS_SECRET_ACCESS_KEY: ((bosh_usn_and_periodic_aws_secret_access_key))
@@ -1311,3 +1313,9 @@ resources:
   source:
     url: ((slack_hook_url))
   type: slack-notification
+- name: bosh-ecosystem-docker-image
+  type: docker-image
+  source:
+    repository: bosh/bosh-ecosystem-concourse
+    username: ((docker.username))
+    password: ((docker.password))
