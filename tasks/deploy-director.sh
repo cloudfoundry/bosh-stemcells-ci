@@ -57,8 +57,9 @@ echo "
   path: /releases/name=bosh-vsphere-cpi/version
   value: 68+dev.2
 
-- type: remove
+- type: replace
   path: /releases/name=bosh-vsphere-cpi/sha1
+  value: b245c32e30dcf8574a8e0fe8274d74f44743a969
 " > tmp-cpi-ops.yml
 
 $bosh_cli interpolate bosh-deployment/bosh.yml \
