@@ -46,24 +46,8 @@ EOF
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
 chmod +x $bosh_cli
 
-echo "
-# Temporary release https://github.com/cloudfoundry/bosh-vsphere-cpi-release/pull/303
-# to resolve BATS Reading persistent disk settings: Persistent disk with volume id 'disk-xx' could not be found
-- type: replace
-  path: /releases/name=bosh-vsphere-cpi/url
-  value: https://files.slack.com/files-pri/T02FL4A1X-F02E8ACDK34/download/pr-303-bosh-vsphere-cpi-68_dev.1.tgz?pub_secret=0b6f6bf02e
-
-- type: replace
-  path: /releases/name=bosh-vsphere-cpi/version
-  value: 68+dev.1
-
-- type: remove
-  path: /releases/name=bosh-vsphere-cpi/sha1
-" > tmp-cpi-ops.yml
-
 $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/vsphere/cpi.yml \
-  -o tmp-cpi-ops.yml \
   -o bosh-deployment/vsphere/resource-pool.yml \
   -o bosh-deployment/jumpbox-user.yml \
   -o bosh-deployment/misc/ntp.yml \
