@@ -22,21 +22,6 @@ groups:
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
-#@ if stemcell.build_agent:
-- name: agent-(@= stemcell.version @)
-  jobs:
-  - test-unit-bosh-agent-(@= stemcell.version @)
-  - test-integration-bosh-agent-(@= stemcell.version @)
-  - promote-bosh-agent-(@= stemcell.version @)
-  - bump-bosh-agent-(@= stemcell.version @)
-  - bosh-integration-tests-bosh-agent-(@= stemcell.version @)
-#@ if stemcell.version == "master":
-  - bump-deps-bosh-agent-(@= stemcell.version @)
-  - windows-test-unit-bosh-agent-(@= stemcell.version @)
-  - windows-test-integration-2019-bosh-agent-(@= stemcell.version @)
-  - windows-test-integration-2012R2-bosh-agent-(@= stemcell.version @)
-#@ end
-#@ end
 #@ end
 - name: automatic-triggers
   jobs:
@@ -1076,14 +1061,12 @@ resources:
     key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
   type: semver
 
-#@ if stemcell.version != "master":
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   source:
     branch: (@= stemcell.branch @)
     private_key: ((bosh_src_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
-#@ end
 
 - name: bosh-linux-stemcell-builder-(@= stemcell.version @)
   source:
