@@ -34,6 +34,11 @@ groups:
   - notify-of-usn
 #@ end
 #@ end
+- name: bump-bosh-agent
+  jobs:
+  #@ for stemcell in data.values.stemcells:
+  - bump-bosh-agent-(@= stemcell.version @)
+#@ end
 
 #@yaml/text-templated-strings
 jobs:
@@ -843,6 +848,26 @@ jobs:
       text_file: slack-message/message
     put: slack-alert
 
+#@ for stemcell in data.values.stemcells:
+- name: bump-bosh-agent-(@= stemcell.version @)
+  plan:
+  - get: bosh-agent
+    params:
+      skip_download: true
+    resource: bosh-agent-(@= stemcell.version @)
+    trigger: true
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
+    task: bump
+  - params:
+      rebase: true
+      repository: bosh-linux-stemcell-builder
+    put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+  serial: true
+#@ end
+
 resource_types:
 - name: ami-resource
   type: registry-image
@@ -875,6 +900,20 @@ resource_types:
 #@yaml/text-templated-strings
 resources:
 #@ for stemcell in data.values.stemcells:
+- name: bosh-agent-(@= stemcell.version @)
+  source:
+    mirror_files:
+    - destination: s3://storage.googleapis.com/bosh-agent/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key))
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-agent-index.git//
+    version: (@= stemcell.agent_metalink_version @)
+    url_handlers:
+    - type: s3
+      options:
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
+  type: metalink-repository
 - name: warden-boshlite-(@= stemcell.version @)
   source:
     mirror_files:
