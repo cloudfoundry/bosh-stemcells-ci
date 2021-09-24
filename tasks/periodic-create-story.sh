@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -eu
 
 stemcell_line=$(echo $BRANCH | cut -f 1 -d "/")
 stemcell_series_with_x=$(echo $BRANCH | cut -f 2 -d "/")
