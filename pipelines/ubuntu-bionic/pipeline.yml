@@ -26,7 +26,9 @@ groups:
 - name: automatic-triggers
   jobs:
 #@ for stemcell in data.values.stemcells:
+  #@ if stemcell.version != "master":
   - create-story-(@= stemcell.version @)
+  #@ end
   - create-story-usn-(@= stemcell.version @)
   - check-usn-packages-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
@@ -43,6 +45,7 @@ groups:
 #@yaml/text-templated-strings
 jobs:
 #@ for stemcell in data.values.stemcells:
+#@ if stemcell.version != "master":
 - name: create-story-(@= stemcell.version @)
   plan:
   - in_parallel:
@@ -51,6 +54,7 @@ jobs:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+
   - file: bosh-stemcells-ci/tasks/create-github-story.yml
     params:
       #@ if stemcell.version == "master":
@@ -62,6 +66,7 @@ jobs:
       COLUMN_ID: ((github_project_column_id))
       TOKEN: ((story_creator_github_token))
     task: create-story
+#@ end
 
 - name: create-story-usn-(@= stemcell.version @)
   serial_groups: [log-cves-(@= stemcell.version @)]
@@ -78,6 +83,7 @@ jobs:
       usn-log-in: usn-log-(@= stemcell.version @)
       usn-source: (@= stemcell.os @)-usn
     task: commit-usn-information
+  #@ if stemcell.version != "master":
   - file: bosh-stemcells-ci/tasks/create-github-story.yml
     params:
       #@ if stemcell.version == "master":
@@ -89,6 +95,7 @@ jobs:
       COLUMN_ID: ((github_project_column_id))
       TOKEN: ((story_creator_github_token))
     task: create-story
+  #@ end
   - file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
       MESSAGE_PREFIX: Addresses
@@ -1135,6 +1142,7 @@ resources:
     initial_content_text: ""
     initial_version: '0'
 
+#@ if stemcell.version != "master":
 - name: every-3-weeks-on-monday-(@= stemcell.version @)
   source:
     days:
@@ -1144,6 +1152,7 @@ resources:
     start: "6:00"
     stop: "8:30"
   type: time
+#@ end
 #@ end
 
 - name: bosh-stemcells-ci
