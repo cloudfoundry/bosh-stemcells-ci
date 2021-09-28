@@ -203,11 +203,13 @@ jobs:
   - get: bosh-linux-stemcell-builder
     passed:
     - test-unit-(@= stemcell.version @)
+    - build-os-image-(@= stemcell.version @)
     resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     trigger: true
   - get: stemcell-trigger-(@= stemcell.version @)
     passed:
     - test-unit-(@= stemcell.version @)
+    - build-os-image-(@= stemcell.version @)
     trigger: true
   - get: version
     params:
