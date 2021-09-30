@@ -1129,7 +1129,7 @@ resources:
     options:
       private_key: ((github_stemcells_index_key.private_key))
     filters:
-    - repositorypath: "*/vsphere-esxi-go_agent.meta4"
+    - repositorypath: "(@= stemcell.major_version @)*/vsphere-esxi-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:

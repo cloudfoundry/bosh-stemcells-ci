@@ -2,6 +2,7 @@
 ---
 stemcells:
 - version: "621.x"
+  major_version: "621"
   bosh_agent_version: "2.268"
   branch: "ubuntu-xenial/621.x"
   bump_version: "minor"
@@ -17,6 +18,7 @@ stemcells:
   os_name: ubuntu-xenial
 
 - version: "456.x"
+  major_version: "456"
   bosh_agent_version: "2.234"
   branch: "ubuntu-xenial/456.x"
   bump_version: "minor"
