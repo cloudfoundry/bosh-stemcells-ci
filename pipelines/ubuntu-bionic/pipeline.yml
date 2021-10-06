@@ -202,8 +202,6 @@ jobs:
   - file: bosh-stemcells-ci/tasks/test-unit.yml
     task: test-unit
     privileged: true
-    vars:
-      image_os_tag: master
   serial: true
 
 - name: build-stemcell-(@= stemcell.version @)

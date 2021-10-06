@@ -5,7 +5,7 @@ image_resource:
   type: registry-image
   source:
     repository: bosh/main-ruby-go
-    tag: "((image_os_tag))"
+    tag: master
 
 inputs:
   - name: bosh-linux-stemcell-builder
