@@ -21,6 +21,7 @@ OS_IMAGE_NAME=$OPERATING_SYSTEM_NAME-$OPERATING_SYSTEM_VERSION
 OS_IMAGE=$TASK_DIR/os-image/$OS_IMAGE_NAME.tgz
 
 sudo chown -R ubuntu .
+sudo chown -R ubuntu:ubuntu /mnt
 sudo chmod u+s $(which sudo)
 sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
     bundle install --local
