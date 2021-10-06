@@ -1,8 +1,5 @@
 #!/bin/bash -ex
 
-source /etc/profile.d/chruby.sh
-chruby ruby
-
 # we need sudo for our chroot operations in the shellout_types tests
 apt install sudo
 
