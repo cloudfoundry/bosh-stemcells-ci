@@ -57,6 +57,7 @@ for i in $(seq 0 64); do
 done
 
 chown -R ubuntu:ubuntu bosh-linux-stemcell-builder
+chown -R ubuntu:ubuntu /mnt
 
 OS_IMAGE=""
 mkdir -p "${TASK_DIR}/os-image-tarball"
