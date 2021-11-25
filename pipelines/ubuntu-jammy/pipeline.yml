@@ -47,6 +47,8 @@ groups:
 
 #@yaml/text-templated-strings
 jobs:
+#@ for stemcell in data.values.stemcells:
+#@ if stemcell.version == "master":
 - name: build-os-image-stemcell-builder-(@= stemcell.os @)
   public: true
   serial: true
@@ -79,7 +81,7 @@ jobs:
         build: bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder-(@= stemcell.os @)
       get_params:
         skip_download: true
-#@ for stemcell in data.values.stemcells:
+#@ end
 #@ if stemcell.version != "master":
 - name: create-story-(@= stemcell.version @)
   plan:
@@ -1196,6 +1198,7 @@ resources:
     paths: [ci/*]
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
   type: git
+
 - name: bosh-stemcells-ci
   source:
     branch: master

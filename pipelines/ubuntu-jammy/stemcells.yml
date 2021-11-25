@@ -1,0 +1,14 @@
+#@data/values
+---
+stemcells:
+- version: "master"
+  bosh_agent_version: "*"
+  branch: "ubuntu-jammy/master"
+  bump_version: "minor"
+  agent_metalink_version: '*'
+  initial_version: "209.0.0"
+  include_alicloud: false
+  os: jammy
+  os_version: "18.04"
+  os_name: ubuntu-jammy
+  subnet_int: "2"

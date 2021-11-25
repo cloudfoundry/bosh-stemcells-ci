@@ -7,6 +7,13 @@ $ fly -t production set-pipeline -c pipeline.yml  -p stemcell-new-dev-temp \
   --load-vars-from <( lpass show --notes "concourse:production pipeline:stemcell-new-dev-temp" )
 ```
 
+## docker images and vmware ofvtool
+when creating a new lts stemcell e.g: bionic, jammy etc
+you will need to create a folder and upload the appropiate ofvtool in to the gcp bucket `bosh-vmware-ovftool`
+`gsutil cp MY_OVFTOOL_FILE gs://bosh-vmware-ovftool/MYOS/`
+example:
+`gsutil cp VMware-ovftool-4.4.3-18663434-lin.x86_64.bundle gs://bosh-vmware-ovftool/jammy/`
+
 ## AWS
 
 Concourse will want to publish its artifacts. Create an IAM user with the [required policy](iam_policy.json). Create buckets for stemcells, then give it a public-read policy...
