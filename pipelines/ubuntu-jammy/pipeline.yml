@@ -209,7 +209,7 @@ jobs:
       files:
       - os-image/(@= stemcell.os_name @).tgz
       - usn-log-(@= stemcell.version @)/usn-log.json
-      rename: (@= stemcell.os_name @).meta4
+      rename: (@= stemcell.branch @)/(@= stemcell.os_name @).meta4
       options:
         author_email: ci@localhost
         author_name: CI Bot
@@ -1109,11 +1109,11 @@ resources:
 - name: os-image-tarball-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://storage.googleapis.com/bosh-os-images/(@= stemcell.version @)/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-os-images/(@= stemcell.branch @)/{{.Name}}
     options:
       private_key: ((bosh_src_key))
     filters:
-    - repositorypath: "(@= stemcell.os_name @).meta4"
+    - repositorypath: "(@= stemcell.branch @)/(@= stemcell.os_name @).meta4"
     uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/#(@= stemcell.branch @)
     url_handlers:
     - include:
@@ -1166,7 +1166,7 @@ resources:
   source:
     bucket: bosh-stemcell-triggers
     json_key: ((gcp_json_key))
-    versioned_file: (@= stemcell.version @)/usn-log.json
+    versioned_file: (@= stemcell.branch @)/usn-log.json
     initial_content_text: ""
     initial_version: '0'
 
