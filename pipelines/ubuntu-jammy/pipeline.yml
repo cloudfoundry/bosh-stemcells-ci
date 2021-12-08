@@ -92,7 +92,8 @@ jobs:
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
 
-  - file: bosh-stemcells-ci/tasks/create-github-story.yml
+  - task: create-story
+    file: bosh-stemcells-ci/tasks/create-github-story.yml
     params:
       #@ if stemcell.version == "master":
       BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
@@ -102,7 +103,6 @@ jobs:
       DESCRIPTION: periodic bump
       COLUMN_ID: ((github_project_column_id))
       TOKEN: ((story_creator_github_token))
-    task: create-story
 #@ end
 
 - name: create-story-usn-(@= stemcell.version @)
@@ -115,13 +115,14 @@ jobs:
     - get: (@= stemcell.os @)-usn
       trigger: true
     - get: usn-log-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/write-usn-message.yml
+  - task: commit-usn-information
+    file: bosh-stemcells-ci/tasks/write-usn-message.yml
     input_mapping:
       usn-log-in: usn-log-(@= stemcell.version @)
       usn-source: (@= stemcell.os @)-usn
-    task: commit-usn-information
   #@ if stemcell.version != "master":
-  - file: bosh-stemcells-ci/tasks/create-github-story.yml
+  - task: create-story
+    file: bosh-stemcells-ci/tasks/create-github-story.yml
     params:
       #@ if stemcell.version == "master":
       BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
@@ -131,12 +132,11 @@ jobs:
       DESCRIPTION: ubuntu *security* notice
       COLUMN_ID: ((github_project_column_id))
       TOKEN: ((story_creator_github_token))
-    task: create-story
   #@ end
-  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
+  - task: write-message
+    file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
       MESSAGE_PREFIX: Addresses
-    task: write-message
   - put: usn-log-(@= stemcell.version @)
     params:
         file: usn-log-out/usn-log.json
@@ -152,16 +152,16 @@ jobs:
       passed:
       - create-story-usn-(@= stemcell.version @)
       trigger: true
-  - file: bosh-stemcells-ci/tasks/check-usn-packages.yml
+  - task: check-usn-packages
+    file: bosh-stemcells-ci/tasks/check-usn-packages.yml
     input_mapping:
       usn-log-in: usn-log-(@= stemcell.version @)
     vars:
       image_os_tag: (@= stemcell.os @)
-    task: check-usn-packages
-  - file: bosh-stemcells-ci/tasks/write-bump-message.yml
+  - task: write-message
+    file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
       MESSAGE_PREFIX: Periodic bump
-    task: write-message
   - put: stemcell-trigger-(@= stemcell.version @)
     params:
       file: message/message.txt
@@ -197,15 +197,16 @@ jobs:
   - get: usn-log-(@= stemcell.version @)
   - get: stemcell-trigger-(@= stemcell.version @)
     trigger: true
-  - file: bosh-stemcells-ci/tasks/os-images/build.yml
+  - task: build
+    file: bosh-stemcells-ci/tasks/os-images/build.yml
     params:
       OPERATING_SYSTEM_NAME: ubuntu
       OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
     privileged: true
-    task: build
     vars:
       image_os_tag: (@= stemcell.os @)
-  - params:
+  - put: os-image-tarball-(@= stemcell.version @)
+    params:
       files:
       - os-image/(@= stemcell.os_name @).tgz
       - usn-log-(@= stemcell.version @)/usn-log.json
@@ -215,10 +216,9 @@ jobs:
         author_name: CI Bot
         message: '[ci skip] bump OS image'
       version: version/version
-    put: os-image-tarball-(@= stemcell.version @)
-  - params:
+  - put: os-image-version-(@= stemcell.version @)
+    params:
       file: version/number
-    put: os-image-version-(@= stemcell.version @)
 
 - name: test-unit-(@= stemcell.version @)
   plan:
@@ -236,8 +236,8 @@ jobs:
     resource: os-image-tarball-(@= stemcell.version @)
     passed:
     - build-os-image-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/test-unit.yml
-    task: test-unit
+  - task: test-unit
+    file: bosh-stemcells-ci/tasks/test-unit.yml
     privileged: true
   serial: true
 
@@ -259,9 +259,9 @@ jobs:
     params:
       bump: (@= stemcell.bump_version @)
     resource: version-(@= stemcell.version @)
-  - params:
+  - put: version-(@= stemcell.version @)
+    params:
       file: version/number
-    put: version-(@= stemcell.version @)
   serial: true
 
 - name: test-stemcells-(@= stemcell.version @)-ipv4
@@ -301,8 +301,8 @@ jobs:
         - build-vcloud-esxi-(@= stemcell.version @)
         trigger: true
     - do:
-      - file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
-        task: deploy-director
+      - task: deploy-director
+        file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
           GCP_ZONE: europe-west4-b
@@ -314,16 +314,16 @@ jobs:
           INTERNAL_GW: 10.100.(@= stemcell.subnet_int @).1
           RESERVED_RANGE: '10.100.(@= stemcell.subnet_int @).2 - 10.100.(@= stemcell.subnet_int @).9, 10.100.(@= stemcell.subnet_int @).62 - 10.100.(@= stemcell.subnet_int @).254'
           TAG: test-stemcells-ipv4
-      - attempts: 3
+      - task: test-stemcell
+        attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
           BOSH_os_name: (@= stemcell.os_name @)
           package: ipv4director
-        task: test-stemcell
     ensure:
       do:
-      - file: bosh-stemcells-ci/tasks/teardown.yml
-        task: teardown
+      - task: teardown
+        file: bosh-stemcells-ci/tasks/teardown.yml
         attempts: 3
         timeout: 2m
   serial: true
@@ -350,7 +350,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: boshlite
@@ -360,11 +361,11 @@ jobs:
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
       S3_API_ENDPOINT: storage.googleapis.com
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: warden-boshlite-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -374,7 +375,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: warden-boshlite-(@= stemcell.version @)
 
 - name: build-aws-xen-hvm-(@= stemcell.version @)
   plan:
@@ -398,7 +398,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: xen-hvm
@@ -407,11 +408,11 @@ jobs:
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: aws-xen-hvm-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -421,7 +422,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: aws-xen-hvm-(@= stemcell.version @)
 
 - name: build-azure-hyperv-(@= stemcell.version @)
   plan:
@@ -445,7 +445,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: hyperv
@@ -454,11 +455,11 @@ jobs:
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: azure-hyperv-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -468,7 +469,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: azure-hyperv-(@= stemcell.version @)
 
 - name: build-google-kvm-(@= stemcell.version @)
   plan:
@@ -492,7 +492,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: kvm
@@ -501,11 +502,11 @@ jobs:
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: google-kvm-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -515,7 +516,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: google-kvm-(@= stemcell.version @)
 
 - name: build-openstack-kvm-(@= stemcell.version @)
   plan:
@@ -539,7 +539,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: kvm
@@ -548,11 +549,11 @@ jobs:
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: openstack-kvm-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -562,7 +563,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: openstack-kvm-(@= stemcell.version @)
 
 - name: build-vsphere-esxi-(@= stemcell.version @)
   plan:
@@ -586,7 +586,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: esxi
@@ -595,11 +596,11 @@ jobs:
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: vsphere-esxi-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -609,7 +610,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: vsphere-esxi-(@= stemcell.version @)
 
 - name: build-vcloud-esxi-(@= stemcell.version @)
   plan:
@@ -633,7 +633,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: esxi
@@ -642,11 +643,11 @@ jobs:
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: vcloud-esxi-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -656,7 +657,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: vcloud-esxi-(@= stemcell.version @)
 
 #@ if stemcell.include_alicloud:
 - name: build-alicloud-kvm-(@= stemcell.version @)
@@ -681,7 +681,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
-  - attempts: 3
+  - task: create-stemcell
+    attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
       HYPERVISOR: kvm
@@ -690,11 +691,11 @@ jobs:
       OS_VERSION: (@= stemcell.os @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate
     privileged: true
-    task: create-stemcell
     vars:
       image_os_tag: (@= stemcell.os @)
   - in_parallel:
-    - attempts: 3
+    - put: alicloud-kvm-(@= stemcell.version @)
+      attempts: 3
       params:
         files:
         - stemcell/*.tgz
@@ -704,7 +705,6 @@ jobs:
           author_name: CI Bot
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
-      put: alicloud-kvm-(@= stemcell.version @)
 #@ end
 
 - name: bats-(@= stemcell.version @)
@@ -766,7 +766,8 @@ jobs:
           INTERNAL_GW: 10.100.(@= stemcell.subnet_int @).1
           RESERVED_RANGE: '10.100.(@= stemcell.subnet_int @).2 - 10.100.(@= stemcell.subnet_int @).63, 10.100.(@= stemcell.subnet_int @).126 - 10.100.(@= stemcell.subnet_int @).254'
           TAG: test-stemcells-bats
-      - file: bosh-stemcells-ci/tasks/bats/iaas/gcp/prepare-bats-config.yml
+      - task: prepare-bats
+        file: bosh-stemcells-ci/tasks/bats/iaas/gcp/prepare-bats-config.yml
         params:
           VARS_STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= stemcell.os @)-go_agent
           VARS_NETWORK_DEFAULT: default
@@ -778,14 +779,13 @@ jobs:
           VARS_STATIC_IP_DEFAULT-2: 10.100.(@= stemcell.subnet_int @).132
           VARS_GATEWAY_DEFAULT: 10.100.(@= stemcell.subnet_int @).1
           VARS_TAG: test-stemcells-bats
-        task: prepare-bats
-      - file: bats/ci/tasks/run-bats.yml
+      - task: run-bats
+        file: bats/ci/tasks/run-bats.yml
         image: main-ruby-go-docker-image
-        task: run-bats
     ensure:
       do:
-      - file: bosh-stemcells-ci/tasks/teardown.yml
-        task: teardown
+      - task: teardown
+        file: bosh-stemcells-ci/tasks/teardown.yml
         attempts: 3
 
 #@ if stemcell.version != "master":
@@ -810,9 +810,10 @@ jobs:
       - test-stemcells-(@= stemcell.version @)-ipv4
       - bats-(@= stemcell.version @)
       trigger: true
-  - file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
-    task: assert-version-aligns
-  - file: bosh-stemcells-ci/tasks/publish.yml
+  - task: assert-version-aligns
+    file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
+  - task: copy-artifacts
+    file: bosh-stemcells-ci/tasks/publish.yml
     params:
       AWS_ACCESS_KEY_ID: ((hmac_accesskey))
       AWS_SECRET_ACCESS_KEY: ((hmac_secret))
@@ -834,24 +835,24 @@ jobs:
       TO_INDEX: candidate
       AWS_ENDPOINT: "https://storage.googleapis.com"
       S3_API_ENDPOINT: storage.googleapis.com
-    task: copy-artifacts
   - in_parallel:
-    - params:
+    - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+      params:
         only_tag: true
         repository: bosh-linux-stemcell-builder
         tag: version-tag/tag
-      put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-    - params:
+    - put: stemcells-index
+      params:
         rebase: true
         repository: stemcells-index
-      put: stemcells-index
 #@ end
 #@ end
 - name: notify-of-usn
   plan:
   - get: (@= stemcell.os @)-usn
     trigger: true
-  - config:
+  - task: build-slack-message
+    config:
       image_resource:
         source:
           repository: bosh/main
@@ -886,13 +887,12 @@ jobs:
           cat (@= stemcell.os @)-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
           cat (@= stemcell.os @)-usn/usn.json | jq -r '"New USN for (@= stemcell.os @): *<\(.url)|\(.title)>*"' | tee slack-message/message
         path: /bin/bash
-    task: build-slack-message
-  - params:
+  - put: slack-alert
+    params:
       attachments_file: slack-message/attachments
       channel: ((usn_notifications_slack_channel_name))
       icon_url: https://i.imgur.com/A0Vlw5t.png
       text_file: slack-message/message
-    put: slack-alert
 
 #@ for stemcell in data.values.stemcells:
 - name: bump-bosh-agent-(@= stemcell.version @)
@@ -905,12 +905,12 @@ jobs:
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
-    task: bump
-  - params:
+  - task: bump
+    file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
+  - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+    params:
       rebase: true
       repository: bosh-linux-stemcell-builder
-    put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   serial: true
 #@ end
 
@@ -926,18 +926,18 @@ resource_types:
     repository: dpb587/github-status-resource
     tag: master
 - name: usn
+  type: registry-image
   source:
     repository: bosh/usn-resource
-  type: registry-image
 - name: metalink-repository
+  type: registry-image
   source:
     repository: dpb587/metalink-repository-resource
-  type: registry-image
 - name: slack-notification
+  type: registry-image
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
-  type: registry-image
 - name: gcs-resource
   type: docker-image
   source:
@@ -947,6 +947,7 @@ resource_types:
 resources:
 #@ for stemcell in data.values.stemcells:
 - name: bosh-agent-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-agent/{{.Name}}
@@ -959,8 +960,8 @@ resources:
       options:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
-  type: metalink-repository
 - name: warden-boshlite-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/warden/{{.Name}}
@@ -976,9 +977,9 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 - name: aws-xen-hvm-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/aws/{{.Name}}
@@ -994,10 +995,10 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 #@ if stemcell.include_alicloud:
 - name: alicloud-kvm-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/alicloud/{{.Name}}
@@ -1013,10 +1014,10 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 #@ end
 
 - name: azure-hyperv-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/azure/{{.Name}}
@@ -1032,9 +1033,9 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 - name: openstack-kvm-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/openstack/{{.Name}}
@@ -1050,9 +1051,9 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 - name: google-kvm-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/google/{{.Name}}
@@ -1068,9 +1069,9 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 - name: vsphere-esxi-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/vsphere/{{.Name}}
@@ -1086,9 +1087,9 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 - name: vcloud-esxi-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/vcloud/{{.Name}}
@@ -1104,9 +1105,9 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 - name: os-image-tarball-(@= stemcell.version @)
+  type: metalink-repository
   source:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-os-images/(@= stemcell.branch @)/{{.Name}}
@@ -1122,9 +1123,9 @@ resources:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
       type: s3
-  type: metalink-repository
 
 - name: version-(@= stemcell.version @)
+  type: semver
   source:
     access_key_id: ((hmac_accesskey))
     secret_access_key: ((hmac_secret))
@@ -1133,9 +1134,9 @@ resources:
     driver: s3
     initial_version: (@= stemcell.initial_version @)
     key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
-  type: semver
 
 - name: os-image-version-(@= stemcell.version @)
+  type: semver
   source:
     access_key_id: ((hmac_accesskey))
     secret_access_key: ((hmac_secret))
@@ -1144,22 +1145,21 @@ resources:
     driver: s3
     initial_version: "0.0.0"
     key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
-  type: semver
 
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+  type: git
   source:
     branch: (@= stemcell.branch @)
     private_key: ((bosh_src_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  type: git
 
 - name: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  type: git
   source:
     branch: (@= stemcell.branch @)
     ignore_paths:
     - VERSION
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
-  type: git
 
 - name: usn-log-(@= stemcell.version @)
   type: gcs-resource
@@ -1181,6 +1181,7 @@ resources:
 
 #@ if stemcell.version != "master":
 - name: every-3-weeks-on-monday-(@= stemcell.version @)
+  type: time
   source:
     days:
       - Monday
@@ -1188,27 +1189,25 @@ resources:
     location: America/Los_Angeles
     start: "6:00"
     stop: "8:30"
-  type: time
 #@ end
 #@ end
 
 - name: bosh-linux-stemcell-builder-ci
+  type: git
   source:
     branch: (@= stemcell.branch @)
     paths: [ci/*]
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
-  type: git
-
 - name: bosh-stemcells-ci
+  type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-stemcells-ci
-  type: git
 - name: bats
+  type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-acceptance-tests.git
-  type: git
 - name: main-ruby-go-docker-image
   type: docker-image
   source:
@@ -1217,48 +1216,48 @@ resources:
     username: ((dockerhub_username))
     password: ((dockerhub_password))
 - name: stemcells-index
+  type: git
   source:
     branch: master
     private_key: ((boshio_stemcells_index_key))
     uri: git@github.com:bosh-io/stemcells-core-index.git
-  type: git
 - name: syslog-release
+  type: bosh-io-release
   source:
     repository: cloudfoundry/syslog-release
-  type: bosh-io-release
 - name: os-conf-release
+  type: bosh-io-release
   source:
     repository: cloudfoundry/os-conf-release
-  type: bosh-io-release
 - name: bosh-deployment
+  type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment
-  type: git
 - name: (@= stemcell.os @)-usn-low-medium
+  type: usn
   source:
     os: ubuntu-(@= stemcell.os_version @)-lts
     priorities:
     - low
     - medium
-  type: usn
 - name: bosh-cli
+  type: s3
   source:
     regexp: alpha-bosh-cli-(.*)-linux-amd64
     bucket: bosh-cli-alpha-artifacts
     region_name: us-east-1
-  type: s3
 - name: (@= stemcell.os @)-usn
+  type: usn
   source:
     os: ubuntu-(@= stemcell.os_version @)-lts
     priorities:
     - high
     - critical
-  type: usn
 - name: slack-alert
+  type: slack-notification
   source:
     url: ((slack_hook_url))
-  type: slack-notification
 
 - name: os-image-stemcell-builder-(@= stemcell.os @)
   type: docker-image
