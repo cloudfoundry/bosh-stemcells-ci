@@ -388,6 +388,7 @@ jobs:
     params:
       OS_NAME: (@= stemcell.os_name @)
       OS_VERSION: (@= str(stemcell.os_version) @)
+      BRANCH: (@= stemcell.branch @)
   - put: published-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
     params:
       files:
@@ -621,7 +622,7 @@ resources:
   source:
     bucket: bosh-stemcell-triggers
     json_key: ((gcp_json_key))
-    versioned_file: (@= str(stemcell.version) @).x/usn-log.json
+    versioned_file: (@= str(stemcell.branch) @)/usn-log.json
 
   #@ if stemcell.build_aws:
 - name: published-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)

@@ -7,4 +7,5 @@ oss:
   version: 1
   os_name: ubuntu
   os_version: bionic
+  branch: "ubuntu-bionic/1.x"
   build_aws: true

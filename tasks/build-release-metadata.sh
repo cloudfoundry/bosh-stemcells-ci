@@ -30,8 +30,8 @@ pushd bosh-linux-stemcell-builder
   if [[ "${OS_NAME}" == "ubuntu" ]]; then
     # Ensure URL for usn-log from metalink exists before attempting to download.
     touch usn-log.json
-    if [[ -n "$(meta4 file-urls --metalink bosh-stemcell/image-metalinks/${OS_NAME}-${OS_VERSION}.meta4 --file usn-log.json)" ]]; then
-      meta4 file-download --metalink "bosh-stemcell/image-metalinks/${OS_NAME}-${OS_VERSION}.meta4" --file usn-log.json usn-log.json --skip-hash-verification --skip-signature-verification
+    if [[ -n "$(meta4 file-urls --metalink bosh-stemcell/image-metalinks/${BRANCH}/${OS_NAME}-${OS_VERSION}.meta4 --file usn-log.json)" ]]; then
+      meta4 file-download --metalink "bosh-stemcell/image-metalinks/${BRANCH}/${OS_NAME}-${OS_VERSION}.meta4" --file usn-log.json usn-log.json --skip-hash-verification --skip-signature-verification
     fi
 
     echo "" >> "${root_dir}/release-metadata/body"

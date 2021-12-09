@@ -21,6 +21,7 @@ outputs:
 params:
   OS_NAME: ~
   OS_VERSION: ~
+  BRANCH: ~
 
 run:
   path: bosh-stemcells-ci/tasks/build-release-metadata.sh
