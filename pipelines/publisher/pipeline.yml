@@ -92,6 +92,7 @@ do:
   params:
     GCE_CREDENTIALS_JSON: (@= credentials @)
     SSH_PRIVATE_KEY: ((ssh.private_key))
+    GCE_SOURCE_RANGES: "10.104.0.0/14"
   task: deploy-skeletal
 ensure:
   ensure:

@@ -41,6 +41,7 @@ pushd "${output_dir}" > /dev/null
     -v gce_cloud_provider_mbus="${gce_cloud_provider_mbus}" \
     -v gce_cloud_provider_agent_mbus="${gce_cloud_provider_agent_mbus}" \
     -v gce_credentials_json="'${GCE_CREDENTIALS_JSON}'" \
+    -v gce_source_ranges="'${GCE_SOURCE_RANGES}'" \
     -v ssh_private_key="bosh.pem" \
     -l "${terraform_config}/metadata" \
     --vars-store=./skeletal-deployment-vars.yml \

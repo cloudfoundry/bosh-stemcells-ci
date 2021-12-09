@@ -6,6 +6,10 @@ variable "gce_credentials_json" {
   type = string
 }
 
+variable "gce_source_ranges" {
+  type = string
+}
+
 variable "gce_region" {
   type = string
   default = "us-central1"

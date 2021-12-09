@@ -20,6 +20,7 @@ resource "google_compute_subnetwork" "skeletal" {
 resource "google_compute_firewall" "allow-ssh-mbus" {
   name    = "allow-ssh-mbus-${var.env_name}"
   network = "${google_compute_network.skeletal.name}"
+  source_ranges = "${var.gce_source_ranges}"
 
   allow {
     protocol = "icmp"
