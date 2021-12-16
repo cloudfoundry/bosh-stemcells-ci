@@ -27,7 +27,7 @@ internal_gw: ${INTERNAL_GW}
 reserved_range: [${RESERVED_RANGE}]
 EOF
 
-echo ${AWS_PRIVATE_KEY} > bosh.pem
+echo "${AWS_PRIVATE_KEY}" > bosh.pem
 
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
 chmod +x $bosh_cli
