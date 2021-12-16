@@ -1126,24 +1126,20 @@ resources:
 - name: version-(@= stemcell.version @)
   type: semver
   source:
-    access_key_id: ((hmac_accesskey))
-    secret_access_key: ((hmac_secret))
+    json_key: ((gcp_json_key))
     bucket: bosh-core-stemcells-candidate
-    endpoint: "https://storage.googleapis.com"
-    driver: s3
+    driver: gcs
     initial_version: (@= stemcell.initial_version @)
-    key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
+    key: bosh-stemcell/(@= stemcell.branch @)/(@= stemcell.version @)-version
 
 - name: os-image-version-(@= stemcell.version @)
   type: semver
   source:
-    access_key_id: ((hmac_accesskey))
-    secret_access_key: ((hmac_secret))
+    json_key: ((gcp_json_key))
     bucket: bosh-core-stemcells-candidate
-    endpoint: "https://storage.googleapis.com"
-    driver: s3
+    driver: gcs
     initial_version: "0.0.0"
-    key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
+    key: os-image/(@= stemcell.branch @)/(@= stemcell.version @)-version
 
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   type: git
