@@ -8,7 +8,6 @@ chruby ruby
 cat > director-creds.yml <<EOF
 access_key_id:     ${AWS_ACCESS_KEY}
 secret_access_key: ${AWS_SECRET_KEY}
-private_key:       ${AWS_PRIVATE_KEY}
 EOF
 
 cat > director-vars.yml <<EOF
@@ -28,6 +27,8 @@ internal_gw: ${INTERNAL_GW}
 reserved_range: [${RESERVED_RANGE}]
 EOF
 
+echo ${AWS_PRIVATE_KEY} > bosh.pem
+
 export bosh_cli=$(realpath bosh-cli/*bosh-cli-*)
 chmod +x $bosh_cli
 
@@ -36,6 +37,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/jumpbox-user.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
+  --var-file private_key=bosh.pem \
   --vars-file network-variables.yml > director.yml
 
 set +e
