@@ -1,0 +1,33 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source: {repository: boshcpi/cpi-certification}
+
+inputs:
+  - name: bosh-deployment
+  - name: bosh-stemcells-ci
+  - name: bosh-linux-stemcell-builder
+  - name: bosh-cli
+
+outputs:
+  - name: director-state
+
+params:
+  AWS_ACCESS_KEY:
+  AWS_SECRET_KEY:
+  AWS_PRIVATE_KEY:
+  AWS_REGION:
+  AWS_AZ:
+  AWS_SUBNET_ID:
+  AWS_KEY_NAME:
+  AWS_SECURITY_GROUPS:
+  INTERNAL_IP:
+  INTERNAL_CIDR:
+  INTERNAL_GW:
+  RESERVED_RANGE:
+
+
+run:
+  path: bosh-stemcells-ci/tasks/aws/deploy-director.sh
