@@ -21,6 +21,7 @@ EOF
 cat > network-variables.yml <<EOF
 director_name: stemcell-smoke-tests-director
 subnet_id: ${AWS_SUBNET_ID}
+external_ip: ${EXTERNAL_IP}
 internal_ip: ${INTERNAL_IP}
 internal_cidr: ${INTERNAL_CIDR}
 internal_gw: ${INTERNAL_GW}
@@ -35,6 +36,7 @@ chmod +x $bosh_cli
 $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/aws/cpi.yml \
   -o bosh-deployment/jumpbox-user.yml \
+  -o bosh-deployment/external-ip-with-registry-not-recommended.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
   --var-file private_key=bosh.pem \
