@@ -45,6 +45,10 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
 set +e
 $bosh_cli create-env director.yml -l director-creds.yml
 deployed=$?
+
+# hacky way to set bosh enviorment variable without modifying different tasks
+echo "internal_ip: ${EXTERNAL_IP}" >> director-creds.yml
+
 cp -r $HOME/.bosh director-state/
 cp director.yml director-creds.yml director-state.json director-state/
 if [ $deployed -ne 0 ]
@@ -64,6 +68,5 @@ export BOSH_CLIENT_SECRET=`$bosh_cli int director-creds.yml --path /admin_passwo
 
 $bosh_cli -n update-cloud-config bosh-deployment/aws/cloud-config.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
-          --ops-file bosh-stemcells-ci/ops-files/disable-ephemeral-ip.yml \
           --vars-file network-variables.yml \
           --vars-file director-vars.yml
