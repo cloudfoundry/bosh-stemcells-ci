@@ -10,7 +10,7 @@ export BOSH_ENVIRONMENT="$( manifest_path /instance_groups/name=bosh/networks/na
 export BOSH_CLIENT="admin"
 export BOSH_CLIENT_SECRET="$( creds_path /admin_password )"
 export BOSH_CA_CERT="$( creds_path /director_ssl/ca )"
-export BOSH_GW_HOST="$( manifest_path /instance_groups/name=bosh/networks/name=default/static_ips/0 2>/dev/null )"
+export BOSH_GW_HOST="$( manifest_path /instance_groups/name=bosh/networks/name=public/static_ips/0 2>/dev/null )"
 export BOSH_GW_USER="jumpbox"
 export BAT_PRIVATE_KEY="$( creds_path /jumpbox_ssh/private_key )"
 
