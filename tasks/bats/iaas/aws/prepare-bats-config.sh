@@ -30,20 +30,20 @@ cpi: aws
 properties:
   availability_zone: eu-central-1a
   instances: 1
-  vip: ((VARS_VIP_DEFAULT)) # elastic ip for bat deployed VM
-  second_static_ip: ((STATIC_IP_DEFAULT)) # Secondary (private) IP to use for reconfiguring networks, must be in the primary network & different from static_ip
+  vip: ((VIP_DEFAULT)) # elastic ip for bat deployed VM
+  second_static_ip: ((STATIC_IP_DEFAULT-2)) # Secondary (private) IP to use for reconfiguring networks, must be in the primary network & different from static_ip
   stemcell:
     name: ((STEMCELL_NAME))
     version: latest
   networks:
     - name: default
-      static_ip: ((STATIC_DEFAULT))
+      static_ip: ((STATIC_IP_DEFAULT))
       cidr: ((CIDR_DEFAULT))
       reserved: [((RESERVED_DEFAULT))]
       static: [((STATIC_DEFAULT))]
       gateway: ((GATEWAY_DEFAULT))
       subnet: ((SUBNETWORK_DEFAULT)) # VPC subnet
-      security_groups: ((SECURITY_GROUP)) # VPC security groups
+      security_groups: ((SECURITY_GROUPS)) # VPC security groups
   key_name: ((KEY_NAME)) # (optional) SSH keypair name, overrides the director's default_key_name setting
 EOF
 
