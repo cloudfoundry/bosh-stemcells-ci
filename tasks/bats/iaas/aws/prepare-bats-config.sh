@@ -40,6 +40,7 @@ properties:
       type: manual
       static_ip: ((STATIC_IP_DEFAULT))
       cidr: ((CIDR_DEFAULT))
+      reserved: ((RESERVED_DEFAULT))
       static: [((STATIC_DEFAULT))]
       gateway: ((GATEWAY_DEFAULT))
       subnet: ((SUBNETWORK_DEFAULT)) # VPC subnet
