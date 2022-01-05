@@ -37,6 +37,7 @@ properties:
     version: latest
   networks:
     - name: default
+      type: manual
       static_ip: ((STATIC_IP_DEFAULT))
       cidr: ((CIDR_DEFAULT))
       reserved: [((RESERVED_DEFAULT))]
