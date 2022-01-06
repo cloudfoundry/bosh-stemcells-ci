@@ -26,7 +26,6 @@ internal_ip: ${INTERNAL_IP}
 internal_cidr: ${INTERNAL_CIDR}
 internal_gw: ${INTERNAL_GW}
 reserved_range: [${RESERVED_RANGE}]
-internal_ntp: $(NTP)
 EOF
 
 echo "${AWS_PRIVATE_KEY}" > bosh.pem
@@ -38,7 +37,6 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/aws/cpi.yml \
   -o bosh-deployment/jumpbox-user.yml \
   -o bosh-deployment/external-ip-with-registry-not-recommended.yml \
-  -o bosh-deployment/misc/ntp.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
   --var-file private_key=bosh.pem \
