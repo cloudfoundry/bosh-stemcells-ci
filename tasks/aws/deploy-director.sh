@@ -14,7 +14,7 @@ cat > director-vars.yml <<EOF
 region: ${AWS_REGION}
 az:     ${AWS_AZ}
 default_key_name: ${AWS_KEY_NAME}
-default_security_groups: [${AWS_SECURITY_GROUPS}]
+default_security_groups: ${AWS_SECURITY_GROUPS}
 tags: [${TAG}]
 EOF
 
