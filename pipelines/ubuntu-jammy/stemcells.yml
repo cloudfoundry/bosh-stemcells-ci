@@ -6,7 +6,7 @@ stemcells:
   branch: "ubuntu-jammy/master"
   bump_version: "minor"
   agent_metalink_version: '*'
-  initial_version: "209.0.0"
+  initial_version: "210.0.0"
   include_alicloud: false
   os: jammy
   os_version: "18.04"
