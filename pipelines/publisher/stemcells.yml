@@ -9,3 +9,10 @@ oss:
   os_version: bionic
   branch: "ubuntu-bionic/1.x"
   build_aws: true
+
+- os: ubuntu-jammy
+  version: 0
+  os_name: ubuntu
+  os_version: jammy
+  branch: "ubuntu-jammy/0.x"
+  build_aws: false

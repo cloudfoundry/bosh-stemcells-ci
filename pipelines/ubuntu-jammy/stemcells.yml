@@ -12,3 +12,15 @@ stemcells:
   os_version: "18.04"
   os_name: ubuntu-jammy
   subnet_int: "2"
+
+- version: "0.x"
+  bosh_agent_version: "*"
+  branch: "ubuntu-jammy/0.x"
+  bump_version: "patch"
+  agent_metalink_version: '*'
+  initial_version: "0.0.1"
+  include_alicloud: true
+  os: jammy
+  os_version: "22.04"
+  os_name: ubuntu-jammy
+  subnet_int: "3"
