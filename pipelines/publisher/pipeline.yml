@@ -130,7 +130,7 @@ on_failure:
   task: cleanup-failed-run-instructions
 #@ end
 
-#@ def run_stemcell_upload_tests():
+#@ def run_stemcell_upload_tests(os):
 do:
 - in_parallel:
   - get: bosh-cpi-src
@@ -308,7 +308,7 @@ jobs:
     input_mapping:
       builder-src: us-builder-src
     task: merge-builds
-  - #@ run_stemcell_upload_tests()
+  - #@ run_stemcell_upload_tests("xenial")
   - params:
       files:
       - light-stemcell/*.tgz
@@ -525,8 +525,12 @@ resources:
 
 - name: bosh-aws-cpi-dev-artifacts
   source:
-    repository: cloudfoundry/bosh-aws-cpi-release
-  type: bosh-io-release
+    access_key_id: ((aws_cpi_access_key))
+    secret_access_key: ((aws_cpi_secret_key))
+    bucket: bosh-aws-cpi-pipeline
+    regexp: bosh-aws-cpi-(\d+\.\d+\.\d+)\.tgz
+    region_name: us-east-1
+  type: s3
 
 - name: bosh-google-cpi-release
   source:
