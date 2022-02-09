@@ -10,6 +10,7 @@ params:
   PROJECT_ID: ~
   TOKEN: ~
   DESCRIPTION: ~
+  POINT_ESTIMATE: 0
 
 inputs:
   - name: bosh-stemcells-ci
