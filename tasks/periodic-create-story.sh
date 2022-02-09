@@ -17,8 +17,7 @@ pushd "stemcells-index/published/${stemcell_line}" > /dev/null
   latest_commit_date=$(git log --pretty="format:%ct" "${latest_version}" | head -n 1)
   echo "Latest Cut Stemcell Time: ${latest_commit_date}"
 popd > /dev/null
-
-stories_count=$(curl --silent -X GET "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/stories?filter=created_since:$(date --date='3 weeks ago' '+%m/%d/%Y')%20name:stemcell%20periodic%20bump" \
+stories_count=$(curl --silent -X GET "https://www.pivotaltracker.com/services/v5/projects/$PROJECT_ID/stories?filter=created_since:$(date --date='3 weeks ago' '+%m/%d/%Y')%20name:%22stemcell%20periodic%20bump%22%20label:%22$BRANCH%22" \
   -H "X-TrackerToken: $TOKEN" \
   -H "Content-Type: application/json" | jq length)
 
