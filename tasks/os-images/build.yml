@@ -21,3 +21,4 @@ params:
   OPERATING_SYSTEM_NAME:      replace-me
   OPERATING_SYSTEM_VERSION:   replace-me
   ESM_TOKEN:
+  UBUNTU_ADVANTAGE_TOKEN:

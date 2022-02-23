@@ -1,0 +1,14 @@
+#@data/values
+---
+stemcells:
+- version: "master"
+  bosh_agent_version: "*"
+  branch: "ubuntu-bionic-fips/master"
+  bump_version: "minor"
+  agent_metalink_version: '*'
+  initial_version: "999.0.0"
+  include_alicloud: false
+  os: bionic
+  os_version: "18.04"
+  os_name: ubuntu-bionic
+  subnet_int: "3"
