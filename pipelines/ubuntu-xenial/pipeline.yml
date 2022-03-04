@@ -878,8 +878,8 @@ jobs:
     task: assert-version-aligns
   - file: bosh-stemcells-ci/tasks/publish.yml
     params:
-      AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
-      AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
+      AWS_ACCESS_KEY_ID: ((aws_lts_stemcell.username))
+      AWS_SECRET_ACCESS_KEY: ((aws_lts_stemcell.password))
       COMMIT_PREFIX: candidate
       COPY_KEYS: |
         aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
@@ -1025,8 +1025,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
@@ -1043,8 +1043,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
@@ -1062,8 +1062,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 #@ end
@@ -1081,8 +1081,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
@@ -1099,8 +1099,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
@@ -1117,8 +1117,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
@@ -1135,8 +1135,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
@@ -1153,8 +1153,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((stemcell_aws_access_key))
-        secret_key: ((stemcell_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
@@ -1178,21 +1178,21 @@ resources:
 
 - name: version-(@= stemcell.version @)
   source:
-    access_key_id: ((stemcell_aws_access_key))
+    access_key_id: ((aws_lts_stemcell.username))
     bucket: ((candidate_stemcell_bucket))
     driver: s3
     initial_version: (@= stemcell.initial_version @)
     key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
-    secret_access_key: ((stemcell_aws_secret_key))
+    secret_access_key: ((aws_lts_stemcell.password))
   type: semver
 - name: os-image-version-(@= stemcell.version @)
   source:
-    access_key_id: ((stemcell_aws_access_key))
+    access_key_id: ((aws_lts_stemcell.username))
     bucket: ((candidate_stemcell_bucket))
     driver: s3
     initial_version: "0.0.0"
     key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
-    secret_access_key: ((stemcell_aws_secret_key))
+    secret_access_key: ((aws_lts_stemcell.password))
   type: semver
 
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
