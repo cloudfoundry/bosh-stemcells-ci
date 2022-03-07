@@ -1171,8 +1171,8 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((osimage_aws_access_key))
-        secret_key: ((osimage_aws_secret_key))
+        access_key: ((aws_lts_stemcell.username))
+        secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
 
