@@ -1198,7 +1198,7 @@ resources:
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   source:
     branch: (@= stemcell.branch @)
-    private_key: ((github_bosh_linux_stemcell_builder_key.private_key))
+    private_key: ((github_deploy_key_bosh-linux-stemcell-builder.private_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
 
