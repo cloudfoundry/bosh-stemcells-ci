@@ -15,4 +15,4 @@ oss:
   os_name: ubuntu
   os_version: jammy
   branch: "ubuntu-jammy/0.x"
-  build_aws: false
+  build_aws: true

@@ -834,7 +834,7 @@ resources:
     mirror_files:
     - destination: s3://storage.googleapis.com/cloudfoundry-ubuntu-fips/(@= stemcell.branch @)/{{.Name}}
     options:
-      private_key: ((bosh_src_key))
+      private_key: ((bosh_src_key.private_key))
     filters:
     - repositorypath: "(@= stemcell.branch @)/(@= stemcell.os_name @).meta4"
     uri: git+ssh://git@github.com:cloudfoundry/bosh-linux-stemcell-builder.git//bosh-stemcell/image-metalinks/#(@= stemcell.branch @)

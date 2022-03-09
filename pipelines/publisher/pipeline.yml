@@ -601,7 +601,7 @@ resources:
     filters:
     - repositorypath: '*/stemcells.meta4'
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((boshio_stemcells_index_key.private_key))
     uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//candidate/(@= stemcell.os @)
     url_handlers:
     - include:
@@ -613,7 +613,7 @@ resources:
 - name: bosh-linux-stemcell-builder-(@= stemcell.os @)-(@= str(stemcell.version) @).x
   source:
     branch: (@= stemcell.branch if hasattr(stemcell, "branch") else "{}/{}.x".format(stemcell.os, stemcell.version) @)
-    private_key: ((bosh_src_key))
+    private_key: ((bosh_src_key.private_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
 
