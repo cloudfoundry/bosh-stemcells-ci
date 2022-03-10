@@ -671,7 +671,7 @@ resources:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells/{{.Version}}/{{.Name}}
     options:
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((boshio_stemcells_index_key.private_key))
     uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
