@@ -53,8 +53,8 @@ jobs:
   - file: bosh-stemcells-ci/tasks/periodic-create-story.yml
     image: bosh-ecosystem-docker-image
     params:
-      AWS_ACCESS_KEY_ID: ((bosh_usn_and_periodic_aws_access_key_id))
-      AWS_SECRET_ACCESS_KEY: ((bosh_usn_and_periodic_aws_secret_access_key))
+      AWS_ACCESS_KEY_ID: ((bosh_usn_and_periodic_aws_access_key.username))
+      AWS_SECRET_ACCESS_KEY: ((bosh_usn_and_periodic_aws_access_key.password))
       BRANCH: (@= stemcell.branch @)
       BUCKET: bosh-stemcell-triggers
       DESCRIPTION: periodic bump
@@ -1219,11 +1219,11 @@ resources:
 
 - name: usn-log-(@= stemcell.version @)
   source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+    access_key_id: ((bosh_usn_and_periodic_aws_access_key.username))
     bucket: bosh-stemcell-triggers
     initial_context_text: ""
     initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    secret_access_key: ((bosh_usn_and_periodic_aws_access_key.password))
     versioned_file: (@= stemcell.version @)/usn-log.json
   type: s3
 
@@ -1244,9 +1244,9 @@ resources:
 
 - name: stemcell-trigger-(@= stemcell.version @)
   source:
-    access_key_id: ((bosh_usn_and_periodic_aws_access_key_id))
+    access_key_id: ((bosh_usn_and_periodic_aws_access_key.username))
     bucket: bosh-stemcell-triggers
-    secret_access_key: ((bosh_usn_and_periodic_aws_secret_access_key))
+    secret_access_key: ((bosh_usn_and_periodic_aws_access_key.password))
     versioned_file: (@= stemcell.version @)/stemcell-trigger
   type: s3
 #@ end
