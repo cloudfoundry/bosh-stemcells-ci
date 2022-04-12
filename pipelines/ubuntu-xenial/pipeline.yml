@@ -160,11 +160,6 @@ jobs:
       OPERATING_SYSTEM_NAME: ubuntu
       OPERATING_SYSTEM_VERSION: (@= stemcell.os @)
       ESM_TOKEN: ((esm_token))
-      PPA_SOURCE: ((ppa_source))
-      PPA_USERNAME: ((ppa_user.username))
-      PPA_PASSWORD: ((ppa_user.password))
-      PPA_KEY: ((ppa_key))
-      KERNEL_PACKAGES: ((kernel_packages))
     privileged: true
     task: build
     vars:
