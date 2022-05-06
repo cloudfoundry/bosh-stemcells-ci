@@ -466,7 +466,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry-incubator/bosh-cpi-certification
+    uri: https://github.com/cloudfoundry/bosh-cpi-certification
 
 - name: bosh-cli
   type: s3
@@ -505,7 +505,7 @@ resources:
     ignore_paths:
     - .final_builds/**/*.yml
     - releases/**/*.yml
-    uri: https://github.com/cloudfoundry-incubator/bosh-aws-cpi-release.git
+    uri: https://github.com/cloudfoundry/bosh-aws-cpi-release.git
 
 - name: light-aws-environment
   source:
@@ -534,7 +534,7 @@ resources:
 
 - name: bosh-google-cpi-release
   source:
-    repository: cloudfoundry-incubator/bosh-google-cpi-release
+    repository: cloudfoundry/bosh-google-cpi-release
   type: bosh-io-release
 - name: light-google-builder-src
   source:
