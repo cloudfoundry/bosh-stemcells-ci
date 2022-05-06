@@ -325,7 +325,7 @@ jobs:
       - task: teardown
         file: bosh-stemcells-ci/tasks/teardown.yml
         attempts: 3
-        timeout: 2m
+        timeout: 5m
   serial: true
 
 - name: build-warden-boshlite-(@= stemcell.version @)
