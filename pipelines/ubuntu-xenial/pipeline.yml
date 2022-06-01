@@ -241,6 +241,7 @@ jobs:
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
       - get: bosh-deployment
       - get: bosh-cli
+      - get: cpi-certification-docker-image
       - get: syslog-release
       - get: os-conf-release
       - get: stemcell
@@ -268,6 +269,7 @@ jobs:
         tags:
         - nimbus
         task: deploy-director
+        image: cpi-certification-docker-image
         params:
           VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
           VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
@@ -290,6 +292,7 @@ jobs:
         tags:
         - nimbus
         task: teardown
+        image: cpi-certification-docker-image
         attempts: 3
       - params:
           release: environment
@@ -318,6 +321,7 @@ jobs:
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
       - get: bosh-deployment
       - get: bosh-cli
+      - get: cpi-certification-docker-image
       - get: syslog-release
       - get: os-conf-release
       - get: stemcell
@@ -345,6 +349,7 @@ jobs:
         tags:
         - nimbus
         task: deploy-director-ipv6
+        image: cpi-certification-docker-image
         params:
           VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
           VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
@@ -367,6 +372,7 @@ jobs:
         tags:
         - nimbus
         task: teardown
+        image: cpi-certification-docker-image
         attempts: 3
       - params:
           release: environment
@@ -777,6 +783,8 @@ jobs:
       - get: bats
       - get: bosh-deployment
       - get: bosh-stemcells-ci
+      - get: compiled-release-docker-image
+      - get: cpi-certification-docker-image
       - get: main-ruby-go-docker-image
       - get: bosh-linux-stemcell-builder
         passed:
@@ -815,6 +823,7 @@ jobs:
     - do:
       - task: deploy-director
         file: bosh-stemcells-ci/tasks/deploy-director.yml
+        image: cpi-certification-docker-image
         params:
           VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
           VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
@@ -826,12 +835,12 @@ jobs:
         tags:
         - nimbus
       - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
-
         params:
           STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent
         tags:
         - nimbus
         task: prepare-bats
+        image: compiled-release-docker-image
       - file: bats/ci/tasks/run-bats.yml
         image: main-ruby-go-docker-image
         tags:
@@ -843,6 +852,7 @@ jobs:
         tags:
         - nimbus
         task: teardown
+        image: cpi-certification-docker-image
         attempts: 3
       - params:
           release: environment
@@ -999,6 +1009,8 @@ resource_types:
   type: registry-image
   source:
     repository: dpb587/metalink-repository-resource
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
 - name: slack-notification
   type: registry-image
   source:
@@ -1316,8 +1328,22 @@ resources:
     url: ((slack_hook_url))
   type: slack-notification
 - name: bosh-ecosystem-docker-image
-  type: docker-image
+  type: registry-image
   source:
     repository: bosh/bosh-ecosystem-concourse
+    username: ((docker.username))
+    password: ((docker.password))
+
+- name: cpi-certification-docker-image
+  type: registry-image
+  source:
+    repository: boshcpi/cpi-certification
+    username: ((docker.username))
+    password: ((docker.password))
+
+- name: compiled-release-docker-image
+  type: registry-image
+  source:
+    repository: bosh/compiled-release
     username: ((docker.username))
     password: ((docker.password))
