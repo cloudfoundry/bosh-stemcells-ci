@@ -986,11 +986,11 @@ resource_types:
   type: registry-image
   source:
     repository: concourse/registry-image-resource
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
+    username: ((docker.username))
+    password: ((docker.password))
   defaults:
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
+    username: ((docker.username))
+    password: ((docker.password))
 - name: ami-resource
   type: registry-image
   source:
@@ -1009,8 +1009,8 @@ resource_types:
   type: registry-image
   source:
     repository: dpb587/metalink-repository-resource
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
+    username: ((docker.username))
+    password: ((docker.password))
 - name: slack-notification
   type: registry-image
   source:
