@@ -1170,7 +1170,7 @@ resources:
   source:
     json_key: ((gcp_json_key))
     bucket: bosh-stemcell-triggers
-    versioned_file: (@= stemcell.version @)/stemcell-trigger
+    versioned_file: (@= stemcell.branch @)/stemcell-trigger
     initial_content_text: ""
     initial_version: '0'
 
