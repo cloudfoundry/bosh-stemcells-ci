@@ -16,7 +16,7 @@ stemcells:
 - version: "0.x"
   bosh_agent_version: "*"
   branch: "ubuntu-jammy/0.x"
-  bump_version: "patch"
+  bump_version: "minor"
   agent_metalink_version: '*'
   initial_version: "0.0.1"
   include_alicloud: true
