@@ -9,7 +9,7 @@ inputs:
 - name: bosh-stemcells-ci
 
 run:
-  path: bosh-stemcells-ci/tasks/build-light-stemcells/light-aws/tag-aws-light-ami.sh
+  path: bosh-stemcells-ci/tasks/light-aws/tag-aws-ami-light.sh
 params:
   ami_access_key:
   ami_secret_key:
