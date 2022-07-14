@@ -379,7 +379,8 @@ jobs:
       passed:
       - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
     #@ if stemcell.build_aws:
-    - get: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
+    - get: candidate-aws-light-stemcell
+      resource: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
       passed:
       - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
     #@ end
@@ -404,14 +405,20 @@ jobs:
   #@ if stemcell.build_aws:
   - params:
       files:
-      - candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/*.tgz
+      - candidate-aws-light-stemcell/*.tgz
       options:
         author_email: ci@localhost
         author_name: CI Bot
         message: 'publish (light aws): (@= stemcell.os @)/(@= str(stemcell.version) @).x'
       rename: '{{.Version}}/stemcells.aws.meta4'
-      version: candidate-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/.resource/version
+      version: candidate-aws-light-stemcell/.resource/version
     put: published-aws-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
+
+  - file: bosh-stemcells-ci/tasks/light-aws/tag-aws-ami-light.yml
+    task: tag-published-aws-ami-light-stemcells
+    params:
+      ami_access_key: ((aws_publish_us_access_key))
+      ami_secret_key: ((aws_publish_us_secret_key))
   #@ end
   - params:
       files:

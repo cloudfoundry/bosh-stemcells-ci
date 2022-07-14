@@ -1,0 +1,15 @@
+---
+platform: linux
+image_resource:
+  type: registry-image
+  source: {repository: bosh/bosh-ecosystem-concourse}
+
+inputs:
+- name: candidate-aws-light-stemcell
+- name: bosh-stemcells-ci
+
+run:
+  path: bosh-stemcells-ci/tasks/build-light-stemcells/light-aws/tag-aws-light-ami.sh
+params:
+  ami_access_key:
+  ami_secret_key:
