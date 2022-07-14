@@ -418,8 +418,8 @@ jobs:
   - file: bosh-stemcells-ci/tasks/light-aws/tag-aws-ami-light.yml
     task: tag-published-aws-ami-light-stemcells
     params:
-      ami_access_key: ((aws_publish_us_access_key))
-      ami_secret_key: ((aws_publish_us_secret_key))
+      AWS_ACCESS_KEY_ID: ((aws_publish_us_access_key))
+      AWS_SECRET_ACCESS_KEY: ((aws_publish_us_secret_key))
   #@ end
   - params:
       files:
