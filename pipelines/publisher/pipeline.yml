@@ -443,7 +443,7 @@ jobs:
   - params:
       acl: public-read
       file: usn-log/usn-log.json
-    put: usn-log-(@= str(stemcell.version) @).x
+    put: usn-log-(@= stemcell.os @)-(@= str(stemcell.version) @).x
   serial: true
 #@ end
 
@@ -625,7 +625,7 @@ resources:
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
   type: git
 
-- name: usn-log-(@= str(stemcell.version) @).x
+- name: usn-log-(@= stemcell.os @)-(@= str(stemcell.version) @).x
   type: gcs-resource
   source:
     bucket: bosh-stemcell-triggers

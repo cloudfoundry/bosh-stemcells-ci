@@ -11,8 +11,8 @@ oss:
   build_aws: true
 
 - os: ubuntu-jammy
-  version: 0
+  version: 1
   os_name: ubuntu
   os_version: jammy
-  branch: "ubuntu-jammy/0.x"
+  branch: "ubuntu-jammy/1.x"
   build_aws: true
