@@ -271,13 +271,13 @@ jobs:
         task: deploy-director
         image: cpi-certification-docker-image
         params:
-          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
-          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
-          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
-          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
-          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
-          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
-          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
+          VCENTER_IP: ((nimbus_bosh-main_ip))
+          VCENTER_USER: ((nimbus_bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_bosh-main_cluster))
+          VCENTER_DC: ((nimbus_bosh-main_dc))
+          VCENTER_DS: ((nimbus_bosh-main_ds))
+          VCENTER_RP: ((nimbus_bosh-main_rp))
       - attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
@@ -351,13 +351,13 @@ jobs:
         task: deploy-director-ipv6
         image: cpi-certification-docker-image
         params:
-          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
-          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
-          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
-          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
-          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
-          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
-          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
+          VCENTER_IP: ((nimbus_bosh-main_ip))
+          VCENTER_USER: ((nimbus_bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_bosh-main_cluster))
+          VCENTER_DC: ((nimbus_bosh-main_dc))
+          VCENTER_DS: ((nimbus_bosh-main_ds))
+          VCENTER_RP: ((nimbus_bosh-main_rp))
       - attempts: 1
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
         params:
@@ -825,13 +825,13 @@ jobs:
         file: bosh-stemcells-ci/tasks/deploy-director.yml
         image: cpi-certification-docker-image
         params:
-          VCENTER_IP: ((nimbus_concourse-testbed-bosh-main_ip))
-          VCENTER_USER: ((nimbus_concourse-testbed-bosh-main_user.username))
-          VCENTER_PASSWORD: ((nimbus_concourse-testbed-bosh-main_user.password))
-          VCENTER_CLUSTER: ((nimbus_concourse-testbed-bosh-main_cluster))
-          VCENTER_DC: ((nimbus_concourse-testbed-bosh-main_dc))
-          VCENTER_DS: ((nimbus_concourse-testbed-bosh-main_ds))
-          VCENTER_RP: ((nimbus_concourse-testbed-bosh-main_rp))
+          VCENTER_IP: ((nimbus_bosh-main_ip))
+          VCENTER_USER: ((nimbus_bosh-main_user.username))
+          VCENTER_PASSWORD: ((nimbus_bosh-main_user.password))
+          VCENTER_CLUSTER: ((nimbus_bosh-main_cluster))
+          VCENTER_DC: ((nimbus_bosh-main_dc))
+          VCENTER_DS: ((nimbus_bosh-main_ds))
+          VCENTER_RP: ((nimbus_bosh-main_rp))
         tags:
         - nimbus
       - file: bosh-stemcells-ci/tasks/bats/iaas/vsphere/prepare-bats-config.yml
