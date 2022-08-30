@@ -32,3 +32,7 @@ stemcells:
   include_alicloud: true
   os: xenial
   os_name: ubuntu-xenial
+blobstore_types:
+- dav
+- gcs
+- s3

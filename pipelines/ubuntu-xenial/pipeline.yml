@@ -26,6 +26,9 @@ groups:
 - name: agent-(@= stemcell.version @)
   jobs:
   - bump-bosh-agent-(@= stemcell.version @)
+#@ for blobstore_type in data.values.blobstore_types:
+  - bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
+#@ end
 #@ end
 - name: automatic-triggers
   jobs:
@@ -979,6 +982,24 @@ jobs:
       repository: bosh-linux-stemcell-builder
     put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   serial: true
+#@ for blobstore_type in data.values.blobstore_types:
+- name: bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
+  plan:
+  - get: bosh-blobstore-cli
+    resource:  bosh-blobstore-(@= blobstore_type @)
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  - task: bump-bosh-blobstore-cli
+    file: bosh-stemcells-ci/tasks/bump-bosh-blobstore-cli.yml
+    params:
+      BLOBSTORE_TYPE: (@= blobstore_type @)
+  - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+    params:
+      rebase: true
+      repository: bosh-linux-stemcell-builder
+  serial: true
+#@ end
 #@ end
 
 resource_types:
@@ -1020,6 +1041,13 @@ resource_types:
   type: registry-image
   source:
     repository: frodenas/gcs-resource
+- name: bosh-blobstore-dav
+  type: s3
+  source:
+    regexp: davcli-(.*)-linux-amd64
+    bucket: ((davcli_release_bucket))
+    access_key_id: ((davcli_release_bucket_access_key))
+    secret_access_key: ((davcli_release_bucket_secret_key))
 
 #@yaml/text-templated-strings
 resources:
@@ -1347,3 +1375,25 @@ resources:
     repository: bosh/compiled-release
     username: ((docker.username))
     password: ((docker.password))
+
+- name: bosh-blobstore-dav
+  type: s3
+  source:
+    regexp: davcli-(.*)-linux-amd64
+    bucket: ((davcli_release_bucket))
+    access_key_id: ((davcli_release_bucket_access_key))
+    secret_access_key: ((davcli_release_bucket_secret_key))
+- name: bosh-blobstore-gcs
+  type: s3
+  source:
+    regexp: bosh-gcscli-(.*)-linux-amd64
+    bucket: ((gcscli_release_bucket))
+    access_key_id: ((gcscli_release_bucket_access_key))
+    secret_access_key: ((gcscli_release_bucket_secret_key))
+- name: bosh-blobstore-s3
+  type: s3
+  source:
+    regexp: s3cli-(.*)-linux-amd64
+    bucket: ((s3cli_release_bucket))
+    access_key_id: ((s3cli_release_bucket_access_key))
+    secret_access_key: ((s3cli_release_bucket_secret_key))
