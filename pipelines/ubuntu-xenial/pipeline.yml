@@ -987,6 +987,7 @@ jobs:
   plan:
   - get: bosh-blobstore-cli
     resource:  bosh-blobstore-(@= blobstore_type @)
+    trigger: true
   - get: bosh-stemcells-ci
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
