@@ -85,7 +85,7 @@ function is_package_installed {
   return $?
 }
 
-if [[ ! -z "$ESM_TOKEN" ]]; then
+if [[ -n "$ESM_TOKEN" ]]; then
   enable_esm
 fi
 
