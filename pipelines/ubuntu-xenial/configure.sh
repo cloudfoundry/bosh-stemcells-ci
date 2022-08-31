@@ -28,8 +28,5 @@ ytt -f "$(dirname $0)" > $pipeline_config
   -l <(lpass show --notes "bosh:docker-images concourse secrets" ) \
   -l <(lpass show --notes "stemcell-reminder-bot") \
   -l <(lpass show --notes "concourse:production pipeline:bosh:stemcells lts") \
-  -l <(lpass show --notes -G "davcli concourse secrets") \
-  -l <(lpass show --notes -G "gcscli-concourse-secrets") \
-  -l <(lpass show --notes "s3cli concourse secrets") \
   -c "$pipeline_config"
 

@@ -1042,13 +1042,6 @@ resource_types:
   type: registry-image
   source:
     repository: frodenas/gcs-resource
-- name: bosh-blobstore-dav
-  type: s3
-  source:
-    regexp: davcli-(.*)-linux-amd64
-    bucket: ((davcli_release_bucket))
-    access_key_id: ((davcli_release_bucket_access_key))
-    secret_access_key: ((davcli_release_bucket_secret_key))
 
 #@yaml/text-templated-strings
 resources:
@@ -1381,20 +1374,14 @@ resources:
   type: s3
   source:
     regexp: davcli-(.*)-linux-amd64
-    bucket: ((davcli_release_bucket))
-    access_key_id: ((davcli_release_bucket_access_key))
-    secret_access_key: ((davcli_release_bucket_secret_key))
+    bucket: davcli
 - name: bosh-blobstore-gcs
   type: s3
   source:
     regexp: bosh-gcscli-(.*)-linux-amd64
-    bucket: ((gcscli_release_bucket))
-    access_key_id: ((gcscli_release_bucket_access_key))
-    secret_access_key: ((gcscli_release_bucket_secret_key))
+    bucket: bosh-gcscli
 - name: bosh-blobstore-s3
   type: s3
   source:
     regexp: s3cli-(.*)-linux-amd64
-    bucket: ((s3cli_release_bucket))
-    access_key_id: ((s3cli_release_bucket_access_key))
-    secret_access_key: ((s3cli_release_bucket_secret_key))
+    bucket: s3cli-artifacts
