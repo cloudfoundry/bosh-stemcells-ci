@@ -22,6 +22,12 @@ groups:
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
+- name: auto-bumps-(@= stemcell.version @)
+  jobs:
+  - bump-bosh-agent-(@= stemcell.version @)
+  #@ for blobstore_type in data.values.blobstore_types:
+  - bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
+  #@ end
 #@ end
 - name: automatic-triggers
   jobs:
@@ -35,11 +41,6 @@ groups:
 #@ if stemcell.version == "master":
   - notify-of-usn
 #@ end
-#@ end
-- name: bump-bosh-agent
-  jobs:
-  #@ for stemcell in data.values.stemcells:
-  - bump-bosh-agent-(@= stemcell.version @)
 #@ end
 - name: docker
   jobs:
@@ -103,6 +104,7 @@ jobs:
       DESCRIPTION: periodic bump
       COLUMN_ID: ((github_project_column_id))
       TOKEN: ((story_creator_github_token))
+
 #@ end
 
 - name: create-story-usn-(@= stemcell.version @)
@@ -873,7 +875,7 @@ jobs:
           {
             "attachments": {
               "color": "#ff0000",
-                "thumb_url": "http://www.free-icons-download.net/images/lock-icon-66412.png",
+                "thumb_url": "https://www.free-icons-download.net/images/lock-icon-66412.png",
                 "footer": "USN Notification",
                 "footer_icon": "https://i.imgur.com/7H8ZIq1.png",
                 "mrkdwn_in": ["fields"],
@@ -914,6 +916,25 @@ jobs:
       rebase: true
       repository: bosh-linux-stemcell-builder
   serial: true
+  #@ for blobstore_type in data.values.blobstore_types:
+- name: bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
+  plan:
+  - get: bosh-blobstore-cli
+    resource:  bosh-blobstore-(@= blobstore_type @)
+    trigger: true
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  - task: bump-bosh-blobstore-cli
+    file: bosh-stemcells-ci/tasks/bump-bosh-blobstore-cli.yml
+    params:
+      BLOBSTORE_TYPE: (@= blobstore_type @)
+  - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+    params:
+      rebase: true
+      repository: bosh-linux-stemcell-builder
+  serial: true
+  #@ end
 #@ end
 
 resource_types:
@@ -928,18 +949,18 @@ resource_types:
     repository: dpb587/github-status-resource
     tag: master
 - name: usn
-  type: registry-image
   source:
     repository: bosh/usn-resource
-- name: metalink-repository
   type: registry-image
+- name: metalink-repository
   source:
     repository: dpb587/metalink-repository-resource
-- name: slack-notification
   type: registry-image
+- name: slack-notification
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
+  type: registry-image
 - name: gcs-resource
   type: docker-image
   source:
@@ -1196,16 +1217,19 @@ resources:
     branch: (@= stemcell.branch @)
     paths: [ci/*]
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
+
 - name: bosh-stemcells-ci
   type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-stemcells-ci
+
 - name: bats
   type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-acceptance-tests.git
+
 - name: main-ruby-go-docker-image
   type: docker-image
   source:
@@ -1219,10 +1243,12 @@ resources:
     branch: master
     private_key: ((boshio_stemcells_index_key.private_key))
     uri: git@github.com:bosh-io/stemcells-core-index.git
+
 - name: syslog-release
   type: bosh-io-release
   source:
     repository: cloudfoundry/syslog-release
+
 - name: os-conf-release
   type: bosh-io-release
   source:
@@ -1271,3 +1297,19 @@ resources:
     json_key: ((gcp_json_key))
     bucket: bosh-vmware-ovftool
     regexp: (@= stemcell.os @)/(.*).bundle
+
+- name: bosh-blobstore-dav
+  type: s3
+  source:
+    regexp: davcli-(.*)-linux-amd64
+    bucket: davcli
+- name: bosh-blobstore-gcs
+  type: s3
+  source:
+    regexp: bosh-gcscli-(.*)-linux-amd64
+    bucket: bosh-gcscli
+- name: bosh-blobstore-s3
+  type: s3
+  source:
+    regexp: s3cli-(.*)-linux-amd64
+    bucket: s3cli-artifacts

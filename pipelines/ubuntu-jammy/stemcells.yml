@@ -24,3 +24,8 @@ stemcells:
   os_version: "22.04"
   os_name: ubuntu-jammy
   subnet_int: "3"
+
+blobstore_types:
+- dav
+- gcs
+- s3
