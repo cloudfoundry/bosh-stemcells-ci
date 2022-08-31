@@ -873,7 +873,7 @@ jobs:
           {
             "attachments": {
               "color": "#ff0000",
-                "thumb_url": "http://www.free-icons-download.net/images/lock-icon-66412.png",
+                "thumb_url": "https://www.free-icons-download.net/images/lock-icon-66412.png",
                 "footer": "USN Notification",
                 "footer_icon": "https://i.imgur.com/7H8ZIq1.png",
                 "mrkdwn_in": ["fields"],
