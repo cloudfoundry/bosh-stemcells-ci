@@ -155,6 +155,8 @@ jobs:
     file: bosh-stemcells-ci/tasks/check-usn-packages.yml
     input_mapping:
       usn-log-in: usn-log-(@= stemcell.version @)
+    params:
+      OS: bionic
     vars:
       image_os_tag: (@= stemcell.os @)
   - task: write-message
