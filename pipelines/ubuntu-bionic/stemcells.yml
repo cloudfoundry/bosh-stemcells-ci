@@ -26,3 +26,8 @@ stemcells:
   os_version: "18.04"
   os_name: ubuntu-bionic
   subnet_int: "1"
+
+blobstore_types:
+- dav
+- gcs
+- s3

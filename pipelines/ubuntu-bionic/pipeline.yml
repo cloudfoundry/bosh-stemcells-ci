@@ -22,6 +22,12 @@ groups:
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
+- name: auto-bumps-(@= stemcell.version @)
+  jobs:
+  - bump-bosh-agent-(@= stemcell.version @)
+  #@ for blobstore_type in data.values.blobstore_types:
+  - bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
+  #@ end
 #@ end
 - name: automatic-triggers
   jobs:
@@ -35,11 +41,6 @@ groups:
 #@ if stemcell.version == "master":
   - notify-of-usn
 #@ end
-#@ end
-- name: bump-bosh-agent
-  jobs:
-  #@ for stemcell in data.values.stemcells:
-  - bump-bosh-agent-(@= stemcell.version @)
 #@ end
 - name: docker
   jobs:
@@ -913,6 +914,25 @@ jobs:
       rebase: true
       repository: bosh-linux-stemcell-builder
   serial: true
+  #@ for blobstore_type in data.values.blobstore_types:
+- name: bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
+  plan:
+  - get: bosh-blobstore-cli
+    resource:  bosh-blobstore-(@= blobstore_type @)
+    trigger: true
+  - get: bosh-stemcells-ci
+  - get: bosh-linux-stemcell-builder
+    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+  - task: bump-bosh-blobstore-cli
+    file: bosh-stemcells-ci/tasks/bump-bosh-blobstore-cli.yml
+    params:
+      BLOBSTORE_TYPE: (@= blobstore_type @)
+  - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+    params:
+      rebase: true
+      repository: bosh-linux-stemcell-builder
+  serial: true
+  #@ end
 #@ end
 
 resource_types:
@@ -1275,3 +1295,19 @@ resources:
     json_key: ((gcp_json_key))
     bucket: bosh-vmware-ovftool
     regexp: (@= stemcell.os @)/(.*).bundle
+
+- name: bosh-blobstore-dav
+  type: s3
+  source:
+    regexp: davcli-(.*)-linux-amd64
+    bucket: davcli
+- name: bosh-blobstore-gcs
+  type: s3
+  source:
+    regexp: bosh-gcscli-(.*)-linux-amd64
+    bucket: bosh-gcscli
+- name: bosh-blobstore-s3
+  type: s3
+  source:
+    regexp: s3cli-(.*)-linux-amd64
+    bucket: s3cli-artifacts
