@@ -85,7 +85,7 @@ if [[ -n "$ESM_TOKEN" ]]; then
 fi
 
 if [[ -z "${OS}" ]]; then
-  echo "Environment variable 'OS' must be set"
+  echo "Environment variable 'OS' must be set, and not empty"
   exit 1
 fi
 
