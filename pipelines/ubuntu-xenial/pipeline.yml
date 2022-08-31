@@ -982,7 +982,7 @@ jobs:
       repository: bosh-linux-stemcell-builder
     put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
   serial: true
-#@ for blobstore_type in data.values.blobstore_types:
+  #@ for blobstore_type in data.values.blobstore_types:
 - name: bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
   plan:
   - get: bosh-blobstore-cli
@@ -1000,7 +1000,7 @@ jobs:
       rebase: true
       repository: bosh-linux-stemcell-builder
   serial: true
-#@ end
+  #@ end
 #@ end
 
 resource_types:
