@@ -10,11 +10,6 @@ set -euo pipefail
 
 USN_JSON_URL="usn-log-in/usn-log.json"
 
-if [[ -n "${OS}" ]]; then
-  echo "Environment variable 'OS' must be set"
-  exit 1
-fi
-
 function process_packages {
   local package_version_for_usn=("$@")
 
@@ -87,6 +82,11 @@ function is_package_installed {
 
 if [[ -n "$ESM_TOKEN" ]]; then
   enable_esm
+fi
+
+if [[ -z "${OS}" ]]; then
+  echo "Environment variable 'OS' must be set"
+  exit 1
 fi
 
 # Depends on apt package list being up-to-date, make sure apt-get update is run before this is executed
