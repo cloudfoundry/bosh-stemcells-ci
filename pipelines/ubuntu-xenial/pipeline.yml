@@ -23,7 +23,7 @@ groups:
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
-- name: agent-(@= stemcell.version @)
+- name: auto-bumps-(@= stemcell.version @)
   jobs:
   - bump-bosh-agent-(@= stemcell.version @)
 #@ for blobstore_type in data.values.blobstore_types:
