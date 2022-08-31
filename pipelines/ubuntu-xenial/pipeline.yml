@@ -26,9 +26,9 @@ groups:
 - name: auto-bumps-(@= stemcell.version @)
   jobs:
   - bump-bosh-agent-(@= stemcell.version @)
-#@ for blobstore_type in data.values.blobstore_types:
+  #@ for blobstore_type in data.values.blobstore_types:
   - bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
-#@ end
+  #@ end
 #@ end
 - name: automatic-triggers
   jobs:
