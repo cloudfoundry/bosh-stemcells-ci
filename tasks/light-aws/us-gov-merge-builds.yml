@@ -10,7 +10,6 @@ inputs:
 - name: bosh-stemcells-ci
 - name: us-light-stemcell
 - name: us-gov-light-stemcell
-- name: cn-north-light-stemcell
   optional: true
 
 outputs:
