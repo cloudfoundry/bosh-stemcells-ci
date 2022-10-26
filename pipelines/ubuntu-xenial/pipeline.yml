@@ -646,6 +646,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
+    - get: open-vm-tools-release
+      trigger: true
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -694,6 +696,8 @@ jobs:
       resource: os-image-tarball-(@= stemcell.version @)
       passed:
       - build-os-image-(@= stemcell.version @)
+    - get: open-vm-tools-release
+      trigger: true
   - attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
     params:
@@ -1286,7 +1290,7 @@ resources:
   type: time
 - name: bosh-stemcells-ci
   source:
-    branch: master
+    branch: wip-xenial-open-vm-tools
     uri: https://github.com/cloudfoundry/bosh-stemcells-ci
   type: git
 - name: bats
@@ -1385,3 +1389,9 @@ resources:
   source:
     regexp: s3cli-(.*)-linux-amd64
     bucket: s3cli-artifacts
+- name: open-vm-tools-release
+  type: github-release
+  source:
+    owner: vmware
+    repository: open-vm-tools
+    tag_filter: ^stable-12\.\d+\.\d+$
