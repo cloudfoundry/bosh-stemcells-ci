@@ -15,6 +15,7 @@ inputs:
   - name: os-image-tarball
     optional: true
   - name: open-vm-tools-release
+    optional: true
 
 outputs:
   - name: stemcell
