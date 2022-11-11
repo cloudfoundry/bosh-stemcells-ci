@@ -10,8 +10,6 @@ pushd open-vm-tools
   sha256sum=$(sha256sum -b open-vm-tools-*.tar.gz | awk '{print $1}')
 popd
 
-mkdir -p "bosh-linux-stemcell-builder-out/stemcell_builder/stages/system_open_vm_tools/assets/"
-
 echo "${url}" > \
   "bosh-linux-stemcell-builder-out/stemcell_builder/stages/system_open_vm_tools/assets/open-vm-tools.url"
 echo "${version}" > \
