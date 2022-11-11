@@ -29,7 +29,6 @@ groups:
   #@ for blobstore_type in data.values.blobstore_types:
   - bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
   #@ end
-  - bump-open-vm-tools-(@= stemcell.version @)
 #@ end
 - name: automatic-triggers
   jobs:
@@ -1002,23 +1001,6 @@ jobs:
       repository: bosh-linux-stemcell-builder
   serial: true
   #@ end
-- name: bump-open-vm-tools-(@= stemcell.version @)
-  plan:
-  - get: bosh-stemcells-ci
-  - get: bosh-linux-stemcell-builder
-    resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-  - get: open-vm-tools
-    resource: open-vm-tools-release
-    trigger: true
-    params:
-      globs: [open-vm-tools-*.tar.gz]
-  - task: bump-open-vm-tools
-    file: bosh-stemcells-ci/tasks/bump-open-vm-tools.yml
-  - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-    params:
-      rebase: true
-      repository: bosh-linux-stemcell-builder
-  serial: true
 #@ end
 
 resource_types:
@@ -1403,8 +1385,3 @@ resources:
   source:
     regexp: s3cli-(.*)-linux-amd64
     bucket: s3cli-artifacts
-- name: open-vm-tools-release
-  type: github-release
-  source:
-    owner: vmware
-    repository: open-vm-tools
