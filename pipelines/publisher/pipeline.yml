@@ -451,7 +451,7 @@ resource_types:
 - name: metalink-repository
   source:
     repository: dpb587/metalink-repository-resource
-  type: registry-image
+  type: docker-image
 - name: terraform_type
   source:
     repository: ljfranklin/terraform-resource
