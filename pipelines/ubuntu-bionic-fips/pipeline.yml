@@ -652,28 +652,28 @@ jobs:
 
 resource_types:
 - name: ami-resource
-  type: registry-image
+  type: docker-image
   source:
     repository: pivotalgreenhouse/ami-resource
     tag: latest
 - name: github-status
-  type: registry-image
+  type: docker-image
   source:
     repository: dpb587/github-status-resource
     tag: master
 - name: usn
   source:
     repository: bosh/usn-resource
-  type: registry-image
+  type: docker-image
 - name: metalink-repository
   source:
     repository: dpb587/metalink-repository-resource
-  type: registry-image
+  type: docker-image
 - name: slack-notification
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
-  type: registry-image
+  type: docker-image
 - name: gcs-resource
   type: docker-image
   source:

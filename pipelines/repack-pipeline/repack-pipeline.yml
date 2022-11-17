@@ -90,7 +90,7 @@ jobs:
 
 resource_types:
 - name: metalink-repository
-  type: registry-image
+  type: docker-image
   source:
     repository: dpb587/metalink-repository-resource
 

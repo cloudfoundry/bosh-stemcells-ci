@@ -110,7 +110,7 @@ on_failure:
     image_resource:
       source:
         repository: ubuntu
-      type: registry-image
+      type: docker-image
     platform: linux
     run:
       args:
@@ -455,11 +455,11 @@ resource_types:
 - name: terraform_type
   source:
     repository: ljfranklin/terraform-resource
-  type: registry-image
+  type: docker-image
 - name: gcs-resource
   source:
     repository: frodenas/gcs-resource
-  type: registry-image
+  type: docker-image
 
 resources:
 - name: gh-release-oss

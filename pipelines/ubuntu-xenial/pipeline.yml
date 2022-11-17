@@ -923,7 +923,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
-        type: registry-image
+        type: docker-image
         source:
           repository: bosh/main
       inputs:
@@ -1004,42 +1004,33 @@ jobs:
 #@ end
 
 resource_types:
-- name: registry-image
-  type: registry-image
-  source:
-    repository: concourse/registry-image-resource
-    username: ((docker.username))
-    password: ((docker.password))
-  defaults:
-    username: ((docker.username))
-    password: ((docker.password))
 - name: ami-resource
-  type: registry-image
+  type: docker-image
   source:
     repository: pivotalgreenhouse/ami-resource
     tag: latest
 - name: github-status
-  type: registry-image
+  type: docker-image
   source:
     repository: dpb587/github-status-resource
     tag: master
 - name: usn
-  type: registry-image
+  type: docker-image
   source:
     repository: bosh/usn-resource
 - name: metalink-repository
-  type: registry-image
+  type: docker-image
   source:
     repository: dpb587/metalink-repository-resource
     username: ((docker.username))
     password: ((docker.password))
 - name: slack-notification
-  type: registry-image
+  type: docker-image
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
 - name: gcs-resource
-  type: registry-image
+  type: docker-image
   source:
     repository: frodenas/gcs-resource
 
@@ -1350,21 +1341,21 @@ resources:
     url: ((slack_hook_url))
   type: slack-notification
 - name: bosh-ecosystem-docker-image
-  type: registry-image
+  type: docker-image
   source:
     repository: bosh/bosh-ecosystem-concourse
     username: ((docker.username))
     password: ((docker.password))
 
 - name: cpi-certification-docker-image
-  type: registry-image
+  type: docker-image
   source:
     repository: boshcpi/cpi-certification
     username: ((docker.username))
     password: ((docker.password))
 
 - name: compiled-release-docker-image
-  type: registry-image
+  type: docker-image
   source:
     repository: bosh/compiled-release
     username: ((docker.username))
