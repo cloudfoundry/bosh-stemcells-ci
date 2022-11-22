@@ -953,6 +953,7 @@ resource_types:
 - name: metalink-repository
   source:
     repository: dpb587/metalink-repository-resource
+    tag: latest
   type: docker-image
 - name: slack-notification
   source:
