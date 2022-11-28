@@ -245,6 +245,7 @@ jobs:
       - get: bosh-deployment
       - get: bosh-cli
       - get: cpi-certification-docker-image
+      - get: bosh-main-docker-image
       - get: syslog-release
       - get: os-conf-release
       - get: stemcell
@@ -289,6 +290,7 @@ jobs:
         tags:
         - nimbus
         task: test-stemcell
+        image: bosh-main-docker-image
     ensure:
       do:
       - file: bosh-stemcells-ci/tasks/teardown.yml
@@ -325,6 +327,7 @@ jobs:
       - get: bosh-deployment
       - get: bosh-cli
       - get: cpi-certification-docker-image
+      - get: bosh-main-docker-image
       - get: syslog-release
       - get: os-conf-release
       - get: stemcell
@@ -369,6 +372,7 @@ jobs:
         tags:
         - nimbus
         task: test-stemcell-ipv6
+        image: bosh-main-docker-image
     ensure:
       do:
       - file: bosh-stemcells-ci/tasks/teardown.yml
@@ -921,11 +925,10 @@ jobs:
   plan:
   - get: (@= stemcell.os @)-usn
     trigger: true
-  - config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: bosh/main
+  - get: bosh-main-docker-image
+  - task: build-slack-message
+    image: bosh-main-docker-image
+    config:
       inputs:
       - name: (@= stemcell.os @)-usn
       outputs:
@@ -956,7 +959,6 @@ jobs:
           cat (@= stemcell.os @)-usn/usn.json | jq -r "$(cat template.json)" | tee slack-message/attachments
           cat (@= stemcell.os @)-usn/usn.json | jq -r '"New USN for (@= stemcell.os @): *<\(.url)|\(.title)>*"' | tee slack-message/message
         path: /bin/bash
-    task: build-slack-message
   - params:
       attachments_file: slack-message/attachments
       channel: ((usn_notifications_slack_channel_name))
@@ -1358,6 +1360,13 @@ resources:
   type: docker-image
   source:
     repository: bosh/compiled-release
+    username: ((docker.username))
+    password: ((docker.password))
+
+- name: bosh-main-docker-image
+  type: docker-image
+  source:
+    repository: bosh/main
     username: ((docker.username))
     password: ((docker.password))
 
