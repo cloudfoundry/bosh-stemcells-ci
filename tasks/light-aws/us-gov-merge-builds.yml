@@ -9,6 +9,8 @@ inputs:
 - name: builder-src
 - name: bosh-stemcells-ci
 - name: us-light-stemcell
+- name: cn-north-light-stemcell
+  optional: true
 - name: us-gov-light-stemcell
   optional: true
 

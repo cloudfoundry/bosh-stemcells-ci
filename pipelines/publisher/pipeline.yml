@@ -110,7 +110,7 @@ on_failure:
     image_resource:
       source:
         repository: ubuntu
-      type: docker-image
+      type: registry-image
     platform: linux
     run:
       args:
@@ -303,6 +303,7 @@ jobs:
   - get: bosh-stemcells-ci
   - in_parallel:
     - do:
+    - #@ build_light_aws_stemcell_new("build-china-north-stemcell", stemcell.os, str(stemcell.version), "cn-builder-src", "cn-input-stemcell", "cn-north-light-stemcell", "cn", "cn_north", "cn", "", "[]")
     - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "")
     - #@ build_light_aws_stemcell_new("build-us-stemcell", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "")
   - file: bosh-stemcells-ci/tasks/light-aws/us-gov-merge-builds.yml
@@ -456,11 +457,11 @@ resource_types:
 - name: terraform_type
   source:
     repository: ljfranklin/terraform-resource
-  type: docker-image
+  type: registry-image
 - name: gcs-resource
   source:
     repository: frodenas/gcs-resource
-  type: docker-image
+  type: registry-image
 
 resources:
 - name: gh-release-oss
