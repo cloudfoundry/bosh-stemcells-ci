@@ -22,12 +22,25 @@ groups:
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
 #@ end
+ #@ if stemcell.version == "master":
+  #@ for stemcell in data.values.stemcells:
+   #@ if stemcell.version != "master":
+  - rebase-master-to-(@= stemcell.version @)
+   #@ end
+  #@ end
+ #@ end
+#@ end
+
+#@ for stemcell in data.values.stemcells:
+#@ if stemcell.version == "master":
 - name: auto-bumps-(@= stemcell.version @)
   jobs:
   - bump-bosh-agent-(@= stemcell.version @)
   #@ for blobstore_type in data.values.blobstore_types:
   - bump-bosh-blobstore-(@= blobstore_type @)-(@= stemcell.version @)
   #@ end
+#@ end
+
 #@ end
 - name: automatic-triggers
   jobs:
@@ -850,6 +863,24 @@ jobs:
         rebase: true
         repository: stemcells-index
 #@ end
+
+#@ if stemcell.version == "master":
+  #@ for stemcell in data.values.stemcells:
+    #@ if stemcell.version != "master":
+- name: rebase-master-to-(@= stemcell.version @)
+  plan:
+  - get: bosh-linux-stemcell-builder-master
+    passed:
+    - bats-master
+    - test-stemcells-master-ipv4
+  - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
+    params:
+      repository: bosh-linux-stemcell-builder-master
+      rebase: true
+    #@ end
+  #@ end
+#@ end
+
 #@ end
 - name: notify-of-usn
   plan:
@@ -899,6 +930,7 @@ jobs:
       text_file: slack-message/message
 
 #@ for stemcell in data.values.stemcells:
+ #@ if stemcell.version == "master":
 - name: bump-bosh-agent-(@= stemcell.version @)
   plan:
   - get: bosh-agent
@@ -935,6 +967,7 @@ jobs:
       repository: bosh-linux-stemcell-builder
   serial: true
   #@ end
+ #@ end
 #@ end
 
 resource_types:
@@ -970,6 +1003,7 @@ resource_types:
 #@yaml/text-templated-strings
 resources:
 #@ for stemcell in data.values.stemcells:
+ #@ if stemcell.version == "master":
 - name: bosh-agent-(@= stemcell.version @)
   type: metalink-repository
   source:
@@ -984,6 +1018,7 @@ resources:
       options:
         access_key: ((hmac_accesskey))
         secret_key: ((hmac_secret))
+ #@ end
 - name: warden-boshlite-(@= stemcell.version @)
   type: metalink-repository
   source:
