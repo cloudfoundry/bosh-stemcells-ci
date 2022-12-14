@@ -297,8 +297,6 @@ jobs:
 #@ for stemcell in data.values.oss:
   #@ if stemcell.build_aws:
 - name: build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
-  build_log_retention:
-    builds: 1
   plan:
   - get: bosh-stemcells-ci
   - in_parallel:
