@@ -6,10 +6,7 @@ image_resource:
     repository: bosh/bosh-ecosystem-concourse
 
 params:
-  AWS_ACCESS_KEY_ID:
-  AWS_SECRET_ACCESS_KEY:
   BRANCH:
-  BUCKET:
   DESCRIPTION:
   PROJECT_ID:
   TOKEN:
