@@ -56,6 +56,12 @@ for i in $(seq 0 64); do
   fi
 done
 
+# Install gems
+pushd bosh-linux-stemcell-builder
+bundle update --bundler
+bundle install --local
+popd
+
 chown -R ubuntu:ubuntu bosh-linux-stemcell-builder
 chown -R ubuntu:ubuntu /mnt
 
@@ -70,9 +76,6 @@ sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
   set -e
 
   cd bosh-linux-stemcell-builder
-
-  bundle update --bundler
-  bundle install --local
 
 if [[ -z "$OS_IMAGE" ]]; then
 	bundle exec rake stemcell:build[$IAAS,$HYPERVISOR,$OS_NAME,$OS_VERSION,$CANDIDATE_BUILD_NUMBER]
