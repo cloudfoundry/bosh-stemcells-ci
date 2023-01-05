@@ -1254,15 +1254,8 @@ resources:
   source:
     uri: git+ssh://git@github.com:cloudfoundry/bosh-agent-index.git//
     version: (@= stemcell.agent_metalink_version @)
-    mirror_files:
-    - destination: s3://s3-external-1.amazonaws.com/((RELEASE_BUCKET_AGENT))/{{.Name}}
     options:
       private_key: ((BOSH_AGENT_INDEX_DEPLOYMENT_PRIVATE_KEY))
-    url_handlers:
-    - type: s3
-      options:
-        access_key: ((AWS_S3_BUCKET_ACCESS_KEY))
-        secret_key: ((AWS_S3_BUCKET_SECRET_KEY))
 
 - name: stemcell-trigger-(@= stemcell.version @)
   source:
