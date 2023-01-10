@@ -1255,7 +1255,7 @@ resources:
     uri: git+ssh://git@github.com:cloudfoundry/bosh-agent-index.git//
     version: (@= stemcell.agent_metalink_version @)
     options:
-      private_key: ((BOSH_AGENT_INDEX_DEPLOYMENT_PRIVATE_KEY))
+      private_key: ((github_deploy_key_bosh-agent-index.private_key))
 
 - name: stemcell-trigger-(@= stemcell.version @)
   source:
@@ -1314,8 +1314,8 @@ resources:
 - name: bosh-cli
   source:
     regexp: alpha-bosh-cli-(.*)-linux-amd64
-    bucket: ((bosh_cli_aws_s3_alpha_release_bucket))
-    region_name: ((bosh_cli_aws_s3_release_bucket_region))
+    bucket: bosh-cli-alpha-artifacts
+    region_name: us-east-1
   type: s3
 - name: nimbus-environment
   source:
