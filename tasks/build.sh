@@ -70,7 +70,7 @@ sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
   set -e
 
   cd bosh-linux-stemcell-builder
-case $OS_NAME
+case $OS_VERSION
 in
 # Because of the difference in build environments between Xenial and other Ubuntu stemcell lines (currently only Jammy)
 # we must run 'bundle install' as the root user for it to function correctly.
