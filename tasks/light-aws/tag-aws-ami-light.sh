@@ -12,9 +12,9 @@ for AMI_LINE in $AMI_LIST; do
 
   TAGS="[
     { \"Key\": \"published\", \"Value\": \"true\" },
-    { \"Key\": \"Name\"     , \"Value\": \"$OS-$VERSION\" },
-    { \"Key\": \"Distro\"   , \"Value\": \"$OS\" },
-    { \"Key\": \"Version\"  , \"Value\": \"$VERSION\" }
+    { \"Key\": \"name\"     , \"Value\": \"$OS-$VERSION\" },
+    { \"Key\": \"distro\"   , \"Value\": \"$OS\" },
+    { \"Key\": \"version\"  , \"Value\": \"$VERSION\" }
   ]"
 
   aws ec2 create-tags --resources "$AMI_ID" --region "$AMI_REGION" --tags "$TAGS"
