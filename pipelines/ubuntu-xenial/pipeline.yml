@@ -39,9 +39,47 @@ groups:
   - log-low-medium-cves-(@= stemcell.version @)
 #@ end
   - notify-of-usn
+- name: docker
+  jobs:
+  - build-os-image-stemcell-builder-xenial
+
 
 #@yaml/text-templated-strings
 jobs:
+- name: build-os-image-stemcell-builder-xenial
+  public: true
+  serial: true
+  plan:
+    - get: weekly
+      trigger: true
+    - get: bosh-linux-stemcell-builder-in
+      trigger: true
+      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - get: bosh-os-image-builder-vmware-ovftool
+    - task: copy-ovf
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: bosh/integration
+        run:
+          path: /bin/bash
+          args:
+          - -cex
+          - |
+            git clone bosh-linux-stemcell-builder-in bosh-linux-stemcell-builder
+            cp bosh-os-image-builder-vmware-ovftool/VMware-ovftool-4.1.0-2459827-lin.x86_64.bundle bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder/
+        inputs:
+        - name: bosh-os-image-builder-vmware-ovftool
+        - name: bosh-linux-stemcell-builder-in
+        outputs:
+        - name: bosh-linux-stemcell-builder-(@= stemcell.version @)
+    - put: os-image-stemcell-builder-xenial
+      params:
+        build: "bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder"
+      get_params:
+        skip_download: true
 #@ for stemcell in data.values.stemcells:
 - name: create-story-periodic-(@= stemcell.version @)
   build_log_retention:
@@ -1038,6 +1076,28 @@ resource_types:
 
 #@yaml/text-templated-strings
 resources:
+- name: os-image-stemcell-builder-xenial
+  type: docker-image
+  source:
+    repository: bosh/os-image-stemcell-builder
+    username: ((docker.username))
+    password: ((docker.password))
+
+- name: bosh-os-image-builder-vmware-ovftool
+  type: s3
+  source:
+    access_key_id: ((vmware_ovftool_aws_access_key.username))
+    bucket: bosh-os-image-builder-vmware-ovftool
+    region_name: us-west-1
+    secret_access_key: ((vmware_ovftool_aws_access_key.password))
+    versioned_file: VMware-ovftool-4.1.0-2459827-lin.x86_64.bundle
+
+- name: weekly
+  type: time
+  source:
+    start: 3:00 -0700
+    stop: 4:30 -0700
+    days: [Saturday]
 #@ for stemcell in data.values.stemcells:
 - name: warden-boshlite-(@= stemcell.version @)
   source:
