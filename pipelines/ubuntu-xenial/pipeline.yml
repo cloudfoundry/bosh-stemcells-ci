@@ -52,9 +52,8 @@ jobs:
   plan:
     - get: weekly
       trigger: true
-    - get: bosh-linux-stemcell-builder-in
+    - get: bosh-linux-stemcell-builder-docker-xenial
       trigger: true
-      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: bosh-os-image-builder-vmware-ovftool
     - task: copy-ovf
       config:
@@ -68,13 +67,13 @@ jobs:
           args:
           - -cex
           - |
-            git clone bosh-linux-stemcell-builder-in bosh-linux-stemcell-builder
+            git clone bosh-linux-stemcell-builder-docker-xenial bosh-linux-stemcell-builder
             cp bosh-os-image-builder-vmware-ovftool/VMware-ovftool-4.1.0-2459827-lin.x86_64.bundle bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder/
         inputs:
         - name: bosh-os-image-builder-vmware-ovftool
-        - name: bosh-linux-stemcell-builder-in
+        - name: bosh-linux-stemcell-builder-docker-xenial
         outputs:
-        - name: bosh-linux-stemcell-builder-(@= stemcell.version @)
+        - name: bosh-linux-stemcell-builder
     - put: os-image-stemcell-builder-xenial
       params:
         build: "bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder"
@@ -1076,6 +1075,16 @@ resource_types:
 
 #@yaml/text-templated-strings
 resources:
+- name: bosh-linux-stemcell-builder-docker-xenial
+  source:
+    branch: ubuntu-xenial/621.x
+    ignore_paths:
+      - VERSION
+      - bosh-stemcell/image-metalinks/ubuntu-trusty.meta4
+      - bosh-stemcell/image-metalinks/centos-7.meta4.meta4
+    uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
+  type: git
+
 - name: os-image-stemcell-builder-xenial
   type: docker-image
   source:
