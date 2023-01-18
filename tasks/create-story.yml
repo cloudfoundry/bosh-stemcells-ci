@@ -3,7 +3,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: bosh/main-base
+    repository: bosh/integration
+    tag: main
 
 params:
   BRANCH: ~
