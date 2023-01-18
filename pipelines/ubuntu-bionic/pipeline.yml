@@ -76,7 +76,8 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            repository: bosh/main-ruby-go
+            repository: bosh/integration
+            tag: main
         run:
           path: /bin/bash
           args:
@@ -1278,8 +1279,8 @@ resources:
 - name: main-ruby-go-docker-image
   type: docker-image
   source:
-    repository: bosh/main-ruby-go
-    tag: master
+    repository: bosh/integration
+    tag: main
     username: ((dockerhub_username))
     password: ((dockerhub_password))
 - name: stemcells-index
