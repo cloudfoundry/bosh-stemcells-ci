@@ -900,7 +900,8 @@ jobs:
     config:
       image_resource:
         source:
-          repository: bosh/main
+          repository: bosh/integration
+          tag: main
         type: docker-image
       inputs:
       - name: (@= stemcell.os @)-usn
