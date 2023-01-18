@@ -2,8 +2,8 @@
 
 set -e
 
-manifest_path() { bosh-cli int director-state/director.yml --path="$1" ; }
-creds_path() { bosh-cli int director-state/director-creds.yml --path="$1" ; }
+manifest_path() { bosh int director-state/director.yml --path="$1" ; }
+creds_path() { bosh int director-state/director-creds.yml --path="$1" ; }
 
 cat > bats-config/bats.env <<EOF
 export BOSH_ENVIRONMENT="$( manifest_path /instance_groups/name=bosh/networks/name=default/static_ips/0 2>/dev/null )"
@@ -22,7 +22,7 @@ export BAT_NETWORKING=manual
 export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
 EOF
 
-export VARS_DATACENTERS="$(bosh-cli int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters" 2>/dev/null)"
+export VARS_DATACENTERS="$(bosh int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters" 2>/dev/null)"
 
 cat > interpolate.yml <<EOF
 ---
@@ -54,7 +54,7 @@ properties:
       vlan: ((network2.vCenterVLAN))
 EOF
 
-bosh-cli interpolate \
+bosh interpolate \
  --vars-file environment/metadata \
  --vars-env VARS \
  -v "stemcell_name=$STEMCELL_NAME" \
