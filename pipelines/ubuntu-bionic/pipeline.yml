@@ -1259,8 +1259,8 @@ resources:
 - name: bosh-linux-stemcell-builder-ci
   type: git
   source:
-    branch: (@= stemcell.branch @)
-    paths: [ci/*]
+    branch: ubuntu-bionic/master
+    paths: [ci/docker/**/*]
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
 
 - name: bosh-stemcells-ci
