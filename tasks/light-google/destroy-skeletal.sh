@@ -8,10 +8,6 @@ workspace_dir="$(pwd)"
 # inputs
 deployment_state="$(cd "${workspace_dir}/deployment-state" && pwd)"
 
-# make ruby available for BOSH CLI template rendering
-source /etc/profile.d/chruby.sh
-chruby ruby-2.4.5
-
 pushd "${deployment_state}" > /dev/null
   echo "Destroying skeletal instance..."
 

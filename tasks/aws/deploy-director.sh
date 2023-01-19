@@ -2,9 +2,6 @@
 
 set -e
 
-source /etc/profile.d/chruby.sh
-chruby ruby
-
 cat > director-creds.yml <<EOF
 access_key_id:     ${AWS_ACCESS_KEY}
 secret_access_key: ${AWS_SECRET_KEY}

@@ -2,9 +2,6 @@
 
 set -e
 
-source /etc/profile.d/chruby.sh
-chruby ruby
-
 function fromEnvironment() {
   local key="$1"
   local environment=environment/metadata

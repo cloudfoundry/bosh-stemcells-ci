@@ -2,9 +2,6 @@
 
 set -e
 
-source /etc/profile.d/chruby.sh
-chruby ruby
-
 cat > director-creds.yml <<EOF
 internal_ip: ${INTERNAL_IP}
 EOF

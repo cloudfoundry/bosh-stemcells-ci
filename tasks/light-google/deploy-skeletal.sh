@@ -24,10 +24,6 @@ cp ${cpi_dir}/*.tgz "${output_dir}/assets/cpi.tgz"
 cp ${stemcell_dir}/*.tgz "${output_dir}/assets/stemcell.tgz"
 cp ${bosh_cli} "${output_dir}/assets/bosh"
 
-# make ruby available for BOSH CLI template rendering
-source /etc/profile.d/chruby.sh
-chruby ruby-2.4.5
-
 mbus_password="$(openssl rand -base64 24 | tr -d '[/+]')"
 gce_cloud_provider_mbus="https://mbus:${mbus_password}@$(jq -r .skeletal_external_ip ${terraform_config}/metadata):6868"
 gce_cloud_provider_agent_mbus="https://mbus:${mbus_password}@0.0.0.0:6868"
