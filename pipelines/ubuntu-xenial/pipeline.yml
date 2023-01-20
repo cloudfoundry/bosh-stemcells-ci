@@ -1408,7 +1408,8 @@ resources:
 - name: cpi-certification-docker-image
   type: docker-image
   source:
-    repository: boshcpi/cpi-certification
+    repository: bosh/integration
+    tag: main
     username: ((docker.username))
     password: ((docker.password))
 
