@@ -2,9 +2,6 @@
 
 set -e
 
-source /etc/profile.d/chruby.sh
-chruby ruby
-
 mv director-state/* .
 mv director-state/.bosh $HOME/
 
