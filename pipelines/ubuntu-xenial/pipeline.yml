@@ -1340,7 +1340,7 @@ resources:
   type: time
 - name: bosh-stemcells-ci
   source:
-    branch: master
+    branch: test-bom
     uri: https://github.com/cloudfoundry/bosh-stemcells-ci
   type: git
 - name: bats

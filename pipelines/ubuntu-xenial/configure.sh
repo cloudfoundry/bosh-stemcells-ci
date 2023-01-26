@@ -19,8 +19,7 @@ ytt -f "$(dirname $0)" > $pipeline_config
 # ytt -f "$(dirname $0)"
 
 "$FLY" -t "${CONCOURSE_TARGET:-bosh-ecosystem}" set-pipeline \
-  -p "stemcells-ubuntu-xenial" \
+  -p "bom-test-stemcells-ubuntu-xenial" \
   -l <(lpass show --notes "stemcell-reminder-bot") \
   -l <(lpass show --notes "concourse:production pipeline:bosh:stemcells lts") \
   -c "$pipeline_config"
-
