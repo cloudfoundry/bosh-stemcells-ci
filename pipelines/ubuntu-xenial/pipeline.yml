@@ -454,7 +454,7 @@ jobs:
       IAAS: warden
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -502,7 +502,7 @@ jobs:
       IAAS: aws
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -550,7 +550,7 @@ jobs:
       IAAS: azure
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -598,7 +598,7 @@ jobs:
       IAAS: google
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -646,7 +646,7 @@ jobs:
       IAAS: openstack
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -694,7 +694,7 @@ jobs:
       IAAS: vsphere
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -742,7 +742,7 @@ jobs:
       IAAS: vcloud
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -791,7 +791,7 @@ jobs:
       IAAS: alicloud
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      STEMCELL_BUCKET: ((candidate_stemcell_bucket))
+      STEMCELL_BUCKET: pcf-lts-stemcells-candidate-bom-test-delete-me
       ESM_TOKEN: ((esm-token))
     privileged: true
     task: create-stemcell
@@ -943,11 +943,11 @@ jobs:
         vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
         vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-(@= stemcell.os @)-go_agent.tgz
         azure/bosh-stemcell-%s-azure-hyperv-ubuntu-(@= stemcell.os @)-go_agent.tgz
-      FROM_BUCKET_NAME: ((candidate_stemcell_bucket))
+      FROM_BUCKET_NAME: pcf-lts-stemcells-candidate-bom-test-delete-me
       FROM_INDEX: dev
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
-      TO_BUCKET_NAME: ((candidate_stemcell_bucket))
+      TO_BUCKET_NAME: pcf-lts-stemcells-candidate-bom-test-delete-me
       TO_INDEX: candidate
     task: copy-artifacts
   - put: stemcells-index
@@ -1110,9 +1110,10 @@ resources:
 - name: warden-boshlite-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/warden/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/warden/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "*/warden-boshlite-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1128,9 +1129,10 @@ resources:
 - name: aws-xen-hvm-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/aws/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/aws/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "*/aws-xen-hvm-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1147,9 +1149,10 @@ resources:
 - name: alicloud-kvm-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/alicloud/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/alicloud/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "*/alicloud-kvm-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1166,9 +1169,10 @@ resources:
 - name: azure-hyperv-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/azure/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/azure/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "*/azure-hyperv-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1184,9 +1188,10 @@ resources:
 - name: openstack-kvm-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/openstack/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/openstack/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "*/openstack-kvm-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1202,9 +1207,10 @@ resources:
 - name: google-kvm-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/google/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/google/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "*/google-kvm-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1220,9 +1226,10 @@ resources:
 - name: vsphere-esxi-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/vsphere/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/vsphere/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "(@= stemcell.major_version @)*/vsphere-esxi-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1238,9 +1245,10 @@ resources:
 - name: vcloud-esxi-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((candidate_stemcell_bucket))/vcloud/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/vcloud/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "*/vcloud-esxi-go_agent.meta4"
     uri: git+ssh://((stemcells_index_uri))//dev/(@= stemcell.os_name @)/
@@ -1256,9 +1264,10 @@ resources:
 - name: os-image-tarball-(@= stemcell.version @)
   source:
     mirror_files:
-    - destination: s3://s3.amazonaws.com/((osimage_bucket))/(@= stemcell.version @)/{{.Name}}
+    - destination: s3://s3.amazonaws.com/pcf-lts-stemcells-candidate-bom-test-delete-me/(@= stemcell.version @)/{{.Name}}
     options:
       private_key: ((github_stemcells_index_key.private_key))
+      branch: bom-test
     filters:
     - repositorypath: "(@= stemcell.os_name @)-(@= stemcell.version @).meta4"
     uri: git+ssh://((stemcells_index_uri))//os-images
@@ -1274,7 +1283,7 @@ resources:
 - name: version-(@= stemcell.version @)
   source:
     access_key_id: ((aws_lts_stemcell.username))
-    bucket: ((candidate_stemcell_bucket))
+    bucket: pcf-lts-stemcells-candidate-bom-test-delete-me
     driver: s3
     initial_version: (@= stemcell.initial_version @)
     key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
@@ -1283,7 +1292,7 @@ resources:
 - name: os-image-version-(@= stemcell.version @)
   source:
     access_key_id: ((aws_lts_stemcell.username))
-    bucket: ((candidate_stemcell_bucket))
+    bucket: pcf-lts-stemcells-candidate-bom-test-delete-me
     driver: s3
     initial_version: "0.0.0"
     key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
@@ -1350,7 +1359,7 @@ resources:
   type: git
 - name: stemcells-index
   source:
-    branch: master
+    branch: bom-test
     private_key: ((github_stemcells_index_key.private_key))
     uri: ((stemcells_index_uri))
   type: git
