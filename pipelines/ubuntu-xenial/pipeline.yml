@@ -1135,7 +1135,7 @@ resources:
   type: s3
   source:
     bucket: pcf-lts-stemcells-candidate-bom-test-delete-me/warden
-    regexp: bosh-stemcell-(621.+)-warden-boshlite-ubuntu-xenial-go_agent-sbom.json
+    regexp: bosh-stemcell-((@= stemcell.major_version @).+)-warden-boshlite-ubuntu-xenial-go_agent-sbom.json
     access_key_id: ((aws_lts_stemcell.username))
     secret_access_key: ((aws_lts_stemcell.password))
 
