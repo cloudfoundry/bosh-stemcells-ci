@@ -99,6 +99,9 @@ SUDO
 stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION-go_agent"
 meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR-go_agent.meta4
 
+target_sbom_name="$stemcell_name-sbom.json"
+mv bosh-liunx-stemcell-builder/tmp/sbom.json "sbom/${target_sbom_name}"
+
 echo $CANDIDATE_BUILD_NUMBER > candidate-build-number/number
 mkdir -p "$( dirname "$meta4_path" )"
 rm -f "$meta4_path"

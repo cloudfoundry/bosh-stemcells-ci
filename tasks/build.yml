@@ -17,6 +17,7 @@ inputs:
 
 outputs:
   - name: stemcell
+  - name: sbom
   - name: stemcells-index
     path: stemcells-index-output
   - name: candidate-build-number

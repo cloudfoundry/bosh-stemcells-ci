@@ -472,6 +472,11 @@ jobs:
           message: 'dev: (@= stemcell.os_name @)'
         version: candidate-build-number/number
       put: warden-boshlite-(@= stemcell.version @)
+    - attempts: 3
+      params:
+        files:
+        - sbom/*sbom.json
+      put: warden-boshlite-sbom-(@= stemcell.version @)
 
 - name: build-aws-xen-hvm-(@= stemcell.version @)
   plan:
@@ -1125,6 +1130,14 @@ resources:
         secret_key: ((aws_lts_stemcell.password))
       type: s3
   type: metalink-repository
+
+- name: warden-boshlite-sbom-(@= stemcell.version @)
+  type: s3
+  source:
+    bucket: pcf-lts-stemcells-candidate-bom-test-delete-me/warden
+    regexp: bosh-stemcell-(621.+)-warden-boshlite-ubuntu-xenial-go_agent-sbom.json
+    access_key_id: ((aws_lts_stemcell.username))
+    secret_access_key: ((aws_lts_stemcell.password))
 
 - name: aws-xen-hvm-(@= stemcell.version @)
   source:
