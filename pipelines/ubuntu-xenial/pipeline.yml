@@ -17,6 +17,7 @@ groups:
   - build-azure-hyperv-(@= stemcell.version @)
   - build-aws-xen-hvm-(@= stemcell.version @)
   - build-warden-boshlite-(@= stemcell.version @)
+  - cve-scan-warden-boshlite-(@= stemcell.version @)
   - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)-ipv4
   - test-stemcells-(@= stemcell.version @)-ipv6
@@ -477,6 +478,19 @@ jobs:
         files:
         - sbom/*sbom.json
       put: warden-boshlite-sbom-(@= stemcell.version @)
+
+- name: cve-scan-warden-boshlite-(@= stemcell.version @)
+  plan:
+  - in_parallel:
+    - get: warden-boshlite-sbom-(@= stemcell.version @)
+      passed:
+      - build-warden-boshlite-(@= stemcell.version @)
+      trigger: true
+    - get: bosh-stemcells-ci
+  - file: bosh-stemcells-ci/tasks/cve-scan.yml
+    task: cve-scan
+    input_mapping:
+      sbom: warden-boshlite-sbom-(@= stemcell.version @)
 
 - name: build-aws-xen-hvm-(@= stemcell.version @)
   plan:
