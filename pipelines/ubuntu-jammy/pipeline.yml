@@ -21,7 +21,6 @@ groups:
   - test-stemcells-(@= stemcell.version @)-ipv4
 #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
-  - merge-master-into-(@= stemcell.version @)
 #@ end
  #@ if stemcell.version == "master":
   #@ for stemcell in data.values.stemcells:
@@ -275,16 +274,6 @@ jobs:
   - put: os-image-version-(@= stemcell.version @)
     params:
       file: version/number
-
-#@ if stemcell.version != "master":
-- name: merge-master-into-(@= stemcell.version @)
-  plan:
-  - get: bosh-linux-stemcell-builder-master
-  - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-    params:
-      merge: true
-      repository: bosh-linux-stemcell-builder-master
-#@ end
 
 - name: test-unit-(@= stemcell.version @)
   plan:
