@@ -17,22 +17,6 @@ stemcells:
   os: xenial
   os_name: ubuntu-xenial
 
-- version: "456.x"
-  major_version: "456"
-  bosh_agent_version: "2.234"
-  branch: "ubuntu-xenial/456.x"
-  bump_version: "minor"
-  agent_bump_version: "patch"
-  agent_promote_from: "456.x"
-  agent_metalink_version: '2.234.*'
-  agent_branch: "2.234.x"
-  agent_initial_version: "2.234.0"
-  agent_version_key: "agent-2.234-current-version"
-  initial_version: "456.0.0"
-  include_alicloud: true
-  os: xenial
-  os_name: ubuntu-xenial
-
 blobstore_types:
 - dav
 - gcs
