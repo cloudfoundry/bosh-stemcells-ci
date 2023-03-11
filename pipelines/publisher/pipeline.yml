@@ -8,6 +8,18 @@ do:
 
 #@yaml/text-templated-strings
 ---
+#@ def cleanup_unpublished_light_stemcells(name, prefix, region):
+file: bosh-stemcells-ci/tasks/light-aws/cleanup-ami.yml
+task: cleanup-amis-in-(@= name @)
+params:
+  ami_access_key: ((aws_publish_(@= prefix @)_access_key))
+  ami_secret_key: ((aws_publish_(@= prefix @)_secret_key))
+  ami_region: ((aws_publish_(@= region @)_region))
+  ami_older_than_days: 60
+  ami_keep_latest: 5
+  os_name: (@= stemcell.os @)
+#@ end
+
 #@ def build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations):
 file: bosh-stemcells-ci/tasks/light-aws/build.yml
 task: #@ name
@@ -230,8 +242,24 @@ groups:
   - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
   - publish-(@= stemcell.os @)-(@= str(stemcell.version) @)
 #@ end
+- name: cleanup-aws-light-stemcells
+  jobs:
+  #@ for stemcell in data.values.oss:
+  - cleanup-unpublished-(@= stemcell.os @)-aws-light-stemcells
+  #@ end
 
 jobs:
+#@ for stemcell in data.values.oss:
+- name: cleanup-unpublished-(@= stemcell.os @)-aws-light-stemcells
+  plan:
+  - get: every-3-weeks-on-monday
+    trigger: true
+  - get: bosh-stemcells-ci
+  - #@ cleanup_unpublished_light_stemcells("aws", "us", "us")
+  - #@ cleanup_unpublished_light_stemcells("us-goverment", "us-gov", "us-gov")
+  - #@ cleanup_unpublished_light_stemcells("china", "cn", "cn_north")
+#@ end
+
 - name: test-aws-unit
   plan:
   - get: bosh-stemcells-ci
@@ -462,6 +490,16 @@ resource_types:
   type: docker-image
 
 resources:
+- name: every-3-weeks-on-monday
+  type: time
+  source:
+    days:
+      - Monday
+    interval: 499h
+    location: America/Los_Angeles
+    start: "6:00"
+    stop: "8:30"
+
 - name: gh-release-oss
   type: github-release
   source:
