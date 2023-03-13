@@ -38,9 +38,13 @@ for region in $ami_destinations; do
       Snapshot id:   $(_jq '.SnapshotId')
       "
 
-      aws ec2 deregister-image --image-id $(_jq '.ImageId')
+      aws ec2 deregister-image \
+        --image-id $(_jq '.ImageId') \
+        --region $region
 
-      aws ec2 delete-snapshot --snapshot-id $(_jq '.SnapshotId')
+      aws ec2 delete-snapshot \
+        --snapshot-id $(_jq '.SnapshotId') \
+        --region $region
     done
 
 done
