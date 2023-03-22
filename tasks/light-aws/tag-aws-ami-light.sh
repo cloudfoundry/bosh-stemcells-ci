@@ -4,7 +4,7 @@ cd candidate-aws-light-stemcell
 tar -xzf *.tgz stemcell.MF
 OS=$( cat stemcell.MF | grep operating_system | cut -f2 -d: | tr -d ' ')
 #IGNORE gov and china stemcells. these are in a different account
-AMI_LIST=$(cat stemcell.MF | grep ami- | tr -d ' '| $GREP_PATTERN)
+AMI_LIST=$(cat stemcell.MF | grep ami- | tr -d ' '| eval $GREP_PATTERN)
 VERSION=$(cat stemcell.MF | grep "^version" | cut -f2 -d: | tr -d ' ' | tr -d "'")
 for AMI_LINE in $AMI_LIST; do
   AMI_REGION=$(echo $AMI_LINE | cut -f1 -d:)
