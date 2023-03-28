@@ -62,7 +62,7 @@ function enable_esm {
 function process_usns {
   local usn_log_json=$1
 
-  mapfile -t usn_urls < <(cat "$usn_log_json" | jq -r .url | sort | uniq)
+  mapfile -t usn_urls < <(cat "$usn_log_json" | jq -r '.url | select(.|test("USN"))' | sort | uniq)
 
   for usn_url in "${usn_urls[@]}"
   do
