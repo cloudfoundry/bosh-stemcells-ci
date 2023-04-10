@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 set -ex
+
+if [ -n "${AWS_ROLE_ARN}" ]; then
+  aws configure --profile creds_account set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
+  aws configure --profile creds_account set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
+  aws configure --profile resource_account set source_profile "creds_account"
+  aws configure --profile resource_account set role_arn "${AWS_ROLE_ARN}"
+  unset AWS_ACCESS_KEY_ID
+  unset AWS_SECRET_ACCESS_KEY
+  export AWS_PROFILE=resource_account
+fi
+
 cd candidate-aws-light-stemcell
 tar -xzf *.tgz stemcell.MF
 OS=$( cat stemcell.MF | grep operating_system | cut -f2 -d: | tr -d ' ')
