@@ -1094,10 +1094,11 @@ resources:
 - name: bosh-os-image-builder-vmware-ovftool
   type: s3
   source:
-    access_key_id: ((vmware_ovftool_aws_access_key.username))
+    access_key_id: ((vmware_ovftool_assume_aws_access_key.username))
     bucket: bosh-os-image-builder-vmware-ovftool
     region_name: us-west-1
-    secret_access_key: ((vmware_ovftool_aws_access_key.password))
+    secret_access_key: ((vmware_ovftool_assume_aws_access_key.password))
+    aws_role_arn: ((vmware_ovftool_assume_aws_access_key.role_arn))
     versioned_file: VMware-ovftool-4.1.0-2459827-lin.x86_64.bundle
 
 - name: weekly
