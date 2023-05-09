@@ -256,9 +256,8 @@ jobs:
     trigger: true
   - get: bosh-stemcells-ci
   - #@ cleanup_unpublished_light_stemcells("aws", "us", "us")
-#! disabled until we re tagging gov and china ami's properly
-#!  - #@ cleanup_unpublished_light_stemcells("us-goverment", "us-gov", "us-gov")
-#!  - #@ cleanup_unpublished_light_stemcells("china", "cn", "cn_north")
+  - #@ cleanup_unpublished_light_stemcells("us-goverment", "us-gov", "us-gov")
+  - #@ cleanup_unpublished_light_stemcells("china", "cn", "cn_north")
 #@ end
 
 - name: test-aws-unit
