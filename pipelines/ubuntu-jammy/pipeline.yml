@@ -908,6 +908,7 @@ jobs:
 - name: rebase-master-to-(@= stemcell.version @)
   plan:
   - get: bosh-linux-stemcell-builder-master
+    trigger: true
     passed:
     - bats-master
     - test-stemcells-master-ipv4
