@@ -1292,7 +1292,7 @@ resources:
     driver: s3
     initial_version: (@= stemcell.initial_version @)
     key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
-    secret_access_key: ((publish_us_assume_aws_access_key.password))\
+    secret_access_key: ((publish_us_assume_aws_access_key.password))
     assume_role_arn: ((publish_us_assume_aws_access_key.role_arn))
   type: semver
 - name: os-image-version-(@= stemcell.version @)
