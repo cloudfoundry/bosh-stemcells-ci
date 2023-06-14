@@ -27,6 +27,7 @@ params:
   S3_API_ENDPOINT: s3.amazonaws.com
   AWS_ACCESS_KEY_ID:     required
   AWS_SECRET_ACCESS_KEY: required
+  AWS_ROLE_ARN:          optional
   AWS_DEFAULT_REGION:    us-east-1
   FROM_BUCKET_NAME:      required
   TO_BUCKET_NAME:        required

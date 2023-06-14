@@ -929,8 +929,9 @@ jobs:
     task: assert-version-aligns
   - file: bosh-stemcells-ci/tasks/publish.yml
     params:
-      AWS_ACCESS_KEY_ID: ((aws_lts_stemcell.username))
-      AWS_SECRET_ACCESS_KEY: ((aws_lts_stemcell.password))
+      AWS_ACCESS_KEY_ID: ((publish_us_assume_aws_access_key.username))
+      AWS_SECRET_ACCESS_KEY: ((publish_us_assume_aws_access_key.password))
+      AWS_ROLE_ARN: ((publish_us_assume_aws_access_key.role_arn))
       COMMIT_PREFIX: candidate
       COPY_KEYS: |
         aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= stemcell.os @)-go_agent.tgz
@@ -1069,6 +1070,11 @@ resource_types:
   type: docker-image
   source:
     repository: frodenas/gcs-resource
+- name: semver
+  type: docker-image
+  source:
+    repository: concourse/semver-resource
+    tag: 1.6
 
 #@yaml/text-templated-strings
 resources:
@@ -1119,8 +1125,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
@@ -1137,8 +1144,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
@@ -1156,8 +1164,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 #@ end
@@ -1175,8 +1184,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
@@ -1193,8 +1203,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
@@ -1211,8 +1222,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
@@ -1229,8 +1241,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
@@ -1247,8 +1260,9 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
@@ -1265,28 +1279,31 @@ resources:
     - include:
       - (s3|https)://.*
       options:
-        access_key: ((aws_lts_stemcell.username))
-        secret_key: ((aws_lts_stemcell.password))
+        access_key: ((publish_us_assume_aws_access_key.username))
+        secret_key: ((publish_us_assume_aws_access_key.password))
+        role_arn: ((publish_us_assume_aws_access_key.role_arn))
       type: s3
   type: metalink-repository
 
 - name: version-(@= stemcell.version @)
   source:
-    access_key_id: ((aws_lts_stemcell.username))
+    access_key_id: ((publish_us_assume_aws_access_key.username))
     bucket: ((candidate_stemcell_bucket))
     driver: s3
     initial_version: (@= stemcell.initial_version @)
     key: bosh-stemcell/(@= stemcell.os_name @)/(@= stemcell.version @)-version
-    secret_access_key: ((aws_lts_stemcell.password))
+    secret_access_key: ((publish_us_assume_aws_access_key.password))\
+    assume_role_arn: ((publish_us_assume_aws_access_key.role_arn))
   type: semver
 - name: os-image-version-(@= stemcell.version @)
   source:
-    access_key_id: ((aws_lts_stemcell.username))
+    access_key_id: ((publish_us_assume_aws_access_key.username))
     bucket: ((candidate_stemcell_bucket))
     driver: s3
     initial_version: "0.0.0"
     key: os-image/(@= stemcell.os_name @)/(@= stemcell.version @)-version
-    secret_access_key: ((aws_lts_stemcell.password))
+    secret_access_key: ((publish_us_assume_aws_access_key.password))
+    assume_role_arn: ((publish_us_assume_aws_access_key.role_arn))
   type: semver
 
 - name: bosh-linux-stemcell-builder-push-(@= stemcell.version @)

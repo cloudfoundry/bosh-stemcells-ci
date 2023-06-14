@@ -40,6 +40,18 @@ cd ..
 #
 #TODO: use gcp or use aws and use google s3 url s3://storage.googleapis.com/$FROM_BUCKET_NAME
 
+if [ -n "${AWS_ROLE_ARN}" ]; then
+  aws configure --profile creds_account set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
+  aws configure --profile creds_account set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
+  aws configure --profile resource_account set source_profile "creds_account"
+  aws configure --profile resource_account set role_arn "${AWS_ROLE_ARN}"
+  aws configure --profile resource_account set region "${AWS_REGION}"
+  unset AWS_ACCESS_KEY_ID
+  unset AWS_SECRET_ACCESS_KEY
+  unset AWS_REGION
+  export AWS_PROFILE=resource_account
+fi
+
 if [ "$FROM_BUCKET_NAME" == "$TO_BUCKET_NAME" ]; then
   echo "Skipping upload since buckets are the same..."
 else
