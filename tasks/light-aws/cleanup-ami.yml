@@ -15,6 +15,7 @@ params:
   ami_region:                 "eu-central-1" # AWS default region
   ami_access_key:             ""
   ami_secret_key:             ""
+  ami_role_arn:               ""
   ami_older_than_days:        "60" # Number of days AMI to keep excluding those currently being running
   ami_keep_latest:            "5"  # Number of previous AMI to keep excluding those currently being running
   os_name:                    ""   # e.g ubuntu-jammy
