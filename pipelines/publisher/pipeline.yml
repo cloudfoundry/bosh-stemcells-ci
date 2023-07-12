@@ -629,7 +629,7 @@ resources:
     - destination: s3://storage.googleapis.com/bosh-aws-light-stemcells-candidate/{{.Version}}/{{.Name}}
     options:
       private_key: ((boshio_cpi_index_key.private_key))
-    uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//candidate-aws-light/(@= stemcell.os @)
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//candidate-aws-light/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -646,7 +646,7 @@ resources:
     - destination: s3://storage.googleapis.com/bosh-gce-light-stemcells-candidate/{{.Version}}/{{.Name}}
     options:
       private_key: ((boshio_cpi_index_key.private_key))
-    uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//candidate-gcp-light/(@= stemcell.os @)
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//candidate-gcp-light/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -662,7 +662,7 @@ resources:
     - repositorypath: '*/stemcells.meta4'
     options:
       private_key: ((boshio_stemcells_index_key.private_key))
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//candidate/(@= stemcell.os @)
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//candidate/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -693,7 +693,7 @@ resources:
     - destination: s3://storage.googleapis.com/bosh-aws-light-stemcells/{{.Version}}/{{.Name}}
     options:
       private_key: ((boshio_cpi_index_key.private_key))
-    uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//published/(@= stemcell.os @)
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -713,7 +713,7 @@ resources:
     - destination: s3://storage.googleapis.com/bosh-gce-light-stemcells/{{.Version}}/{{.Name}}
     options:
       private_key: ((boshio_cpi_index_key.private_key))
-    uri: git+ssh://git@github.com:bosh-io/stemcells-cpi-index.git//published/(@= stemcell.os @)
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -732,7 +732,7 @@ resources:
     - destination: s3://storage.googleapis.com/bosh-core-stemcells/{{.Version}}/{{.Name}}
     options:
       private_key: ((boshio_stemcells_index_key.private_key))
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//published/(@= stemcell.os @)
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
       - (s3|https)://.*

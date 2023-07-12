@@ -1028,7 +1028,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/warden-boshlite-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1046,7 +1046,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/aws-xen-hvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1065,7 +1065,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/alicloud-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1084,7 +1084,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/azure-hyperv-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1102,7 +1102,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/openstack-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1120,7 +1120,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/google-kvm-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1138,7 +1138,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/vsphere-esxi-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1156,7 +1156,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/vcloud-esxi-go_agent.meta4"
-    uri: git+ssh://git@github.com:bosh-io/stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
     url_handlers:
     - include:
       - (s3|https)://.*
@@ -1276,9 +1276,9 @@ resources:
 - name: stemcells-index
   type: git
   source:
-    branch: master
+    branch: main
     private_key: ((boshio_stemcells_index_key.private_key))
-    uri: git@github.com:bosh-io/stemcells-core-index.git
+    uri: git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git
 
 - name: syslog-release
   type: bosh-io-release
