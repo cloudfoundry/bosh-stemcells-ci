@@ -29,3 +29,5 @@ blobstore_types:
 - dav
 - gcs
 - s3
+- azure-storage
+

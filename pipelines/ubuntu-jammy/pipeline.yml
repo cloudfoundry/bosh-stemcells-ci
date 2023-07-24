@@ -1401,3 +1401,9 @@ resources:
   source:
     regexp: s3cli-(.*)-linux-amd64
     bucket: bosh-s3cli-artifacts
+- name: bosh-blobstore-azure-storage
+  type: s3
+  source:
+    regexp: azure-storage-cli-(.*)-linux-amd64
+    bucket: bosh-azure-storage-cli-artifacts
+
