@@ -827,6 +827,8 @@ jobs:
         params:
           VARS_STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= stemcell.os @)-go_agent
           VARS_NETWORK_DEFAULT: bosh-concourse
+          VARS_AVAILABILITY_ZONE: europe-west2-a
+          VARS_ZONE: europe-west2-a
           VARS_PREEMPTIBLE: true
           VARS_SUBNETWORK_DEFAULT: bosh-integration-(@= stemcell.subnet_int @)
           VARS_CIDR_DEFAULT: "10.100.(@= stemcell.subnet_int @).0/24"

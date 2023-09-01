@@ -26,6 +26,8 @@ cat > interpolate.yml <<EOF
 ---
 cpi: google
 properties:
+  availability_zone: ((AVAILABILITY_ZONE))
+  zone: ((ZONE))
   preemptible: ((PREEMPTIBLE))
   pool_size: 1
   instances: 1
