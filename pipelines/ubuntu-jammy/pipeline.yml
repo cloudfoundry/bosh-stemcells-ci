@@ -813,6 +813,7 @@ jobs:
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
           GCP_ZONE: europe-west2-a
+          GCP_PREEMPTIBLE: true
           GCP_NETWORK_NAME: bosh-concourse
           GCP_SUBNET_NAME: bosh-integration-(@= stemcell.subnet_int @)
           GCP_JSON_KEY: ((gcp_json_key))
@@ -826,6 +827,7 @@ jobs:
         params:
           VARS_STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= stemcell.os @)-go_agent
           VARS_NETWORK_DEFAULT: bosh-concourse
+          VARS_PREEMPTIBLE: true
           VARS_SUBNETWORK_DEFAULT: bosh-integration-(@= stemcell.subnet_int @)
           VARS_CIDR_DEFAULT: "10.100.(@= stemcell.subnet_int @).0/24"
           VARS_RESERVED_DEFAULT: '10.100.(@= stemcell.subnet_int @).2 - 10.100.(@= stemcell.subnet_int @).129, 10.100.(@= stemcell.subnet_int @).190 - 10.100.(@= stemcell.subnet_int @).254'

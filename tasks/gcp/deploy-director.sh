@@ -9,6 +9,7 @@ EOF
 cat > director-vars.yml <<EOF
 project_id: ${GCP_PROJECT_ID}
 zone: ${GCP_ZONE}
+preemptible: ${GCP_PREEMPTIBLE}
 tags: [${TAG}]
 EOF
 

@@ -26,8 +26,7 @@ cat > interpolate.yml <<EOF
 ---
 cpi: google
 properties:
-  availability_zone: europe-west2-a
-  zone: europe-west2-a
+  preemptible: ((PREEMPTIBLE))
   pool_size: 1
   instances: 1
   second_static_ip: ((STATIC_IP_DEFAULT-2))
