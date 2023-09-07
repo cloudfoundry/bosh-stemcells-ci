@@ -251,6 +251,7 @@ groups:
 jobs:
 #@ for stemcell in data.values.oss:
 - name: cleanup-unpublished-(@= stemcell.os @)-aws-light-stemcells
+  serial: true
   plan:
   - get: every-week-on-monday
     trigger: true
