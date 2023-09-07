@@ -252,7 +252,7 @@ jobs:
 #@ for stemcell in data.values.oss:
 - name: cleanup-unpublished-(@= stemcell.os @)-aws-light-stemcells
   plan:
-  - get: every-3-weeks-on-monday
+  - get: every-week-on-monday
     trigger: true
   - get: bosh-stemcells-ci
   - #@ cleanup_unpublished_light_stemcells("aws", "us", "us")
@@ -504,12 +504,12 @@ resource_types:
   type: docker-image
 
 resources:
-- name: every-3-weeks-on-monday
+- name: every-week-on-monday
   type: time
   source:
     days:
       - Monday
-    interval: 499h
+    interval: 168h
     location: America/Los_Angeles
     start: "6:00"
     stop: "8:30"
