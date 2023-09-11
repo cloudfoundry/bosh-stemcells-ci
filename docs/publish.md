@@ -9,7 +9,7 @@ you should see a successful build which was triggered by the USN notice.
 Then, in the stemcells-publisher pipeline, check if google and aws light stemcells were successfully built as a result of the USN.
 
 ## Publish stemcells
-In order to publish new stemcells, trigger a build of the publish-ubuntu-bionic-1 job (e.g. https://bosh.ci.cloudfoundry.org/teams/main/pipelines/stemcells-publisher/jobs/publish-ubuntu-bionic-1).
+In order to publish new stemcells, trigger a build of the publish-ubuntu-jammy-1 job (e.g. https://bosh.ci.cloudfoundry.org/teams/main/pipelines/stemcells-publisher/jobs/publish-ubuntu-jammy-1).
 When this job is finished, new stemcell versions will be availeble on bosh.io and a github draft release created on
 https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases.
 Check the draft release if it has the correct usns and cves and add extra information if necessary in the release notes and publish the github release.
