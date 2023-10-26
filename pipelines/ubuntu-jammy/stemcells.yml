@@ -8,6 +8,8 @@ stemcells:
   agent_metalink_version: '*'
   initial_version: "210.0.0"
   include_alicloud: false
+  include_iaas: [ azure, aws, google, openstack, vsphere, vcloud, vsphere, warden ]
+  include_fips_iaas: []
   os: jammy
   os_version: "22.04"
   os_name: ubuntu-jammy
@@ -20,6 +22,8 @@ stemcells:
   agent_metalink_version: '*'
   initial_version: "1.0.0"
   include_alicloud: true
+  include_iaas: [ alicloud, azure, aws, google, openstack, vsphere, vcloud, vsphere, warden ]
+  include_fips_iaas: [ aws ]
   os: jammy
   os_version: "22.04"
   os_name: ubuntu-jammy
