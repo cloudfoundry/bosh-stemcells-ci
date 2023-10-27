@@ -446,7 +446,7 @@ jobs:
       IAAS: #@ IAAS
       OS_NAME: ubuntu
       S3_API_ENDPOINT: storage.googleapis.com
-      OS_VERSION: (@= stemcell.os @)(@= FIPS @)
+      OS_VERSION: (@= stemcell.os @) #!(@= FIPS @) # renable as soon as we have acutall fips stemcell builds
       STEMCELL_BUCKET: bosh-core-stemcells-candidate(@= FIPS @)
       #@ if/end FIPS != "":
       UBUNTU_ADVANTAGE_TOKEN: ((ubuntu_advantage_token))
