@@ -8,45 +8,13 @@ groups:
   - build-stemcell-(@= stemcell.version @)
   - test-unit-(@= stemcell.version @)
   - build-os-image-(@= stemcell.version @)
- #@ if/end "vcloud" in stemcell.include_iaas:
-  - build-vcloud-esxi-(@= stemcell.version @)
- #@ if/end "vcloud" in stemcell.include_fips_iaas:
-  - build-vcloud-esxi-(@= stemcell.version @)-fips
 
- #@ if/end "vsphere" in stemcell.include_iaas:
-  - build-vsphere-esxi-(@= stemcell.version @)
- #@ if/end "vsphere" in stemcell.include_fips_iaas:
-  - build-vsphere-esxi-(@= stemcell.version @)-fips
-
- #@ if/end "openstack" in stemcell.include_iaas:
-  - build-openstack-kvm-(@= stemcell.version @)
- #@ if/end "openstack" in stemcell.include_fips_iaas:
-  - build-openstack-kvm-(@= stemcell.version @)-fips
-
- #@ if/end "google" in stemcell.include_iaas:
-  - build-google-kvm-(@= stemcell.version @)
- #@ if/end "google" in stemcell.include_fips_iaas:
-  - build-google-kvm-(@= stemcell.version @)-fips
-
- #@ if/end "alicloud" in stemcell.include_iaas:
-  - build-alicloud-kvm-(@= stemcell.version @)
- #@ if/end "alicloud" in stemcell.include_fips_iaas:
-  - build-alicloud-kvm-(@= stemcell.version @)-fips
-
- #@ if/end "azure" in stemcell.include_iaas:
-  - build-azure-hyperv-(@= stemcell.version @)
- #@ if/end "azure" in stemcell.include_fips_iaas:
-  - build-azure-hyperv-(@= stemcell.version @)-fips
-
- #@ if/end "aws" in stemcell.include_iaas:
-  - build-aws-xen-hvm-(@= stemcell.version @)
- #@ if/end "aws" in stemcell.include_fips_iaas:
-  - build-aws-xen-hvm-(@= stemcell.version @)-fips
-
- #@ if/end "warden" in stemcell.include_iaas:
-  - build-warden-boshlite-(@= stemcell.version @)
- #@ if/end "warden" in stemcell.include_fips_iaas:
-  - build-warden-boshlite-(@= stemcell.version @)-fips
+ #@ for iaas in stemcell.include_iaas:
+  - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+ #@ end
+ #@ for iaas in stemcell.include_fips_iaas:
+  - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+ #@ end
 
   - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)-ipv4
@@ -467,45 +435,12 @@ jobs:
         version: candidate-build-number/number
 #@ end
 
- #@ if/end "warden" in stemcell.include_iaas:
-- #@ build_stemcell("warden", "boshlite")
- #@ if/end "warden" in stemcell.include_fips_iaas:
-- #@ build_stemcell("warden", "boshlite", "-fips")
-
- #@ if/end "aws" in stemcell.include_iaas:
-- #@ build_stemcell("aws", "xen-hvm")
- #@ if/end "aws" in stemcell.include_fips_iaas:
-- #@ build_stemcell("aws", "xen-hvm", "-fips")
-
- #@ if/end "azure" in stemcell.include_iaas:
-- #@ build_stemcell("azure", "hyperv")
- #@ if/end "azure" in stemcell.include_fips_iaas:
-- #@ build_stemcell("azure", "hyperv", "-fips")
-
- #@ if/end "google" in stemcell.include_iaas:
-- #@ build_stemcell("google", "kvm")
- #@ if/end "google" in stemcell.include_fips_iaas:
-- #@ build_stemcell("google", "kvm", "-fips")
-
- #@ if/end "openstack" in stemcell.include_iaas:
-- #@ build_stemcell("openstack", "kvm")
- #@ if/end "openstack" in stemcell.include_fips_iaas:
-- #@ build_stemcell("openstack", "kvm", "-fips")
-
- #@ if/end "vsphere" in stemcell.include_iaas:
-- #@ build_stemcell("vsphere", "esxi")
- #@ if/end "vsphere" in stemcell.include_fips_iaas:
-- #@ build_stemcell("vsphere", "esxi", "-fips")
-
- #@ if/end "vcloud" in stemcell.include_iaas:
-- #@ build_stemcell("vcloud", "esxi")
- #@ if/end "vcloud" in stemcell.include_fips_iaas:
-- #@ build_stemcell("vcloud", "esxi", "-fips")
-
- #@ if/end "alicloud" in stemcell.include_iaas:
-- #@ build_stemcell("alicloud", "kvm")
- #@ if/end "alicloud" in stemcell.include_fips_iaas:
-- #@ build_stemcell("alicloud", "kvm", "-fips")
+#@ for iaas in stemcell.include_iaas:
+- #@ build_stemcell(iaas.iaas, iaas.hypervisor)
+#@ end
+#@ for iaas in stemcell.include_fips_iaas:
+- #@ build_stemcell(iaas.iaas, iaas.hypervisor, "-fips")
+#@ end
 
 - name: bats-(@= stemcell.version @)
   serial: true
@@ -829,45 +764,12 @@ resources:
       type: s3
 #@ end
 
- #@ if/end "warden" in stemcell.include_iaas:
-- #@ metalink_resource("warden", "boshlite")
- #@ if/end "warden" in stemcell.include_fips_iaas:
-- #@ metalink_resource("warden", "boshlite", "-fips")
-
- #@ if/end "aws" in stemcell.include_iaas:
-- #@ metalink_resource("aws", "xen-hvm")
- #@ if/end "aws" in stemcell.include_fips_iaas:
-- #@ metalink_resource("aws", "xen-hvm", "-fips")
-
- #@ if/end "azure" in stemcell.include_iaas:
-- #@ metalink_resource("azure", "hyperv")
- #@ if/end "azure" in stemcell.include_fips_iaas:
-- #@ metalink_resource("azure", "hyperv", "-fips")
-
- #@ if/end "google" in stemcell.include_iaas:
-- #@ metalink_resource("google", "kvm")
- #@ if/end "google" in stemcell.include_fips_iaas:
-- #@ metalink_resource("google", "kvm", "-fips")
-
- #@ if/end "openstack" in stemcell.include_iaas:
-- #@ metalink_resource("openstack", "kvm")
- #@ if/end "openstack" in stemcell.include_fips_iaas:
-- #@ metalink_resource("openstack", "kvm", "-fips")
-
- #@ if/end "vsphere" in stemcell.include_iaas:
-- #@ metalink_resource("vsphere", "esxi")
- #@ if/end "vsphere" in stemcell.include_fips_iaas:
-- #@ metalink_resource("vsphere", "esxi", "-fips")
-
- #@ if/end "vcloud" in stemcell.include_iaas:
-- #@ metalink_resource("vcloud", "esxi")
- #@ if/end "vcloud" in stemcell.include_fips_iaas:
-- #@ metalink_resource("vcloud", "esxi", "-fips")
-
- #@ if/end "alicloud" in stemcell.include_iaas:
-- #@ metalink_resource("alicloud", "kvm")
- #@ if/end "alicloud" in stemcell.include_fips_iaas:
-- #@ metalink_resource("alicloud", "kvm", "-fips")
+#@ for iaas in stemcell.include_iaas:
+- #@ metalink_resource(iaas.iaas, iaas.hypervisor)
+#@ end
+#@ for iaas in stemcell.include_fips_iaas:
+- #@ metalink_resource(iaas.iaas, iaas.hypervisor, "-fips")
+#@ end
 
 - name: os-image-tarball-(@= stemcell.version @)
   type: metalink-repository
