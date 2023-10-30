@@ -7,7 +7,16 @@ stemcells:
   bump_version: "minor"
   agent_metalink_version: '*'
   initial_version: "210.0.0"
-  include_alicloud: false
+  include_iaas: [
+    {iaas: aws, hypervisor: xen-hvm},
+    {iaas: azure, hypervisor: hyperv},
+    {iaas: google, hypervisor: kvm},
+    {iaas: openstack, hypervisor: kvm},
+    {iaas: vsphere, hypervisor: esxi},
+    {iaas: vcloud, hypervisor: esxi},
+    {iaas: warden, hypervisor: boshlite}
+  ]
+  include_fips_iaas: []
   os: jammy
   os_version: "22.04"
   os_name: ubuntu-jammy
@@ -19,7 +28,19 @@ stemcells:
   bump_version: "minor"
   agent_metalink_version: '*'
   initial_version: "1.0.0"
-  include_alicloud: true
+  include_iaas: [
+    {iaas: alicloud, hypervisor: kvm},
+    {iaas: aws, hypervisor: xen-hvm},
+    {iaas: azure, hypervisor: hyperv},
+    {iaas: google, hypervisor: kvm},
+    {iaas: openstack, hypervisor: kvm},
+    {iaas: vsphere, hypervisor: esxi},
+    {iaas: vcloud, hypervisor: esxi},
+    {iaas: warden, hypervisor: boshlite}
+  ]
+  include_fips_iaas: [
+    {iaas: aws, hypervisor: xen-hvm},
+  ]
   os: jammy
   os_version: "22.04"
   os_name: ubuntu-jammy
