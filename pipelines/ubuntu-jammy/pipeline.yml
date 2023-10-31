@@ -749,7 +749,7 @@ resources:
   type: metalink-repository
   source:
     mirror_files:
-    - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/(@= IAAS @)/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate(@= FIPS @)/(@= IAAS @)/{{.Name}}
     options:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
