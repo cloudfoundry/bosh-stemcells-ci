@@ -32,4 +32,3 @@ params:
   STEMCELL_BUCKET: replace-me
   S3_API_ENDPOINT: s3.amazonaws.com
   ESM_TOKEN:
-  FIPS: ""
