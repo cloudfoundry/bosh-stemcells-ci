@@ -416,8 +416,10 @@ jobs:
       S3_API_ENDPOINT: storage.googleapis.com
       OS_VERSION: (@= stemcell.os @) #!(@= FIPS @) # renable as soon as we have acutall fips stemcell builds
       STEMCELL_BUCKET: bosh-core-stemcells-candidate(@= FIPS @)
-      #@ if/end FIPS != "":
+      #@ if FIPS != "":
+      FIPS: #@ FIPS
       UBUNTU_ADVANTAGE_TOKEN: ((ubuntu_advantage_token))
+      #@ end
     privileged: true
     vars:
       image_os_tag: (@= stemcell.os @)
@@ -749,7 +751,7 @@ resources:
   type: metalink-repository
   source:
     mirror_files:
-    - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate/(@= IAAS @)/{{.Name}}
+    - destination: s3://storage.googleapis.com/bosh-core-stemcells-candidate(@= FIPS @)/(@= IAAS @)/{{.Name}}
     options:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
