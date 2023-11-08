@@ -4,7 +4,7 @@ set -e
 
 echo "Running unit tests"
 
-pushd builder-src/src/light-stemcell-builder > /dev/null
+pushd builder-src > /dev/null
   ginkgo -p -r -skipPackage "driver,integration"
   ginkgo -p -r driverset # driverset is skipped by previous command
 popd

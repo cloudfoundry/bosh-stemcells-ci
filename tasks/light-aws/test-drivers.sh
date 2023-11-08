@@ -43,7 +43,7 @@ wget -O ${MACHINE_IMAGE_PATH} http://tinycorelinux.net/7.x/x86_64/archive/7.1/Ti
 
 echo "Running driver tests"
 
-pushd builder-src/src/light-stemcell-builder > /dev/null
+pushd builder-src > /dev/null
   # Run all driver specs in parallel to reduce test time
   spec_count="$(grep "It(" -r driver | wc -l)"
   ginkgo -nodes ${spec_count} -r driver

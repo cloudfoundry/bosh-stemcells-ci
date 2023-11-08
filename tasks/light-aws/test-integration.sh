@@ -38,6 +38,6 @@ wget -O ${MACHINE_IMAGE_PATH} http://tinycorelinux.net/7.x/x86_64/archive/7.1/Ti
 
 echo "Running integration tests"
 
-pushd builder-src/src/light-stemcell-builder > /dev/null
+pushd builder-src > /dev/null
   ginkgo -v -r integration
 popd
