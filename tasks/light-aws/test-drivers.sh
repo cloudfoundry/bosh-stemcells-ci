@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 my_dir="$( cd $(dirname $0) && pwd )"
 source "${my_dir}/utils.sh"
@@ -46,5 +46,5 @@ echo "Running driver tests"
 pushd builder-src > /dev/null
   # Run all driver specs in parallel to reduce test time
   spec_count="$(grep "It(" -r driver | wc -l)"
-  ginkgo -nodes ${spec_count} -r driver
+  go run github.com/onsi/ginkgo/v2/ginkgo -nodes ${spec_count} -r driver
 popd

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 my_dir="$( cd $(dirname $0) && pwd )"
 source "${my_dir}/utils.sh"
@@ -39,5 +39,5 @@ wget -O ${MACHINE_IMAGE_PATH} http://tinycorelinux.net/7.x/x86_64/archive/7.1/Ti
 echo "Running integration tests"
 
 pushd builder-src > /dev/null
-  ginkgo -v -r integration
+  go run github.com/onsi/ginkgo/v2/ginkgo -v -r integration
 popd
