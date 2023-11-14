@@ -6,7 +6,7 @@ my_dir="$( cd $(dirname $0) && pwd )"
 source "${my_dir}/utils.sh"
 
 tmp_dir="$(mktemp -d /tmp/stemcell_builder.XXXXXXX)"
-trap '{ rm -rf ${tmpdir}; }' EXIT
+trap '{ rm -rf ${tmp_dir}; }' EXIT
 
 : ${access_key:?must be set}
 : ${secret_key:?must be set}
