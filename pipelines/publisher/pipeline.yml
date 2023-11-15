@@ -429,8 +429,18 @@ jobs:
         message: 'publish (heavy): (@= stemcell.os @)/(@= str(stemcell.version) @).x'
       rename: '{{.Version}}/stemcells.meta4'
       version: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/.resource/version
-
-
+  #@ if stemcell.build_fips:
+  - put: published-(@= stemcell.os @)-fips-stemcell-(@= str(stemcell.version) @)
+    params:
+      files:
+      - candidate-(@= stemcell.os @)-fips-stemcell-(@= str(stemcell.version) @)/*.tgz
+      options:
+        author_email: ci@localhost
+        author_name: CI Bot
+        message: 'publish (heavy): (@= stemcell.os @)-fips/(@= str(stemcell.version) @).x'
+      rename: '{{.Version}}/stemcells.meta4'
+      version: candidate-(@= stemcell.os @)-fips-stemcell-(@= str(stemcell.version) @)/.resource/version
+  #@ end
   #@ if stemcell.build_aws:
   - params:
       files:
@@ -743,4 +753,24 @@ resources:
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
+  #@ if stemcell.build_fips:
+- name: published-(@= stemcell.os @)-fips-stemcell-(@= str(stemcell.version) @)
+  source:
+    filters:
+    - repositorypath: '*/stemcells.meta4'
+    mirror_files:
+    - destination: s3://storage.googleapis.com/bosh-core-stemcells-fips/{{.Version}}/{{.Name}}
+    options:
+      private_key: ((boshio_stemcells_index_key.private_key))
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//published/(@= stemcell.os @)-fips
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      options:
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
+      type: s3
+    version: (@= str(stemcell.version) @).x
+  type: metalink-repository
+  #@ end
 #@ end
