@@ -103,7 +103,7 @@ disk_size_gb=$(mb_to_gb "${BASH_REMATCH[1]}")
 [[ "${manifest_contents}" =~ ${format_regex} ]]
 disk_format="${BASH_REMATCH[1]}"
 
-pushd ${build_dir}/builder-src/src/light-stemcell-builder > /dev/null
+pushd ${build_dir}/builder-src > /dev/null
   # Make sure we've closed the manifest file before writing to it
   go run main.go \
     -c $CONFIG_PATH \
