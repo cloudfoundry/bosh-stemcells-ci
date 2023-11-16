@@ -404,6 +404,8 @@ jobs:
       - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
       #@ end
       - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
+    #@ if/end stemcell.build_aws:
+    - get: candidate-(@= stemcell.os @)-fips-stemcell-(@= str(stemcell.version) @)
     - get: candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
       passed:
       - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
@@ -680,7 +682,24 @@ resources:
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
-
+#@ if stemcell.build_fips:
+- name: candidate-(@= stemcell.os @)-fips-stemcell-(@= str(stemcell.version) @)
+  source:
+    filters:
+    - repositorypath: '*/stemcells.meta4'
+    options:
+      private_key: ((boshio_stemcells_index_key.private_key))
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//candidate/(@= stemcell.os @)-fips
+    url_handlers:
+    - include:
+      - (s3|https)://.*
+      type: s3
+      options:
+        access_key: ((hmac_accesskey))
+        secret_key: ((hmac_secret))
+    version: (@= str(stemcell.version) @).x
+  type: metalink-repository
+#@ end
 - name: bosh-linux-stemcell-builder-(@= stemcell.os @)-(@= str(stemcell.version) @).x
   source:
     branch: (@= stemcell.branch if hasattr(stemcell, "branch") else "{}/{}.x".format(stemcell.os, stemcell.version) @)
