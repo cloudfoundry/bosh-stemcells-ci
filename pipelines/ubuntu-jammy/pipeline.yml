@@ -414,7 +414,7 @@ jobs:
       IAAS: #@ IAAS
       OS_NAME: ubuntu
       S3_API_ENDPOINT: storage.googleapis.com
-      OS_VERSION: (@= stemcell.os @) #!(@= FIPS @) # renable as soon as we have acutall fips stemcell builds
+      OS_VERSION: (@= stemcell.os @)(@= FIPS @)
       STEMCELL_BUCKET: bosh-core-stemcells-candidate(@= FIPS @)
       #@ if/end FIPS != "":
       UBUNTU_ADVANTAGE_TOKEN: ((ubuntu_advantage_token))
@@ -571,6 +571,22 @@ jobs:
       OS_NAME: ubuntu
       OS_VERSION: (@= stemcell.os @)
       TO_BUCKET_NAME: bosh-core-stemcells-candidate
+      TO_INDEX: candidate
+      AWS_ENDPOINT: "https://storage.googleapis.com"
+      S3_API_ENDPOINT: storage.googleapis.com
+  - task: copy-fips-artifacts
+    file: bosh-stemcells-ci/tasks/publish.yml
+    params:
+      AWS_ACCESS_KEY_ID: ((hmac_accesskey))
+      AWS_SECRET_ACCESS_KEY: ((hmac_secret))
+      COMMIT_PREFIX: candidate
+      COPY_KEYS: |
+        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= stemcell.os @)-fips-go_agent.tgz
+      FROM_BUCKET_NAME: bosh-core-stemcells-candidate-fips
+      FROM_INDEX: dev
+      OS_NAME: ubuntu
+      OS_VERSION: (@= stemcell.os @)-fips
+      TO_BUCKET_NAME: bosh-core-stemcells-candidate-fips
       TO_INDEX: candidate
       AWS_ENDPOINT: "https://storage.googleapis.com"
       S3_API_ENDPOINT: storage.googleapis.com
@@ -754,7 +770,7 @@ resources:
       private_key: ((boshio_stemcells_index_key.private_key))
     filters:
     - repositorypath: "*/(@= IAAS @)-(@= HYPERVISOR @)(@= FIPS @)-go_agent.meta4"
-    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)/
+    uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-core-index.git//dev/(@= stemcell.os_name @)(@= FIPS @)/
     url_handlers:
     - include:
       - (s3|https)://.*
