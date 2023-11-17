@@ -32,6 +32,7 @@ saved_ami_destinations="$( aws ec2 describe-regions \
 
 stemcell_path=${PWD}/input-stemcell/*.tgz
 output_path=${PWD}/light-stemcell/
+version=$(cat ${PWD}/input-stemcell/.resource/version)
 
 echo "Checking if light stemcell already exists..."
 
@@ -44,7 +45,7 @@ if [ "${ami_virtualization_type}" = "hvm" ]; then
   fi
 fi
 
-bosh_io_light_stemcell_url="https://$S3_API_ENDPOINT/$bosh_io_bucket_name/$light_stemcell_name"
+bosh_io_light_stemcell_url="https://$S3_API_ENDPOINT/$bosh_io_bucket_name/$version/$light_stemcell_name"
 set +e
 wget --spider "$bosh_io_light_stemcell_url"
 if [[ "$?" == "0" ]]; then
