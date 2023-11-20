@@ -279,6 +279,7 @@ jobs:
     trigger: true
   - file: bosh-stemcells-ci/tasks/light-aws/test-drivers.yml
     params:
+      aws_account_id: ((aws_test_account_id))
       access_key: ((aws_test_access_key))
       secret_key: ((aws_test_secret_key))
       bucket_name: ((aws_test_bucket_name))

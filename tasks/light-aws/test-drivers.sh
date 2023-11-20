@@ -8,6 +8,7 @@ source "${my_dir}/utils.sh"
 tmp_dir="$(mktemp -d /tmp/stemcell_builder.XXXXXXX)"
 trap '{ rm -rf ${tmp_dir}; }' EXIT
 
+: ${aws_account_id:?must be set}
 : ${access_key:?must be set}
 : ${secret_key:?must be set}
 : ${bucket_name:?must be set}
@@ -22,6 +23,7 @@ trap '{ rm -rf ${tmp_dir}; }' EXIT
 : ${uploaded_machine_image_format:=RAW}
 
 # US Regions
+export AWS_ACCOUNT=$aws_account_id
 export AWS_ACCESS_KEY_ID=$access_key
 export AWS_SECRET_ACCESS_KEY=$secret_key
 export AWS_BUCKET_NAME=$bucket_name

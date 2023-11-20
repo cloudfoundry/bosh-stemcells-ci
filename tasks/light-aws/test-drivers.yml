@@ -9,6 +9,7 @@ inputs:
 run:
   path: bosh-stemcells-ci/tasks/light-aws/test-drivers.sh
 params:
+  aws_account_id:             ""
   access_key:                 ""
   secret_key:                 ""
   bucket_name:                ""
