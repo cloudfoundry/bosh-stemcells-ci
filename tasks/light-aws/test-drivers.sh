@@ -15,10 +15,12 @@ trap '{ rm -rf ${tmp_dir}; }' EXIT
 : ${region:?must be set}
 : ${copy_region:?must be set}
 : ${ami_fixture_id:?must be set}
+: ${private_ami_fixture_id:?must be set}
 : ${existing_volume_id:?must be set}
 : ${existing_snapshot_id:?must be set}
 : ${uploaded_machine_image_url:?must be set}
 : ${kms_key_id:?must be set}
+: ${kms_multi_region_key_id:?must be set}
 
 : ${uploaded_machine_image_format:=RAW}
 
@@ -30,6 +32,7 @@ export AWS_BUCKET_NAME=$bucket_name
 export AWS_REGION=$region
 export AWS_DESTINATION_REGION=${copy_region}
 export AWS_KMS_KEY_ID=${kms_key_id}
+export MULTI_REGION_AWS_KMS_KEY_ID=${kms_multi_region_key_id}
 
 # Fixtures
 export S3_MACHINE_IMAGE_URL=${uploaded_machine_image_url}
@@ -37,6 +40,7 @@ export S3_MACHINE_IMAGE_FORMAT=${uploaded_machine_image_format}
 export EBS_VOLUME_ID=${existing_volume_id}
 export EBS_SNAPSHOT_ID=${existing_snapshot_id}
 export AMI_FIXTURE_ID=${ami_fixture_id}
+export PRIVATE_AMI_FIXTURE_ID=${private_ami_fixture_id}
 
 echo "Downloading machine image"
 export MACHINE_IMAGE_PATH=${tmp_dir}/image.iso

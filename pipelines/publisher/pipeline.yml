@@ -286,10 +286,12 @@ jobs:
       copy_region: ((aws_test_copy_region))
       region: ((aws_test_region))
       ami_fixture_id: ((aws_test_ami_fixture_id))
+      private_ami_fixture_id: ((aws_test_private_ami_fixture_id))
       existing_snapshot_id: ((aws_test_snapshot_fixture_id))
       existing_volume_id: ((aws_test_volume_fixture_id))
       #! kms key id should be the one created in the region of "copy_region"
       kms_key_id: ((aws_test_kms_key_id))
+      kms_multi_region_key_id: ((aws_test_kms_multi_region_key_id))
 
       uploaded_machine_image_url: https://s3.amazonaws.com/bosh-cpi-light-stemcell-builder-ci-fixtures/root.img
     task: test
