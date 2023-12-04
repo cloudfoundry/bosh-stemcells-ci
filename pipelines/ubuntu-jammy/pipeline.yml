@@ -590,11 +590,6 @@ jobs:
       AWS_ENDPOINT: "https://storage.googleapis.com"
       S3_API_ENDPOINT: storage.googleapis.com
   - in_parallel:
-    - put: bosh-linux-stemcell-builder-push-(@= stemcell.version @)
-      params:
-        only_tag: true
-        repository: bosh-linux-stemcell-builder
-        tag: version-tag/tag
     - put: stemcells-index
       params:
         rebase: true
