@@ -20,7 +20,8 @@ trap '{ rm -rf ${tmp_dir}; }' EXIT
 : ${existing_snapshot_id:?must be set}
 : ${uploaded_machine_image_url:?must be set}
 : ${kms_key_id:?must be set}
-: ${kms_multi_region_key_id:?must be set}
+: ${kms_multi_region_key:?must be set}
+: ${kms_multi_region_key_replication_test:?must be set}
 
 : ${uploaded_machine_image_format:=RAW}
 
@@ -32,7 +33,8 @@ export AWS_BUCKET_NAME=$bucket_name
 export AWS_REGION=$region
 export AWS_DESTINATION_REGION=${copy_region}
 export AWS_KMS_KEY_ID=${kms_key_id}
-export MULTI_REGION_AWS_KMS_KEY_ID=${kms_multi_region_key_id}
+export MULTI_REGION_KEY=${kms_multi_region_key}
+export MULTI_REGION_KEY_REPLICATION_TEST=${kms_multi_region_key_replication_test}
 
 # Fixtures
 export S3_MACHINE_IMAGE_URL=${uploaded_machine_image_url}
