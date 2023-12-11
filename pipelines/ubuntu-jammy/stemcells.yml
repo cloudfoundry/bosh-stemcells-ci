@@ -40,6 +40,7 @@ stemcells:
   ]
   include_fips_iaas: [
     {iaas: aws, hypervisor: xen-hvm},
+    {iaas: google, hypervisor: kvm},
   ]
   os: jammy
   os_version: "22.04"
