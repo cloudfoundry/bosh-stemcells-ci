@@ -553,6 +553,7 @@ jobs:
       COMMIT_PREFIX: candidate
       COPY_KEYS: |
         aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= stemcell.os @)-fips-go_agent.tgz
+        google/bosh-stemcell-%s-google-kvm-ubuntu-(@= stemcell.os @)-fips-go_agent.tgz
       FROM_BUCKET_NAME: bosh-core-stemcells-candidate-fips
       FROM_INDEX: dev
       OS_NAME: ubuntu
