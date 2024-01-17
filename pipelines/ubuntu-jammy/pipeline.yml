@@ -324,13 +324,12 @@ jobs:
     - in_parallel:
       - get: version
         passed:
-        - build-warden-boshlite-(@= stemcell.version @)
-        - build-aws-xen-hvm-(@= stemcell.version @)
-        - build-azure-hyperv-(@= stemcell.version @)
-        - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
-        - build-vcloud-esxi-(@= stemcell.version @)
+      #@ for iaas in stemcell.include_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+      #@ end
+      #@ for iaas in stemcell.include_fips_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+      #@ end
         resource: version-(@= stemcell.version @)
         trigger: true
       - get: bosh-stemcells-ci
@@ -346,13 +345,12 @@ jobs:
         resource: google-kvm-(@= stemcell.version @)
       - get: stemcell-trigger-(@= stemcell.version @)
         passed:
-        - build-warden-boshlite-(@= stemcell.version @)
-        - build-aws-xen-hvm-(@= stemcell.version @)
-        - build-azure-hyperv-(@= stemcell.version @)
-        - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
-        - build-vcloud-esxi-(@= stemcell.version @)
+      #@ for iaas in stemcell.include_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+      #@ end
+      #@ for iaas in stemcell.include_fips_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+      #@ end
         trigger: true
     - do:
       - task: deploy-director
@@ -458,33 +456,30 @@ jobs:
       - get: main-ruby-go-docker-image
       - get: bosh-linux-stemcell-builder
         passed:
-        - build-warden-boshlite-(@= stemcell.version @)
-        - build-aws-xen-hvm-(@= stemcell.version @)
-        - build-azure-hyperv-(@= stemcell.version @)
-        - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
-        - build-vcloud-esxi-(@= stemcell.version @)
+      #@ for iaas in stemcell.include_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+      #@ end
+      #@ for iaas in stemcell.include_fips_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+      #@ end
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
       - get: version
         passed:
-        - build-warden-boshlite-(@= stemcell.version @)
-        - build-aws-xen-hvm-(@= stemcell.version @)
-        - build-azure-hyperv-(@= stemcell.version @)
-        - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
-        - build-vcloud-esxi-(@= stemcell.version @)
+      #@ for iaas in stemcell.include_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+      #@ end
+      #@ for iaas in stemcell.include_fips_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+      #@ end
         resource: version-(@= stemcell.version @)
       - get: stemcell-trigger-(@= stemcell.version @)
         passed:
-        - build-warden-boshlite-(@= stemcell.version @)
-        - build-aws-xen-hvm-(@= stemcell.version @)
-        - build-azure-hyperv-(@= stemcell.version @)
-        - build-google-kvm-(@= stemcell.version @)
-        - build-openstack-kvm-(@= stemcell.version @)
-        - build-vsphere-esxi-(@= stemcell.version @)
-        - build-vcloud-esxi-(@= stemcell.version @)
+      #@ for iaas in stemcell.include_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+      #@ end
+      #@ for iaas in stemcell.include_fips_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+      #@ end
         trigger: true
     - do:
       - task: deploy-director
