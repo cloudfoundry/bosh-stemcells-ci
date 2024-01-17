@@ -293,9 +293,9 @@ jobs:
       kms_key_id: ((aws_test_kms_key_id))
       kms_multi_region_key: ((aws_test_kms_multi_region_key_id))
       kms_multi_region_key_replication_test: ((aws_test_kms_multi_region_replication_test_key_id))
-
       uploaded_machine_image_url: https://s3.amazonaws.com/bosh-cpi-light-stemcell-builder-ci-fixtures/root.img
     task: test
+    attempts: 3
   serial: true
 
 - name: test-aws-integration
