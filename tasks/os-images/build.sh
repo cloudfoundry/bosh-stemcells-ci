@@ -19,6 +19,10 @@ check_param OPERATING_SYSTEM_VERSION
 
 OS_IMAGE_NAME=$OPERATING_SYSTEM_NAME-$OPERATING_SYSTEM_VERSION
 OS_IMAGE=$TASK_DIR/os-image/$OS_IMAGE_NAME.tgz
+if [ -f "${TASK_DIR}/build-time/timestamp" ]; then
+  build_time="$(cat "${TASK_DIR}/build-time/timestamp")"
+  export BUILD_TIME="$(date --date "${build_time%.*}" +%Y%m%dT%H%M%SZ)"
+fi
 
 sudo chown -R ubuntu .
 sudo chown -R ubuntu:ubuntu /mnt

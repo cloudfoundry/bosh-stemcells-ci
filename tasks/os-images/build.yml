@@ -10,6 +10,8 @@ image_resource:
 inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
+  - name: build-time
+    optional: true
 
 outputs:
 - name: os-image
