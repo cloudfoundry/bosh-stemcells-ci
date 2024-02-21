@@ -495,10 +495,6 @@ jobs:
       tag: release-metadata/tag
     put: gh-release-oss
   - params:
-      rebase: true
-      repository: bosh-linux-stemcell-builder
-    put: bosh-linux-stemcell-builder-(@= stemcell.os @)-(@= str(stemcell.version) @).x
-  - params:
       acl: public-read
       file: usn-log/usn-log.json
     put: usn-log-(@= stemcell.os @)-(@= str(stemcell.version) @).x
