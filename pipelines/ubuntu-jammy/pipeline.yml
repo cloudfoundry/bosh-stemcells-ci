@@ -347,10 +347,10 @@ jobs:
         passed:
           - build-os-image-(@= stemcell.version @)
       #@ for iaas in stemcell.include_iaas:
-        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+          - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
       #@ end
       #@ for iaas in stemcell.include_fips_iaas:
-        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+          - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
       #@ end
         trigger: true
     - do:
