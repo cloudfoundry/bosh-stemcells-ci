@@ -545,11 +545,11 @@ jobs:
       - bats-(@= stemcell.version @)
       trigger: true
     - get: os-image-stemcell-builder-(@= stemcell.os @)
+  - task: assert-version-aligns
+    file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
   - task: commit-build-time
     file: bosh-stemcells-ci/tasks/commit-build-time.yml
     image: os-image-stemcell-builder-(@= stemcell.os @)
-  - task: assert-version-aligns
-    file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
   - task: copy-fips-artifacts
     file: bosh-stemcells-ci/tasks/publish.yml
     params:
