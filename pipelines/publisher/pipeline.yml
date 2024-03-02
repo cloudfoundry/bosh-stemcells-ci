@@ -23,6 +23,7 @@ params:
 #@ def build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations):
 file: bosh-stemcells-ci/tasks/light-aws/build.yml
 task: #@ name
+image: light-stemcell-builder-registry-image
 input_mapping:
   builder-src: (@= builder_src @)
   input-stemcell: (@= input_stemcell @)
@@ -332,6 +333,7 @@ jobs:
 - name: build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
   plan:
   - get: bosh-stemcells-ci
+  - get: light-stemcell-builder-registry-image
   - in_parallel:
     - do:
     - #@ build_light_aws_stemcell_new("build-china-north-stemcell", stemcell.os, str(stemcell.version), "cn-builder-src", "cn-input-stemcell", "cn-north-light-stemcell", "cn", "cn_north", "cn", "", "[]")
@@ -733,6 +735,13 @@ resources:
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
+
+- name: light-stemcell-builder-registry-image
+  type: registry-image
+  source:
+    repository: bosh/light-stemcell-builder
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
   #@ end
 
 - name: published-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
