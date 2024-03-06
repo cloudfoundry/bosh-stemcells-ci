@@ -209,7 +209,7 @@ jobs:
     input_mapping:
       usn-log-in: usn-log-(@= stemcell.version @)
     params:
-      OS: jammy
+      OS: (@= stemcell.os @)
     vars:
       image_os_tag: (@= stemcell.os @)
   - task: write-message
@@ -874,23 +874,32 @@ resources:
     location: America/Los_Angeles
     start: "6:00"
     stop: "8:30"
-#@ end
-#@ end
 
 - name: hourly
   source:
     interval: 1h
   type: time
 
-- name: build-time
-  type: time
+- name: bosh-ecosystem-docker-image
+  type: docker-image
+  source:
+    repository: bosh/bosh-ecosystem-concourse
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
+#@ end
 
+#@ if stemcell.version == "master":
 - name: bosh-linux-stemcell-builder-ci
   type: git
   source:
-    branch: ubuntu-jammy/master
+    branch:  (@= stemcell.branch @)
     paths: [ci/docker/**/*]
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
+#@ end
+#@ end
+
+- name: build-time
+  type: time
 
 - name: bosh-stemcells-ci
   type: git
@@ -956,13 +965,6 @@ resources:
   type: slack-notification
   source:
     url: ((slack_hook_url))
-
-- name: bosh-ecosystem-docker-image
-  type: docker-image
-  source:
-    repository: bosh/bosh-ecosystem-concourse
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
 
 - name: os-image-stemcell-builder-(@= stemcell.os @)
   type: docker-image
