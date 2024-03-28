@@ -24,9 +24,9 @@ fi
 __PASTDUE=$(date --date="$ami_older_than_days days ago" +"%Y-%m-%d")
 
 ami_destinations="$(aws ec2 describe-regions --output text --query "Regions[?RegionName][].RegionName")"
-ami_list="[]"
 
 for region in $ami_destinations; do
+    ami_list="[]"
 
     if [ -n "${os_name}" ]; then
       # 'ami_ids' array should be orderered by creation date
