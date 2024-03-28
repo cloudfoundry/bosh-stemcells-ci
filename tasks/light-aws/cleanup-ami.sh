@@ -9,7 +9,6 @@ export AWS_ROLE_ARN=$ami_role_arn
 
 : ${ami_older_than_days:?}
 : ${ami_keep_latest:?}
-: ${os_name:?}
 
 if [ -n "${AWS_ROLE_ARN}" ]; then
   aws configure --profile creds_account set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
@@ -25,16 +24,30 @@ fi
 __PASTDUE=$(date --date="$ami_older_than_days days ago" +"%Y-%m-%d")
 
 ami_destinations="$(aws ec2 describe-regions --output text --query "Regions[?RegionName][].RegionName")"
+ami_list="[]"
 
 for region in $ami_destinations; do
 
-    # 'ami_ids' array should be orderered by creation date
-    ami_list=$(aws ec2 describe-images \
-            --owners self \
-            --output json \
-            --region $region \
-            --filters "Name=name,Values=BOSH*" "Name=tag:published,Values=false" "Name=tag:distro,Values=$os_name" \
-            --query 'sort_by(Images,&CreationDate)[?CreationDate<`'"$__PASTDUE"'`].{ImageId: ImageId, date:CreationDate, SnapshotId: BlockDeviceMappings[0].Ebs.SnapshotId,Version: Tags[?Key==`name`]|[0].Value}' | jq 'reverse | del(.[env.ami_keep_latest|tonumber])')
+    if [ -n "${os_name}" ]; then
+      # 'ami_ids' array should be orderered by creation date
+      results=$(aws ec2 describe-images \
+              --owners self \
+              --output json \
+              --region ${region} \
+              --filters "Name=name,Values=BOSH*" "Name=tag:published,Values=false" "Name=tag:distro,Values=${os_name}" \
+              --query 'sort_by(Images,&CreationDate)[?CreationDate<`'"$__PASTDUE"'`].{ImageId: ImageId, date:CreationDate, SnapshotId: BlockDeviceMappings[0].Ebs.SnapshotId,Version: Tags[?Key==`name`]|[0].Value}' | jq 'reverse | del(.[range(env.ami_keep_latest|tonumber)])')
+      ami_list=$(jq -s '.[0] + .[1]' <(echo "${ami_list}") <(echo "${results}"))
+    fi
+
+    if [ -n "${snapshot_id}" ]; then
+      results=$(aws ec2 describe-images \
+              --owners self \
+              --output json \
+              --region ${region} \
+              --filters "Name=block-device-mapping.snapshot-id,Values=${snapshot_id}" \
+              --query 'sort_by(Images,&CreationDate)[?CreationDate<`'"$__PASTDUE"'`].{ImageId: ImageId, date:CreationDate, SnapshotId: BlockDeviceMappings[0].Ebs.SnapshotId,Version: Tags[?Key==`name`]|[0].Value}' | jq 'reverse | del(.[range(env.ami_keep_latest|tonumber)])')
+      ami_list=$(jq -s '.[0] + .[1]' <(echo "${ami_list}") <(echo "${results}"))
+    fi
 
     # 'ami_list' is a json array of objects, each object is an ami and its snapshot
     for row in $(echo "${ami_list}" | jq -r '.[] | @base64'); do
@@ -54,9 +67,10 @@ for region in $ami_destinations; do
         --image-id $(_jq '.ImageId') \
         --region $region
 
-      aws ec2 delete-snapshot \
-        --snapshot-id $(_jq '.SnapshotId') \
-        --region $region
+      if [ "${snapshot_id}" != "$(_jq '.SnapshotId')" ]; then
+        aws ec2 delete-snapshot \
+          --snapshot-id $(_jq '.SnapshotId') \
+          --region $region
+      fi
     done
-
 done

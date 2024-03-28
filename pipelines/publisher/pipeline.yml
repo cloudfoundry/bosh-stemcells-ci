@@ -245,6 +245,7 @@ groups:
 #@ end
 - name: cleanup-aws-light-stemcells
   jobs:
+  - cleanup-light-aws-builder-test-amis
   #@ for stemcell in data.values.oss:
   - cleanup-unpublished-(@= stemcell.os @)-aws-light-stemcells
   #@ end
@@ -319,6 +320,21 @@ jobs:
 
     task: test
   serial: true
+
+- name: cleanup-light-aws-builder-test-amis
+  plan:
+  - get: every-week-on-monday
+    trigger: true
+  - get: bosh-stemcells-ci
+  - task: cleanup-aws-test-amis
+    file: bosh-stemcells-ci/tasks/light-aws/cleanup-ami.yml
+    params:
+      ami_access_key: ((aws_test_access_key))
+      ami_secret_key: ((aws_test_secret_key))
+      ami_region: ((aws_test_region))
+      ami_older_than_days: 1
+      ami_keep_latest: 0
+      snapshot_id: ((aws_test_snapshot_fixture_id))
 
 - name: concourse-alignment
   plan:
