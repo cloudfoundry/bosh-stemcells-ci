@@ -15,5 +15,6 @@ ytt --dangerous-allow-all-symlink-destinations \
 
 name="$( basename $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd ))"
 "$FLY" -t "${CONCOURSE_TARGET:-stemcell}" set-pipeline \
+  --team=stemcell \
   -p "stemcells-${name}" \
   -c "$pipeline_config"
