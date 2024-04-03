@@ -260,7 +260,7 @@ jobs:
   - get: bosh-stemcells-ci
   - #@ cleanup_unpublished_light_stemcells("aws", "us", "us")
   - #@ cleanup_unpublished_light_stemcells("us-goverment", "us-gov", "us-gov")
-  - #@ cleanup_unpublished_light_stemcells("china", "cn", "cn_north")
+#!- #@ cleanup_unpublished_light_stemcells("china", "cn", "cn_north")
 #@ end
 
 - name: test-aws-unit
@@ -352,7 +352,7 @@ jobs:
   - get: light-stemcell-builder-registry-image
   - in_parallel:
     - do:
-    - #@ build_light_aws_stemcell_new("build-china-north-stemcell", stemcell.os, str(stemcell.version), "cn-builder-src", "cn-input-stemcell", "cn-north-light-stemcell", "cn", "cn_north", "cn", "", "[]")
+#!  - #@ build_light_aws_stemcell_new("build-china-north-stemcell", stemcell.os, str(stemcell.version), "cn-builder-src", "cn-input-stemcell", "cn-north-light-stemcell", "cn", "cn_north", "cn", "", "[]")
     - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "")
     - #@ build_light_aws_stemcell_new("build-us-stemcell", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "")
   - file: bosh-stemcells-ci/tasks/light-aws/us-gov-merge-builds.yml
@@ -490,12 +490,12 @@ jobs:
       AWS_ACCESS_KEY_ID: ((aws_publish_us-gov_access_key))
       AWS_SECRET_ACCESS_KEY: ((aws_publish_us-gov_secret_key))
       GREP_PATTERN: grep 'gov-'
-  - file: bosh-stemcells-ci/tasks/light-aws/tag-aws-ami-light.yml
-    task: tag-china-published-aws-ami-light-stemcells
-    params:
-      AWS_ACCESS_KEY_ID: ((aws_publish_cn_access_key))
-      AWS_SECRET_ACCESS_KEY: ((aws_publish_cn_secret_key))
-      GREP_PATTERN: grep 'cn-'
+#!  - file: bosh-stemcells-ci/tasks/light-aws/tag-aws-ami-light.yml
+#!    task: tag-china-published-aws-ami-light-stemcells
+#!    params:
+#!      AWS_ACCESS_KEY_ID: ((aws_publish_cn_access_key))
+#!      AWS_SECRET_ACCESS_KEY: ((aws_publish_cn_secret_key))
+#!      GREP_PATTERN: grep 'cn-'
   #@ end
   - params:
       files:
