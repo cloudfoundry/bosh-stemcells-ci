@@ -411,6 +411,7 @@ jobs:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder-(@= stemcell.os @)-(@= str(stemcell.version) @).x
+    - get: bosh-integration-registry-image
     - get: stemcell-metalink
       params:
         skip_download: true
@@ -443,6 +444,25 @@ jobs:
       OS_NAME: (@= stemcell.os_name @)
       OS_VERSION: (@= str(stemcell.os_version) @)
       BRANCH: (@= stemcell.branch @)
+  - task: extract-warden-image
+    image: bosh-integration-registry-image
+    config:
+      inputs:
+        - name: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
+      outputs:
+        - name: stemcell-image
+      platform: linux
+      run:
+        dir: stemcell-image
+        path: /bin/bash
+        args:
+          - -ce
+          - tar xvf ../candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/bosh-stemcell-*-warden-boshlite-(@= stemcell.os @)-go_agent.tgz image
+  - put: github-container-registry-(@= stemcell.os @)-stemcell
+    params:
+      import_file: stemcell-image/image
+      tag_file: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/.resource/version
+      tag_as_latest: true
   - put: published-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
     params:
       files:
@@ -817,4 +837,19 @@ resources:
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
   #@ end
+
+- name: github-container-registry-(@= stemcell.os @)-stemcell
+  type: docker-image
+  source:
+    repository: ghcr.io/cloudfoundry/(@= stemcell.os @)-stemcell
+    username: ((github_read_write_packages.username))
+    password: ((github_read_write_packages.password))
 #@ end
+
+- name: bosh-integration-registry-image
+  type: registry-image
+  source:
+    repository: bosh/integration
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
+
