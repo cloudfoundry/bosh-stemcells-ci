@@ -1,12 +1,5 @@
 # BOSH Stemcells
 
-## Pipeline Notes
-
-```bash
-$ fly -t production set-pipeline -c pipeline.yml  -p stemcell-new-dev-temp \
-  --load-vars-from <( lpass show --notes "concourse:production pipeline:stemcell-new-dev-temp" )
-```
-
 ## docker images and vmware ofvtool
 when creating a new lts stemcell e.g: bionic, jammy etc
 you will need to create a folder and upload the appropiate ofvtool in to the gcp bucket `bosh-vmware-ovftool`
@@ -47,13 +40,6 @@ When switching from the old pipeline to the new one, don't forget to...
  * update `pipeline.yml` and change the bucket from `bosh-os-images-dev` to whatever the public bucket should be
  * update the tasks YAML which is point to tasks in the directory of `os-images`
  * rename this directory from `new`
-
-## Pipeline Notes
-
-```bash
-$ fly -t production set-pipeline -p bosh:stemcells -c ci/pipeline.yml \
-  --load-vars-from <(lpass show -G "concourse:production pipeline:os-images" --notes)
-```
 
 ## AWS
 
