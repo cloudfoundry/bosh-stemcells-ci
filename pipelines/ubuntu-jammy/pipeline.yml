@@ -18,6 +18,7 @@ groups:
 
   - bats-(@= stemcell.version @)
   - test-stemcells-(@= stemcell.version @)-ipv4
+  - test-stemcells-(@= stemcell.version @)-ipv6
  #@ if stemcell.version != "master":
   - aggregate-candidate-stemcells-(@= stemcell.version @)
  #@ end
@@ -373,6 +374,72 @@ jobs:
         params:
           BOSH_os_name: (@= stemcell.os_name @)
           package: ipv4director
+    ensure:
+      do:
+      - task: teardown
+        file: bosh-stemcells-ci/tasks/teardown.yml
+        attempts: 3
+        timeout: 5m
+  serial: true
+
+- name: test-stemcells-(@= stemcell.version @)-ipv6
+  plan:
+  - do:
+    - in_parallel:
+      - get: version
+        passed:
+      #@ for iaas in stemcell.include_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+      #@ end
+      #@ for iaas in stemcell.include_fips_iaas:
+        - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+      #@ end
+        resource: version-(@= stemcell.version @)
+        trigger: true
+      - get: bosh-stemcells-ci
+      - get: bosh-linux-stemcell-builder
+        resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
+      - get: bosh-deployment
+      - get: bosh-cli
+      - get: syslog-release
+      - get: os-conf-release
+      - get: stemcell
+        passed:
+        - build-google-kvm-(@= stemcell.version @)
+        resource: google-kvm-(@= stemcell.version @)
+      - get: build-time
+        passed:
+          - build-os-image-(@= stemcell.version @)
+      #@ for iaas in stemcell.include_iaas:
+          - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)
+      #@ end
+      #@ for iaas in stemcell.include_fips_iaas:
+          - build-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= stemcell.version @)-fips
+      #@ end
+        trigger: true
+    - do:
+      - task: deploy-director-ipv6
+        file: bosh-stemcells-ci/tasks/gcp/deploy-director-ipv6.yml
+        params:
+          GCP_PROJECT_ID: ((gcp_project_id))
+          GCP_ZONE: europe-west2-a
+          GCP_NETWORK_NAME: ipv6-test
+          GCP_SUBNET_NAME: bosh-integration-ipv6-(@= stemcell.subnet_int @)
+          GCP_JSON_KEY: ((gcp_json_key))
+          INTERNAL_IP: 10.100.(@= stemcell.subnet_int @).10
+          INTERNAL_CIDR: 10.100.(@= stemcell.subnet_int @).0/24
+          INTERNAL_GW: 10.100.(@= stemcell.subnet_int @).1
+          RESERVED_RANGE: '10.100.(@= stemcell.subnet_int @).2 - 10.100.(@= stemcell.subnet_int @).9, 10.100.(@= stemcell.subnet_int @).62 - 10.100.(@= stemcell.subnet_int @).254'
+          SECOND_INTERNAL_CIDR: fd20:ecb:bcac:4000:0:0:0:0/64
+          SECOND_INTERNAL_GW: fd20:ecb:bcac:4000::1
+          SECOND_INTERNAL_IP: fd20:ecb:bcac:4000::10
+          TAG: test-stemcells-ipv6
+      - task: test-stemcell-ipv6
+        attempts: 3
+        file: bosh-stemcells-ci/tasks/test-stemcell.yml
+        params:
+          BOSH_os_name: (@= stemcell.os_name @)
+          package: ipv6director
     ensure:
       do:
       - task: teardown
