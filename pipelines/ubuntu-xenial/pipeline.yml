@@ -1327,14 +1327,12 @@ resources:
 
 - name: usn-log-(@= stemcell.version @)
   source:
-    access_key_id: ((bosh_usn_and_periodic_assume_aws_access_key.username))
-    bucket: bosh-stemcell-triggers
+    json_key: ((gcp_credentials_json))
+    bucket: bosh-ecosystem-concourse
+    versioned_file: bosh-stemcell-triggers/(@= stemcell.version @)/usn-log.json
     initial_context_text: ""
-    initial_version: '-'
-    secret_access_key: ((bosh_usn_and_periodic_assume_aws_access_key.password))
-    aws_role_arn: ((bosh_usn_and_periodic_assume_aws_access_key.role_arn))
-    versioned_file: (@= stemcell.version @)/usn-log.json
-  type: s3
+    initial_version: "0"
+  type: gcs-resource
 
 - name: bosh-agent-(@= stemcell.version @)
   type: metalink-repository
