@@ -916,6 +916,8 @@ jobs:
     - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder
       passed:
+      - test-stemcells-(@= stemcell.version @)-ipv4
+      - test-stemcells-(@= stemcell.version @)-ipv6
       - bats-(@= stemcell.version @)
       resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
     - get: stemcells-index
@@ -1344,12 +1346,10 @@ resources:
 
 - name: stemcell-trigger-(@= stemcell.version @)
   source:
-    access_key_id: ((bosh_usn_and_periodic_assume_aws_access_key.username))
-    bucket: bosh-stemcell-triggers
-    secret_access_key: ((bosh_usn_and_periodic_assume_aws_access_key.password))
-    aws_role_arn: ((bosh_usn_and_periodic_assume_aws_access_key.role_arn))
-    versioned_file: (@= stemcell.version @)/stemcell-trigger
-  type: s3
+    json_key: ((gcp_credentials_json))
+    bucket: bosh-ecosystem-concourse
+    versioned_file: bosh-stemcell-triggers/(@= stemcell.version @)/stemcell-trigger
+  type: gcs-resource
 #@ end
 
 - name: hourly
