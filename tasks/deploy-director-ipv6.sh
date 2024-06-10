@@ -59,6 +59,7 @@ $bosh_cli interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/misc/ntp.yml \
   -o bosh-deployment/misc/dns.yml \
   -o bosh-stemcells-ci/ops-files/ipv6-director.yml \
+  -o bosh-stemcells-ci/ops-files/use-jammy-1.445.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
   --vars-file network-vars.yml > director.yml
