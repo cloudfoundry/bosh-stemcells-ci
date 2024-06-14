@@ -23,10 +23,16 @@ install_jq() {
 
 install_jq
 
+pushd candidate-stemcell
+  tar xvf "bosh-stemcell-*-warden-boshlite-${OS_NAME}-${OS_VERSION}-go_agent.tgz" packages.txt
+  kernel_version=$(grep "${KERNEL_PACKAGE}" packages.txt | awk '{print $3}')
+popd
+
 pushd bosh-linux-stemcell-builder
   bosh_agent_version=$(cat stemcell_builder/stages/bosh_go_agent/assets/bosh-agent-version)
   echo "## Metadata:" >> "${root_dir}/release-metadata/body"
   echo "**BOSH Agent Version**: ${bosh_agent_version}" >> "${root_dir}/release-metadata/body"
+  echo "**Kernel Version**: ${kernel_version}" >> "${root_dir}/release-metadata/body"
   if [[ "${OS_NAME}" == "ubuntu" ]]; then
     # Ensure URL for usn-log from metalink exists before attempting to download.
     touch usn-log.json
