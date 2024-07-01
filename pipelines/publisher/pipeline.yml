@@ -445,7 +445,7 @@ jobs:
       OS_VERSION: (@= str(stemcell.os_version) @)
       BRANCH: (@= stemcell.branch @)
       KERNEL_PACKAGE: linux-generic
-    input-mapping:
+    input_mapping:
       candidate-stemcell: candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
   - task: extract-warden-image
     image: bosh-integration-registry-image
