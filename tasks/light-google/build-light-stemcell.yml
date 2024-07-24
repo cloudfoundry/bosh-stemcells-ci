@@ -7,7 +7,6 @@ image_resource:
     repository: bosh/light-stemcell-builder
 
 inputs:
-  - name: builder-src
   - name: bosh-stemcells-ci
   - name: stemcell
 

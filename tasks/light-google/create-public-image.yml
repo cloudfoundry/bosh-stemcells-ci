@@ -7,7 +7,6 @@ image_resource:
     repository: boshcpi/gce-cpi-release
 
 inputs:
-  - name: builder-src
   - name: bosh-stemcells-ci
   - name: stemcell
   - name: base-oss-google-ubuntu-stemcell
