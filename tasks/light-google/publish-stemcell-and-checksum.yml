@@ -9,7 +9,6 @@ image_resource:
 inputs:
   - name: light-stemcell
   - name: bosh-stemcells-ci
-  - name: builder-src
   - name: stemcells-index
 
 outputs:

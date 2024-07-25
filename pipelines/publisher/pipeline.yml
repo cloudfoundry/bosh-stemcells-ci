@@ -75,25 +75,6 @@ in_parallel:
   #@ end
 #@ end
 
-#@ def get_google_light_inputs(stemcell_os, stemcell_version):
-in_parallel:
-- get: stemcell
-  params:
-    include_files:
-    - bosh-stemcell-*-google-kvm-(@= stemcell_os @)-go_agent.tgz
-  resource: candidate-(@= stemcell_os @)-stemcell-(@= str(stemcell_version) @)
-  trigger: true
-  version: every
-- get: builder-src
-  passed:
-  - concourse-alignment
-  resource: light-google-builder-src
-- get: bosh-cli
-- get: bosh-stemcells-ci
-- get: bosh-cpi-release
-  resource: bosh-google-cpi-release
-#@ end
-
 #@ def deploy_skeletal_google_light_stemcell(terraform_resource, credentials):
 do:
 - params:
@@ -217,7 +198,6 @@ groups:
   - test-aws-unit
   - test-aws-drivers
   - test-aws-integration
-  - concourse-alignment
   #@ for stemcell in data.values.oss:
     #@ if stemcell.build_aws:
   - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
@@ -336,14 +316,6 @@ jobs:
       ami_keep_latest: 0
       snapshot_id: ((aws_test_snapshot_fixture_id))
 
-- name: concourse-alignment
-  plan:
-  - get: builder-src
-    resource: light-google-builder-src
-    trigger: true
-  serial: true
-
-
 #@ for stemcell in data.values.oss:
   #@ if stemcell.build_aws:
 - name: build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
@@ -374,7 +346,6 @@ jobs:
 
 - name: build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
   plan:
-  - #@ get_google_light_inputs(stemcell.os, str(stemcell.version))
   - task: make-raw-from-heavy-stemcell
     file: bosh-stemcells-ci/tasks/light-google/make-raw-from-heavy-stemcell.yml
     params:
@@ -650,11 +621,6 @@ resources:
   source:
     repository: cloudfoundry/bosh-google-cpi-release
   type: bosh-io-release
-- name: light-google-builder-src
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/bosh-google-light-stemcell-builder.git
-  type: git
 - name: light-google-environment-oss
   source:
     delete_on_failure: true

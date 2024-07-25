@@ -10,7 +10,6 @@ image_resource:
 inputs:
   - name: deployment-state
   - name: bosh-stemcells-ci
-  - name: builder-src
 
 run:
   path: bosh-stemcells-ci/tasks/light-google/destroy-skeletal.sh
