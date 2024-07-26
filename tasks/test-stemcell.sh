@@ -32,11 +32,6 @@ if ${BOSH_BINARY_PATH} int director-state/director-creds.yml --path /jumpbox_ssh
   export BOSH_GW_HOST="${BOSH_ENVIRONMENT}"
 fi
 
-pushd bosh-linux-stemcell-builder
-  export PATH=/usr/local/go/bin:$PATH
-  export GOPATH=$(pwd)
-
-  pushd src/github.com/cloudfoundry/stemcell-acceptance-tests
-    ./bin/test-smoke $package
-  popd
+pushd bosh-linux-stemcell-builder/src/github.com/cloudfoundry/stemcell-acceptance-tests
+  go run github.com/onsi/ginkgo/v2/ginkgo --skip-package vendor -r "${package}"
 popd
