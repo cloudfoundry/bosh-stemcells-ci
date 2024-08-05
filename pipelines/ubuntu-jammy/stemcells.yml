@@ -1,33 +1,7 @@
 #@data/values
 ---
-stemcells:
-- version: "master"
-  bosh_agent_version: "*"
-  branch: "ubuntu-jammy/master"
-  bump_version: "minor"
-  agent_metalink_version: '*'
-  initial_version: "210.0.0"
-  include_iaas: [
-    {iaas: aws, hypervisor: xen-hvm},
-    {iaas: azure, hypervisor: hyperv},
-    {iaas: google, hypervisor: kvm},
-    {iaas: openstack, hypervisor: kvm},
-    {iaas: vsphere, hypervisor: esxi},
-    {iaas: vcloud, hypervisor: esxi},
-    {iaas: warden, hypervisor: boshlite}
-  ]
-  include_fips_iaas: []
-  os: jammy
-  os_version: "22.04"
-  os_name: ubuntu-jammy
-  subnet_int: "2"
-
-- version: "1.x"
-  bosh_agent_version: "*"
-  branch: "ubuntu-jammy/1.x"
-  bump_version: "minor"
-  agent_metalink_version: '*'
-  initial_version: "1.0.0"
+stemcell_details:
+  branch: "ubuntu-jammy"
   include_iaas: [
     {iaas: alicloud, hypervisor: kvm},
     {iaas: aws, hypervisor: xen-hvm},
