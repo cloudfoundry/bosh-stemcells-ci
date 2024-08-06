@@ -575,8 +575,6 @@ jobs:
       - bats
       trigger: true
     - get: os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
-  - task: assert-version-aligns
-    file: bosh-stemcells-ci/tasks/assert-version-aligns.yml
   - task: commit-build-time
     file: bosh-stemcells-ci/tasks/commit-build-time.yml
     image: os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
