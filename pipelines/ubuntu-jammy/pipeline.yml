@@ -31,8 +31,6 @@ groups:
   jobs:
   - create-story
   - create-story-usn
-  - create-tracker-story-usn
-  - create-story-periodic
   - check-usn-packages
   - log-low-medium-cves
   - notify-of-usn
@@ -91,42 +89,6 @@ jobs:
       DESCRIPTION: periodic bump
       COLUMN_ID: ((github_project_column_id))
       TOKEN: ((story_creator_github_token))
-
-- name: create-story-periodic
-  build_log_retention:
-    builds: 200
-  plan:
-  - in_parallel:
-    - get: hourly
-      trigger: true
-    - get: stemcells-index
-    - get: bosh-ecosystem-docker-image
-    - get: bosh-stemcells-ci
-  - file: bosh-stemcells-ci/tasks/periodic-create-story.yml
-    image: bosh-ecosystem-docker-image
-    params:
-      BRANCH: (@= data.values.stemcell_details.branch @)
-      DESCRIPTION: periodic bump
-      POINT_ESTIMATE: 1
-      PROJECT_ID: ((vmware_tracker_project_id))
-      TOKEN: ((bosh-ecosystem-tracker-token))
-    task: create-story
-
-- name: create-tracker-story-usn
-  plan:
-  - in_parallel:
-    - get: bosh-stemcells-ci
-    - get: (@= data.values.stemcell_details.os @)-usn
-      trigger: true
-    - get: usn-log
-  - file: bosh-stemcells-ci/tasks/create-story.yml
-    params:
-      BRANCH: (@= data.values.stemcell_details.branch @)
-      DESCRIPTION: ubuntu *security* notice
-      PROJECT_ID: ((vmware_tracker_project_id))
-      TOKEN: ((bosh-ecosystem-tracker-token))
-      POINT_ESTIMATE: 1
-    task: create-story
 
 - name: create-story-usn
   serial_groups: [log-cves]
@@ -872,18 +834,6 @@ resources:
     location: America/Los_Angeles
     start: "6:00"
     stop: "8:30"
-
-- name: hourly
-  source:
-    interval: 1h
-  type: time
-
-- name: bosh-ecosystem-docker-image
-  type: docker-image
-  source:
-    repository: bosh/bosh-ecosystem-concourse
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
 
 - name: bosh-linux-stemcell-builder-ci
   type: git
