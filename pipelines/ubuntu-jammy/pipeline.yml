@@ -36,11 +36,13 @@ groups:
   - notify-of-usn
 - name: docker
   jobs:
-  - build-os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
+  - build-os-image-stemcell-builder
 
 #@yaml/text-templated-strings
 jobs:
-- name: build-os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
+#@ for stemcell in data.values.stemcells:
+ #@ if stemcell.version == "master":
+- name: build-os-image-stemcell-builder
   public: true
   serial: true
   plan:
@@ -62,15 +64,15 @@ jobs:
           - -cex
           - |
             git clone bosh-linux-stemcell-builder-in bosh-linux-stemcell-builder
-            cp bosh-os-image-builder-vmware-ovftool/*.bundle bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder-(@= data.values.stemcell_details.os @)/
+            cp bosh-os-image-builder-vmware-ovftool/*.bundle bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder/
         inputs:
         - name: bosh-os-image-builder-vmware-ovftool
         - name: bosh-linux-stemcell-builder-in
         outputs:
         - name: bosh-linux-stemcell-builder
-    - put: os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
+    - put: os-image-stemcell-builder
       params:
-        build: bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
+        build: bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder
       get_params:
         skip_download: true
 - name: create-story
@@ -536,10 +538,10 @@ jobs:
       - test-stemcells-ipv4
       - bats
       trigger: true
-    - get: os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
+    - get: os-image-stemcell-builde
   - task: commit-build-time
     file: bosh-stemcells-ci/tasks/commit-build-time.yml
-    image: os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
+    image: os-image-stemcell-builder
   - task: copy-fips-artifacts
     file: bosh-stemcells-ci/tasks/publish.yml
     params:
@@ -910,7 +912,7 @@ resources:
   source:
     url: ((slack_hook_url))
 
-- name: os-image-stemcell-builder-(@= data.values.stemcell_details.os @)
+- name: os-image-stemcell-builder
   type: docker-image
   source:
     repository: bosh/os-image-stemcell-builder
