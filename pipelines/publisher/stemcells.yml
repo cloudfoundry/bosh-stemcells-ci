@@ -7,6 +7,6 @@ oss:
   version: 1
   os_name: ubuntu
   os_version: jammy
-  branch: "ubuntu-jammy/1.x"
+  branch: "ubuntu-jammy"
   build_aws: true
   build_fips: true
