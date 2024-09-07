@@ -748,15 +748,8 @@ resources:
 - name: bosh-agent-(@= stemcell.version @)
   type: metalink-repository
   source:
-    mirror_files:
-    - destination: s3://storage.googleapis.com/bosh-agent/{{.Name}}
-    uri: git+ssh://git@github.com/cloudfoundry/bosh-agent-index.git//
+    uri: git+https://github.com/cloudfoundry/bosh-agent-index.git/
     version: (@= stemcell.agent_metalink_version @)
-    url_handlers:
-    - type: s3
-      options:
-        access_key: ((hmac_accesskey))
-        secret_key: ((hmac_secret))
  #@ end
 
 #@ def metalink_resource(IAAS, HYPERVISOR, FIPS=""):
