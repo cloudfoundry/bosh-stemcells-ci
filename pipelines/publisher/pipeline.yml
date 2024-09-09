@@ -664,7 +664,7 @@ resources:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-aws-light-stemcells-candidate/{{.Version}}/{{.Name}}
     options:
-      private_key: ((boshio_cpi_index_key.private_key))
+      private_key: ((github_deploy_key_bosh-io-stemcells-cpi-index.private_key))
     uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//candidate-aws-light/(@= stemcell.os @)
     url_handlers:
     - include:
@@ -681,7 +681,7 @@ resources:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-gce-light-stemcells-candidate/{{.Version}}/{{.Name}}
     options:
-      private_key: ((boshio_cpi_index_key.private_key))
+      private_key: ((github_deploy_key_bosh-io-stemcells-cpi-index.private_key))
     uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//candidate-gcp-light/(@= stemcell.os @)
     url_handlers:
     - include:
@@ -745,7 +745,7 @@ resources:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-aws-light-stemcells/{{.Version}}/{{.Name}}
     options:
-      private_key: ((boshio_cpi_index_key.private_key))
+      private_key: ((github_deploy_key_bosh-io-stemcells-cpi-index.private_key))
     uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
@@ -772,7 +772,7 @@ resources:
     mirror_files:
     - destination: s3://storage.googleapis.com/bosh-gce-light-stemcells/{{.Version}}/{{.Name}}
     options:
-      private_key: ((boshio_cpi_index_key.private_key))
+      private_key: ((github_deploy_key_bosh-io-stemcells-cpi-index.private_key))
     uri: git+ssh://git@github.com:cloudfoundry/bosh-io-stemcells-cpi-index.git//published/(@= stemcell.os @)
     url_handlers:
     - include:
