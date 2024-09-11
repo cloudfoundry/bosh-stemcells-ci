@@ -558,7 +558,7 @@ resources:
 - name: gh-release-oss
   type: github-release
   source:
-    access_token: ((github_bosh_linux_stemcell_builder_release_maker_token))
+    access_token: ((github_public_repo_token))
     drafts: true
     owner: cloudfoundry
     repository: bosh-linux-stemcell-builder
