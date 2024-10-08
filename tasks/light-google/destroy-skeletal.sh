@@ -12,7 +12,7 @@ pushd "${deployment_state}" > /dev/null
   echo "Destroying skeletal instance..."
 
   set +e
-  ./assets/bosh -n delete-env ./skeletal-deployment.yml
+  bosh -n delete-env ./skeletal-deployment.yml
   exit_code=$?
   set -e
 

@@ -10,8 +10,6 @@ workspace_dir="$(pwd)"
 : ${GCE_CREDENTIALS_JSON:?}
 
 # inputs
-bosh_cli=$(echo ${workspace_dir}/bosh-cli/bosh-cli-*)
-chmod +x "${bosh_cli}"
 cpi_dir="$(cd "${workspace_dir}/bosh-cpi-release" && pwd)"
 stemcell_dir="$(cd "${workspace_dir}/light-stemcell" && pwd)"
 terraform_config="$(cd "${workspace_dir}/terraform" && pwd)"
@@ -22,7 +20,6 @@ output_dir="$(cd "${workspace_dir}/deployment-state" && pwd)"
 mkdir -p "${output_dir}/assets/"
 cp ${cpi_dir}/*.tgz "${output_dir}/assets/cpi.tgz"
 cp ${stemcell_dir}/*.tgz "${output_dir}/assets/stemcell.tgz"
-cp ${bosh_cli} "${output_dir}/assets/bosh"
 
 mbus_password="$(openssl rand -base64 24 | tr -d '[/+]')"
 gce_cloud_provider_mbus="https://mbus:${mbus_password}@$(jq -r .skeletal_external_ip ${terraform_config}/metadata):6868"
@@ -33,7 +30,7 @@ pushd "${output_dir}" > /dev/null
 
   echo "${SSH_PRIVATE_KEY}" > bosh.pem # CLI has trouble with newlines in variable
 
-  ${bosh_cli} -n interpolate \
+  bosh -n interpolate \
     -v gce_cloud_provider_mbus="${gce_cloud_provider_mbus}" \
     -v gce_cloud_provider_agent_mbus="${gce_cloud_provider_agent_mbus}" \
     -v gce_credentials_json="'${GCE_CREDENTIALS_JSON}'" \
@@ -42,7 +39,7 @@ pushd "${output_dir}" > /dev/null
     --vars-store=./skeletal-deployment-vars.yml \
     "${src_dir}/light-google/skeletal-deployment.yml" > ./skeletal-deployment.yml
 
-  ${bosh_cli} -n create-env ./skeletal-deployment.yml
+  bosh -n create-env ./skeletal-deployment.yml
 popd > /dev/null
 
 echo "Successfully deployed!"

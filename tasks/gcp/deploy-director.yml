@@ -9,7 +9,6 @@ inputs:
   - name: bosh-deployment
   - name: bosh-stemcells-ci
   - name: bosh-linux-stemcell-builder
-  - name: bosh-cli
 
 outputs:
   - name: director-state

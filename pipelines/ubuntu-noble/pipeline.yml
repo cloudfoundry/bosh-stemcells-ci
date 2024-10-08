@@ -336,7 +336,6 @@ jobs:
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
       - get: bosh-deployment
-      - get: bosh-cli
       - get: syslog-release
       - get: os-conf-release
       - get: stemcell
@@ -450,7 +449,6 @@ jobs:
         - build-google-kvm-(@= stemcell.version @)
         resource: google-kvm-(@= stemcell.version @)
         trigger: true
-      - get: bosh-cli
       - get: bats
       - get: bosh-deployment
       - get: bosh-stemcells-ci
@@ -939,12 +937,6 @@ resources:
     priorities:
     - low
     - medium
-- name: bosh-cli
-  type: s3
-  source:
-    regexp: alpha-bosh-cli-(.*)-linux-amd64
-    bucket: bosh-cli-alpha-artifacts
-    region_name: us-east-1
 - name: (@= stemcell.os @)-usn
   type: usn
   source:

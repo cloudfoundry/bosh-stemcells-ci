@@ -84,7 +84,6 @@ in_parallel:
   resource: candidate-(@= stemcell_os @)-stemcell-(@= str(stemcell_version) @)
   trigger: true
   version: every
-- get: bosh-cli
 - get: bosh-stemcells-ci
 - get: bosh-cpi-release
   resource: bosh-google-cpi-release
@@ -151,8 +150,6 @@ do:
   - get: bosh-release
     trigger: false
   - get: bosh-deployment
-    trigger: false
-  - get: bosh-cli
     trigger: false
   - get: pipelines
     resource: bosh-cpi-certification-concourse-tasks
@@ -568,13 +565,6 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-cpi-certification
-
-- name: bosh-cli
-  type: s3
-  source:
-    bucket: bosh-cli-artifacts
-    regexp: bosh-cli-([0-9.]+)-linux-amd64
-    region_name: us-east-1
 
 - name: bosh-release
   type: bosh-io-release
