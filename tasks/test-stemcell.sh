@@ -11,6 +11,7 @@ OS_CONF_RELEASE_PATH="$(realpath os-conf-release/*.tgz)"
 STEMCELL_PATH="$(realpath stemcell/*.tgz)"
 BOSH_stemcell_version="$(realpath stemcell/.resource/version | xargs -n 1 cat)"
 
+export BOSH_BINARY_PATH
 export BOSH_CA_CERT
 export BOSH_CLIENT="admin"
 export BOSH_CLIENT_SECRET
