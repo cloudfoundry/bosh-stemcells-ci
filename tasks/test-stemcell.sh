@@ -2,6 +2,7 @@
 set -eu -o pipefail
 set -e
 
+BOSH_BINARY_PATH=$(realpath "$(which bosh)")
 BOSH_CA_CERT="$(bosh int director-state/director-creds.yml --path /director_ssl/ca)"
 BOSH_CLIENT_SECRET="$(bosh int director-state/director-creds.yml --path /admin_password)"
 BOSH_ENVIRONMENT="$(bosh int director-state/director-creds.yml --path /internal_ip)"
