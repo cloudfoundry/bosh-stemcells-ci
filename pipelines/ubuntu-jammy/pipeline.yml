@@ -29,7 +29,6 @@ groups:
 
 - name: automatic-triggers
   jobs:
-  - create-story
   - create-story-usn
   - check-usn-packages
   - log-low-medium-cves
@@ -73,22 +72,6 @@ jobs:
         build: bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder
       get_params:
         skip_download: true
-- name: create-story
-  plan:
-  - in_parallel:
-    - get: every-3-weeks-on-monday
-      trigger: true
-    - get: bosh-stemcells-ci
-    - get: bosh-linux-stemcell-builder
-      resource: bosh-linux-stemcell-builder
-
-  - task: create-story
-    file: bosh-stemcells-ci/tasks/create-github-story.yml
-    params:
-      BRANCH: (@= data.values.stemcell_details.branch @)
-      DESCRIPTION: periodic bump
-      COLUMN_ID: ((github_project_column_id))
-      TOKEN: ((story_creator_github_token))
 
 - name: create-story-usn
   serial_groups: [log-cves]
@@ -105,13 +88,6 @@ jobs:
     input_mapping:
       usn-log-in: usn-log
       usn-source: (@= data.values.stemcell_details.os @)-usn
-  - task: create-story
-    file: bosh-stemcells-ci/tasks/create-github-story.yml
-    params:
-      BRANCH: (@= data.values.stemcell_details.branch @)
-      DESCRIPTION: ubuntu *security* notice
-      COLUMN_ID: ((github_project_column_id))
-      TOKEN: ((story_creator_github_token))
   - task: write-message
     file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
@@ -812,16 +788,6 @@ resources:
     fake_param_to_bust_global_resource_cache: true
     private_key: ((github_deploy_key_bosh-linux-stemcell-builder.private_key))
     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-
-- name: every-3-weeks-on-monday
-  type: time
-  source:
-    days:
-      - Monday
-    interval: 499h
-    location: America/Los_Angeles
-    start: "6:00"
-    stop: "8:30"
 
 - name: bosh-linux-stemcell-builder-ci
   type: git

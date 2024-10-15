@@ -44,11 +44,6 @@ groups:
 - name: automatic-triggers
   jobs:
 #@ for stemcell in data.values.stemcells:
- #@ if stemcell.version != "master":
-  - create-story-(@= stemcell.version @)
-  - create-tracker-story-usn-(@= stemcell.version @)
-  - create-story-periodic-(@= stemcell.version @)
- #@ end
   - create-story-usn-(@= stemcell.version @)
   - check-usn-packages-(@= stemcell.version @)
   - log-low-medium-cves-(@= stemcell.version @)
@@ -98,64 +93,6 @@ jobs:
       get_params:
         skip_download: true
  #@ end
- #@ if stemcell.version != "master":
-- name: create-story-(@= stemcell.version @)
-  plan:
-  - in_parallel:
-    - get: every-3-weeks-on-monday-(@= stemcell.version @)
-      trigger: true
-    - get: bosh-stemcells-ci
-    - get: bosh-linux-stemcell-builder
-      resource: bosh-linux-stemcell-builder-(@= stemcell.version @)
-
-  - task: create-story
-    file: bosh-stemcells-ci/tasks/create-github-story.yml
-    params:
-      #@ if stemcell.version == "master":
-      BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
-      #@ else:
-      BRANCH: (@= stemcell.branch @)
-      #@ end
-      DESCRIPTION: periodic bump
-      COLUMN_ID: ((github_project_column_id))
-      TOKEN: ((story_creator_github_token))
-
-- name: create-story-periodic-(@= stemcell.version @)
-  build_log_retention:
-    builds: 200
-  plan:
-  - in_parallel:
-    - get: hourly
-      trigger: true
-    - get: stemcells-index
-    - get: bosh-ecosystem-docker-image
-    - get: bosh-stemcells-ci
-  - file: bosh-stemcells-ci/tasks/periodic-create-story.yml
-    image: bosh-ecosystem-docker-image
-    params:
-      BRANCH: (@= stemcell.branch @)
-      DESCRIPTION: periodic bump
-      POINT_ESTIMATE: 1
-      PROJECT_ID: ((vmware_tracker_project_id))
-      TOKEN: ((bosh-ecosystem-tracker-token))
-    task: create-story
-
-- name: create-tracker-story-usn-(@= stemcell.version @)
-  plan:
-  - in_parallel:
-    - get: bosh-stemcells-ci
-    - get: (@= stemcell.os @)-usn
-      trigger: true
-    - get: usn-log-(@= stemcell.version @)
-  - file: bosh-stemcells-ci/tasks/create-story.yml
-    params:
-      BRANCH: (@= stemcell.branch @)
-      DESCRIPTION: ubuntu *security* notice
-      PROJECT_ID: ((vmware_tracker_project_id))
-      TOKEN: ((bosh-ecosystem-tracker-token))
-      POINT_ESTIMATE: 1
-    task: create-story
- #@ end
 
 - name: create-story-usn-(@= stemcell.version @)
   serial_groups: [log-cves-(@= stemcell.version @)]
@@ -172,19 +109,6 @@ jobs:
     input_mapping:
       usn-log-in: usn-log-(@= stemcell.version @)
       usn-source: (@= stemcell.os @)-usn
-  #@ if stemcell.version != "master":
-  - task: create-story
-    file: bosh-stemcells-ci/tasks/create-github-story.yml
-    params:
-      #@ if stemcell.version == "master":
-      BRANCH: (@= stemcell.os_name @)/(@= stemcell.branch @)
-      #@ else:
-      BRANCH: (@= stemcell.branch @)
-      #@ end
-      DESCRIPTION: ubuntu *security* notice
-      COLUMN_ID: ((github_project_column_id))
-      TOKEN: ((story_creator_github_token))
-  #@ end
   - task: write-message
     file: bosh-stemcells-ci/tasks/write-bump-message.yml
     params:
