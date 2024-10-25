@@ -10,3 +10,10 @@ oss:
   branch: "ubuntu-jammy"
   build_aws: true
   build_fips: true
+- os: ubuntu-noble
+  version: 0
+  os_name: ubuntu
+  os_version: noble
+  branch: "ubuntu-noble"
+  build_aws: true
+  build_fips: true

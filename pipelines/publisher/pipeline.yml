@@ -746,13 +746,6 @@ resources:
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
-
-- name: light-stemcell-builder-registry-image
-  type: registry-image
-  source:
-    repository: bosh/light-stemcell-builder
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
   #@ end
 
 - name: published-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
@@ -828,3 +821,9 @@ resources:
     username: ((dockerhub_username))
     password: ((dockerhub_password))
 
+- name: light-stemcell-builder-registry-image
+  type: registry-image
+  source:
+    repository: bosh/light-stemcell-builder
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))

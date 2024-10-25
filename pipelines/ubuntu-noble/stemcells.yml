@@ -1,12 +1,7 @@
 #@data/values
 ---
-stemcells:
-- version: "master"
-  bosh_agent_version: "*"
-  branch: "ubuntu_noble_poc"
-  bump_version: "minor"
-  agent_metalink_version: '*'
-  initial_version: "0.0.1"
+stemcell_details:
+  branch: "ubuntu-noble"
   include_iaas: [
     {iaas: aws, hypervisor: xen-hvm},
     {iaas: azure, hypervisor: hyperv},
