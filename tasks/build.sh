@@ -15,6 +15,7 @@ check_param IAAS
 check_param HYPERVISOR
 check_param OS_NAME
 check_param OS_VERSION
+AGENT_SUFFIX="${AGENT_SUFFIX--go_agent}"
 
 export TASK_DIR=$PWD
 export CANDIDATE_BUILD_NUMBER=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
@@ -96,8 +97,8 @@ SUDO
 # Output and checksum the stemcell artifacts
 #
 
-stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION-go_agent"
-meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR-go_agent.meta4
+stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION${AGENT_SUFFIX}"
+meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR${AGENT_SUFFIX}.meta4
 
 echo $CANDIDATE_BUILD_NUMBER > candidate-build-number/number
 mkdir -p "$( dirname "$meta4_path" )"

@@ -24,7 +24,7 @@ install_jq() {
 install_jq
 
 pushd candidate-stemcell
-  tar xvf bosh-stemcell-*-warden-boshlite-${OS_NAME}-${OS_VERSION}-go_agent.tgz packages.txt
+  tar xvf bosh-stemcell-*-warden-boshlite-${OS_NAME}-${OS_VERSION}*.tgz packages.txt
   kernel_version=$(grep "${KERNEL_PACKAGE}" packages.txt | awk '{print $3}')
 popd
 

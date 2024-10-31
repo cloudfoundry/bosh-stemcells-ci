@@ -55,7 +55,7 @@ in_parallel:
 - get: (@= input_stemcell @)
   params:
     include_files:
-    - bosh-stemcell-*-aws-xen-hvm-(@= stemcell_os @)-go_agent.tgz
+    - bosh-stemcell-*-aws-xen-hvm-(@= stemcell_os @)*.tgz
   resource: candidate-(@= stemcell_os @)-stemcell-(@= stemcell_version @)
   trigger: true
   version: every
@@ -80,7 +80,7 @@ in_parallel:
 - get: stemcell
   params:
     include_files:
-    - bosh-stemcell-*-google-kvm-(@= stemcell_os @)-go_agent.tgz
+    - bosh-stemcell-*-google-kvm-(@= stemcell_os @)*.tgz
   resource: candidate-(@= stemcell_os @)-stemcell-(@= str(stemcell_version) @)
   trigger: true
   version: every
@@ -366,7 +366,7 @@ jobs:
       STEMCELL_BUCKET_PATH: bosh-gce-light-stemcells
       S3_API_ENDPOINT: storage.googleapis.com
   - params:
-      file: raw-stemcell/bosh-stemcell-*-google-kvm-(@= stemcell.os_name @)-*-go_agent-raw-*.tar.gz
+      file: raw-stemcell/bosh-stemcell-*-google-kvm-(@= stemcell.os_name @)-*.tar.gz
       predefined_acl: publicRead
     put: base-oss-google-ubuntu-stemcell
   - task: create-public-image
@@ -444,7 +444,7 @@ jobs:
         path: /bin/bash
         args:
           - -ce
-          - tar xvf ../candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/bosh-stemcell-*-warden-boshlite-(@= stemcell.os @)-go_agent.tgz image
+          - tar xvf ../candidate-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)/bosh-stemcell-*-warden-boshlite-(@= stemcell.os @)*.tgz image
   - put: github-container-registry-(@= stemcell.os @)-stemcell
     params:
       import_file: stemcell-image/image
@@ -643,7 +643,7 @@ resources:
   source:
     bucket: bosh-gce-raw-stemcells-new
     json_key: ((gcp_json_key))
-    regexp: bosh-stemcell-([0-9\.]+)-google-kvm-ubuntu-*-go_agent-raw.tar.gz
+    regexp: bosh-stemcell-([0-9\.]+)-google-kvm-ubuntu-*-raw.tar.gz
   type: gcs-resource
 
 
@@ -746,13 +746,6 @@ resources:
       type: s3
     version: (@= str(stemcell.version) @).x
   type: metalink-repository
-
-- name: light-stemcell-builder-registry-image
-  type: registry-image
-  source:
-    repository: bosh/light-stemcell-builder
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
   #@ end
 
 - name: published-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
@@ -828,3 +821,9 @@ resources:
     username: ((dockerhub_username))
     password: ((dockerhub_password))
 
+- name: light-stemcell-builder-registry-image
+  type: registry-image
+  source:
+    repository: bosh/light-stemcell-builder
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
