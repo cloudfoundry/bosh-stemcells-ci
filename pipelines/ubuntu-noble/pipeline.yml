@@ -674,7 +674,6 @@ resources:
     json_key: ((gcp_json_key))
     bucket: bosh-core-stemcells-candidate
     driver: gcs
-    initial_version: "0.1"
     key: bosh-stemcell/(@= data.values.stemcell_details.branch @)/0.x/0.x-version
 
 - name: os-image-version
