@@ -454,9 +454,10 @@ jobs:
       AWS_ACCESS_KEY_ID: ((hmac_accesskey))
       AWS_SECRET_ACCESS_KEY: ((hmac_secret))
       COMMIT_PREFIX: candidate
-      COPY_KEYS: |
-        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= data.values.stemcell_details.os @)-fips.tgz
-        google/bosh-stemcell-%s-google-kvm-ubuntu-(@= data.values.stemcell_details.os @)-fips.tgz
+      COPY_KEYS:
+      #@ for iaas in data.values.stemcell_details.include_fips_iaas:
+        - (@= iaas.iaas @)/bosh-stemcell-%s-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= data.values.stemcell_details.os_name @)-fips.tgz
+      #@ end
       FROM_BUCKET_NAME: bosh-core-stemcells-candidate-fips
       FROM_INDEX: dev
       OS_NAME: ubuntu
@@ -471,15 +472,10 @@ jobs:
       AWS_ACCESS_KEY_ID: ((hmac_accesskey))
       AWS_SECRET_ACCESS_KEY: ((hmac_secret))
       COMMIT_PREFIX: candidate
-      COPY_KEYS: |
-        aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-(@= data.values.stemcell_details.os @).tgz
-        google/bosh-stemcell-%s-google-kvm-ubuntu-(@= data.values.stemcell_details.os @).tgz
-        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-(@= data.values.stemcell_details.os @).tgz
-        openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-(@= data.values.stemcell_details.os @)-raw.tgz
-        warden/bosh-stemcell-%s-warden-boshlite-ubuntu-(@= data.values.stemcell_details.os @).tgz
-        vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-(@= data.values.stemcell_details.os @).tgz
-        vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-(@= data.values.stemcell_details.os @).tgz
-        azure/bosh-stemcell-%s-azure-hyperv-ubuntu-(@= data.values.stemcell_details.os @).tgz
+      COPY_KEYS:
+      #@ for iaas in data.values.stemcell_details.include_iaas:
+        - (@= iaas.iaas @)/bosh-stemcell-%s-(@= iaas.iaas @)-(@= iaas.hypervisor @)-(@= data.values.stemcell_details.os_name @).tgz
+      #@ end
       FROM_BUCKET_NAME: bosh-core-stemcells-candidate
       FROM_INDEX: dev
       OS_NAME: ubuntu
