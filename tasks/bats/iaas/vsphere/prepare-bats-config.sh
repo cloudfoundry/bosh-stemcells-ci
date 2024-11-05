@@ -35,6 +35,7 @@ properties:
   instances: 1
   second_static_ip: ((network1.staticIP-2))
   datacenters: ((DATACENTERS))
+  dns: ((dns))
   ssh_gateway:
     host: "${director_ip}"
     username: "${gateway_username}"
