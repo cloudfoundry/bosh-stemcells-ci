@@ -19,6 +19,7 @@ ami_server_side_encryption=${ami_server_side_encryption:-}
 : ${ami_secret_key:?}
 : ${ami_bucket_name:?}
 : ${ami_encrypted:?}
+: ${efi:?}
 
 export AWS_ACCESS_KEY_ID=$ami_access_key
 export AWS_SECRET_ACCESS_KEY=$ami_secret_key
@@ -68,7 +69,8 @@ cat > $CONFIG_PATH << EOF
     "virtualization_type":  "$ami_virtualization_type",
     "encrypted":            $ami_encrypted,
     "kms_key_id":           "$ami_kms_key_id",
-    "visibility":           "$ami_visibility"
+    "visibility":           "$ami_visibility",
+    "efi":                  ${efi}
   },
   "ami_regions": [
     {
