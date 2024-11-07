@@ -374,6 +374,7 @@ jobs:
     params:
       GCP_SERVICE_ACCOUNT_KEY: ((gcp_json_key))
       PROJECT_NAME: ((gcp_project_id))
+      EFI: #@ stemcell.efi
 
   - #@ deploy_skeletal_google_light_stemcell("light-google-environment-oss", "((gcp_json_key))")
   - params:

@@ -20,3 +20,4 @@ run:
 params:
   PROJECT_NAME:
   GCP_SERVICE_ACCOUNT_KEY:
+  EFI: false
