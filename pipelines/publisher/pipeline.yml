@@ -44,7 +44,7 @@ params:
   ami_virtualization_type: hvm
   ami_visibility: public
   S3_API_ENDPOINT: storage.googleapis.com
-  EFI: #@ efi
+  efi: #@ efi
   #@ if tag != "":
   tags:
   - #@ tag
