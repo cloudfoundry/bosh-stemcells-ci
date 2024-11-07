@@ -448,6 +448,7 @@ jobs:
   - task: commit-build-time
     file: bosh-stemcells-ci/tasks/commit-build-time.yml
     image: os-image-stemcell-builder
+  #@ if len(data.values.stemcell_details.include_fips_iaas) > 0:
   - task: copy-fips-artifacts
     file: bosh-stemcells-ci/tasks/publish.yml
     params:
@@ -466,6 +467,7 @@ jobs:
       TO_INDEX: candidate
       AWS_ENDPOINT: "https://storage.googleapis.com"
       S3_API_ENDPOINT: storage.googleapis.com
+  #@ end
   - task: copy-artifacts
     file: bosh-stemcells-ci/tasks/publish.yml
     params:
