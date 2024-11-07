@@ -51,10 +51,20 @@ if [ -n "${AWS_ROLE_ARN}" ]; then
   export AWS_PROFILE=resource_account
 fi
 
+# Parse the JSON array into a Bash array
+COPY_KEYS_ARRAY=($(echo "$COPY_KEYS" | jq -r '.[]'))
+
+if [ ${#COPY_KEYS_ARRAY[@]} -eq 0 ]; then
+    echo "COPY_KEYS is empty. No files to process."
+    exit 1  # Exit or handle as needed
+fi
+
 if [ "$FROM_BUCKET_NAME" == "$TO_BUCKET_NAME" ]; then
   echo "Skipping upload since buckets are the same..."
+elif [ ${#COPY_KEYS_ARRAY[@]} -eq 0 ]; then
+  echo "Skipping upload since COPY_KEYS is empty..."
 else
-  for file in $COPY_KEYS ; do
+  for file in "${COPY_KEYS_ARRAY[@]}"; do
     file="${file/\%s/$VERSION}"
 
     echo "$file"
