@@ -41,7 +41,7 @@ fi
 gcloud compute images create ${image_name} \
  --project=${PROJECT_NAME} \
  --source-uri=${raw_stemcell_uri} \
- "${efi_flag}" \
+ ${efi_flag} \
  --storage-location=eu
 
 
