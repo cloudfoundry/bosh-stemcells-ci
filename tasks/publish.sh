@@ -1,7 +1,8 @@
 #!/bin/bash
 
-set -e
-set -u
+set -eu -o pipefail
+set -x
+
 
 export VERSION=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
 
