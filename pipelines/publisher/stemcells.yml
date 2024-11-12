@@ -17,5 +17,5 @@ oss:
   os_version: noble
   branch: "ubuntu-noble"
   build_aws: true
-  build_fips: true
+  build_fips: false
   efi: true

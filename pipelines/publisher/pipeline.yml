@@ -412,7 +412,7 @@ jobs:
       - build-light-aws-(@= stemcell.os @)-(@= str(stemcell.version) @)
       #@ end
       - build-light-google-(@= stemcell.os @)-(@= str(stemcell.version) @)
-    #@ if/end stemcell.build_aws:
+    #@ if/end stemcell.build_fips:
     - get: candidate-(@= stemcell.os @)-fips-stemcell-(@= str(stemcell.version) @)
     - get: candidate-google-light-(@= stemcell.os @)-stemcell-(@= str(stemcell.version) @)
       passed:
