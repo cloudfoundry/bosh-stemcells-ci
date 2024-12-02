@@ -9,7 +9,7 @@ BOSH_ENVIRONMENT="$(bosh int director-state/director-creds.yml --path /internal_
 SYSLOG_RELEASE_PATH="$(realpath syslog-release/*.tgz)"
 OS_CONF_RELEASE_PATH="$(realpath os-conf-release/*.tgz)"
 STEMCELL_PATH="$(realpath stemcell/*.tgz)"
-BOSH_stemcell_version="$(realpath stemcell/.resource/version | xargs -n 1 cat)"
+BOSH_stemcell_version="\"$(realpath stemcell/.resource/version | xargs -n 1 cat)\""
 
 export BOSH_BINARY_PATH
 export BOSH_CA_CERT
