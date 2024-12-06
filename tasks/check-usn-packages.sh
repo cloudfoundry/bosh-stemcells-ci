@@ -9,9 +9,23 @@ set -euo pipefail
 #
 
 USN_JSON_URL="usn-log-in/usn-log.json"
+USN_FILTERED_JSON="usn-log-filtered-out/usn-log-filtered.json"
+
+unused_usns=()
+
+function remove_irrelevant_usns_from_log() {
+  unused_usns_json_array=$(printf '%s\n' "${unused_usns[@]}" | jq -R . | jq -s .)
+
+  jq --argjson unused_usns "$unused_usns_json_array" \
+  'del(.|select(.url as $usn_url | $unused_usns | index($usn_url)))' \
+  "$USN_JSON_URL" | jq 'select(. != null)' > /tmp/usn-log-filtered.json
+  mv /tmp/usn-log-filtered.json "$USN_FILTERED_JSON"
+}
 
 function process_packages {
   local package_version_for_usn=("$@")
+  local usn_url=$2
+  local usn_packages_unused=1
 
   for package_version in "${package_version_for_usn[@]}"
   do
@@ -21,12 +35,17 @@ function process_packages {
 
     if is_package_installed "$package";
     then
+      usn_packages_unused=0
       echo "checking: $package"
       check_package "$package" "$version"
     else
       echo "skip: $package"
     fi
   done
+
+  if [ ${usn_packages_unused} ]; then
+      unused_usns+=("${usn_url}")
+  fi
 }
 
 function candidate_version_to_install {
@@ -61,6 +80,7 @@ function enable_esm {
 
 function process_usns {
   local usn_log_json=$1
+  cp "$usn_log_json" "$USN_FILTERED_JSON"
 
   mapfile -t usn_urls < <(jq -r '.url | select(.|test("USN"))' "$usn_log_json" | sort | uniq)
 
@@ -70,8 +90,10 @@ function process_usns {
     echo -e "\n>>>>> $usn_url <<<<<"
 
     mapfile -t package_version_for_usn < <( curl -s "$usn_url.json" | jq --arg os $OS -r '.release_packages[$os][] | select(.is_source==false) | "\(.name):\(.version)"')
-    process_packages "${package_version_for_usn[@]}"
+    process_packages "${package_version_for_usn[@]}" "$usn_url"
   done
+
+  remove_irrelevant_usns_from_log
 }
 
 function is_package_installed {

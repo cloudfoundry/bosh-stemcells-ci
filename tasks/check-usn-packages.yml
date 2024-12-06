@@ -11,6 +11,9 @@ inputs:
   - name: bosh-stemcells-ci
   - name: usn-log-in
 
+outputs:
+  - name: usn-log-filtered-out
+
 run:
   path: bosh-stemcells-ci/tasks/check-usn-packages.sh
 

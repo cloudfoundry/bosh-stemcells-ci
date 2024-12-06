@@ -122,6 +122,10 @@ jobs:
   - put: stemcell-trigger
     params:
       file: message/message.txt
+  - put: usn-log-filtered
+    params:
+      file: usn-log-filtered-out/usn-log-filtered.json
+      predefined_acl: publicRead
 
 - name: log-low-medium-cves
   serial_groups: [log-cves]
@@ -766,6 +770,15 @@ resources:
     bucket: bosh-stemcell-triggers
     json_key: ((gcp_json_key))
     versioned_file: (@= data.values.stemcell_details.branch @)/usn-log.json
+    initial_content_text: ""
+    initial_version: '0'
+
+- name: usn-log-filtered
+  type: gcs-resource
+  source:
+    bucket: bosh-stemcell-triggers
+    json_key: ((gcp_json_key))
+    versioned_file: (@= data.values.stemcell_details.branch @)/usn-log-filtered.json
     initial_content_text: ""
     initial_version: '0'
 
