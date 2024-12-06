@@ -1,0 +1,23 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: bosh/os-image-stemcell-builder
+    tag: "((image_os_tag))"
+
+inputs:
+  - name: bosh-linux-stemcell-builder
+  - name: bosh-stemcells-ci
+  - name: usn-log
+  - name: usn
+
+outputs:
+  - name: usn-log
+
+run:
+  path: bosh-stemcells-ci/tasks/check-if-usn-is-applicable.sh
+
+params:
+  OS:
+  ESM_TOKEN:

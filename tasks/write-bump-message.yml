@@ -5,10 +5,6 @@ image_resource:
   source:
     repository: bosh/integration
 
-inputs:
-- name: usn
-  optional: true
-
 outputs:
 - name: message
 
@@ -20,12 +16,6 @@ run:
   args:
   - -c
   - |
-    echo -n "${MESSAGE_PREFIX}" > message/message.txt
+    echo "${MESSAGE_PREFIX}" > message/message.txt
 
-    if [ -f usn/usn.json ]; then
-      echo -n ' "'$(jq -r .title < usn/usn.json)'"' >> message/message.txt
-    fi
-
-    echo -n " ($(date "+%b %e, %Y"))" >> message/message.txt
-
-    echo >> message/message.txt
+    echo "($(date "+%b %e, %Y"))" >> message/message.txt
