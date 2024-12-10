@@ -9,10 +9,14 @@ image_resource:
 inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
-  - name: usn-log-in
+  - name: usn-log
+  - name: usn
+
+outputs:
+  - name: usn-log
 
 run:
-  path: bosh-stemcells-ci/tasks/check-usn-packages.sh
+  path: bosh-stemcells-ci/tasks/check-if-usn-is-applicable.sh
 
 params:
   OS:
