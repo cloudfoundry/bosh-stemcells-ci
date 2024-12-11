@@ -106,10 +106,6 @@ jobs:
     file: bosh-shared-ci/tasks/release/ensure-task-succeeded.yml
     input_mapping:
       task-output-folder: usn-log
-  - put: usn-log-success
-    params:
-      file: usn-log/success
-      predefined_acl: publicRead
 
 - name: check-usn-packages-are-available
   plan:
@@ -143,6 +139,7 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-stemcells-ci
+    - get: bosh-shared-ci
     - get: os-image-stemcell-builder
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder
@@ -801,15 +798,6 @@ resources:
     bucket: bosh-stemcell-triggers
     json_key: ((gcp_json_key))
     versioned_file: (@= data.values.stemcell_details.branch @)/usn-log.json
-    initial_content_text: ""
-    initial_version: '0'
-
-- name: usn-log-success
-  type: gcs-resource
-  source:
-    bucket: bosh-stemcell-triggers
-    json_key: ((gcp_json_key))
-    versioned_file: (@= data.values.stemcell_details.branch @)/success
     initial_content_text: ""
     initial_version: '0'
 
