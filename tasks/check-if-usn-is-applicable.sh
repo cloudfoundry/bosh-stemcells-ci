@@ -16,7 +16,6 @@ then
   echo "true" > usn-log/success
   exit 0
 else
-  echo "true" > usn-log/success
   echo "Packages for USN are not included in stemcell"
   exit 1
 fi
