@@ -60,7 +60,6 @@ function enable_esm {
 
 function process_usns {
   local usn_log_json=$1
-  cp "$usn_log_json" "$USN_FILTERED_JSON"
 
   mapfile -t usn_urls < <(jq -r '.url | select(.|test("USN"))' "$usn_log_json" | sort | uniq)
 
