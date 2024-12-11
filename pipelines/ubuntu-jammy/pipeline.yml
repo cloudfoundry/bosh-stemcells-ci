@@ -830,7 +830,7 @@ resources:
 - name: bosh-stemcells-ci
   type: git
   source:
-    branch: filter-irrelevant-usns
+    branch: master
     uri: https://github.com/cloudfoundry/bosh-stemcells-ci
 
 - name: bats
