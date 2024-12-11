@@ -143,6 +143,9 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-stemcells-ci
+    - get: os-image-stemcell-builder
+    - get: bosh-linux-stemcell-builder
+      resource: bosh-linux-stemcell-builder
     - get: (@= data.values.stemcell_details.os @)-usn-low-medium
       version: every
       trigger: true
