@@ -11,7 +11,7 @@ process_usns "usn-log-in/usn-log.json"
 
 if [ "$ALL_PACKAGE_VERSIONS_AVAILABLE" != true ]
 then
-  echo "Not all vulnerable packages have available fixes yet, defering stemcell build."
+  echo "Not all vulnerable packages have available fixes yet, deferring stemcell build."
   exit 1
 else
   exit 0
