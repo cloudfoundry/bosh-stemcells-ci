@@ -62,6 +62,8 @@ function process_usns {
   local usn_log_json=$1
 
   mapfile -t usn_urls < <(jq -r '.url | select(.|test("USN"))' "$usn_log_json" | sort | uniq)
+  # Check the BASH docs for details, but wait will wait on the subshell above and exit w/ it exit code.
+  wait $! || (echo "jq failed while searching for USNs. Has the feed format (or USN file that we generate) changed?" && exit 1)
 
   for usn_url in "${usn_urls[@]}"
   do
@@ -69,6 +71,8 @@ function process_usns {
     echo -e "\n>>>>> $usn_url <<<<<"
 
     mapfile -t package_version_for_usn < <( curl -s "$usn_url.json" | jq --arg os $OS -r '.release_packages[$os][] | select(.is_source==false) | "\(.name):\(.version)"')
+    # Check the BASH docs for details, but wait will wait on the subshell above and exit w/ it exit code.
+    wait $! || (echo "Either curl or jq failed while processing USN URL '$usn_url' for OS '$OS'" && exit 1)
     process_packages "${package_version_for_usn[@]}" "$usn_url"
   done
 }
