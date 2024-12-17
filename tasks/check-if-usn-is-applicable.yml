@@ -13,7 +13,7 @@ inputs:
   - name: usn
 
 outputs:
-  - name: usn-log
+  - name: updated-usn-log
 
 run:
   path: bosh-stemcells-ci/tasks/check-if-usn-is-applicable.sh
