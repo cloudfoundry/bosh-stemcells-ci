@@ -187,6 +187,8 @@ ensure:
   - file: bosh-cpi-certification-concourse-tasks/shared/tasks/teardown.yml
     task: teardown
   - file: bosh-cpi-src/ci/tasks/ensure-terminated.yml
+    input_mapping:
+      bosh-aws-cpi-release: bosh-cpi-src
     params:
       AWS_ACCESS_KEY_ID: ((aws_publish_us_access_key))
       AWS_SECRET_ACCESS_KEY: ((aws_publish_us_secret_key))
