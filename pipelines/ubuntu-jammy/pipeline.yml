@@ -97,10 +97,13 @@ jobs:
       vars:
         image_os_tag: (@= data.values.stemcell_details.os @)
       on_success:
-        put: usn-log
-        params:
-          file: updated-usn-log/usn-log.json
-          predefined_acl: publicRead
+        in_parallel:
+          steps:
+          - put: usn-log
+            params:
+              file: updated-usn-log/usn-log.json
+              predefined_acl: publicRead
+          - put: high-critical-cves-processed
   - task: verify-check-usn-was-successful
     image: os-image-stemcell-builder
     file: bosh-shared-ci/tasks/release/ensure-task-succeeded.yml
@@ -116,6 +119,9 @@ jobs:
     - get: usn-log
       passed:
       - process-high-critical-cves
+    - get: high-critical-cves-processed
+      passed:
+        - process-high-critical-cves
       trigger: true
   - task: check-usn-packages
     file: bosh-stemcells-ci/tasks/check-usn-packages.yml
@@ -591,6 +597,11 @@ jobs:
 - name: notify-of-usn
   plan:
   - get: (@= data.values.stemcell_details.os @)-usn
+    passed:
+      - process-high-critical-cves
+  - get: high-critical-cves-processed
+    passed:
+      - process-high-critical-cves
     trigger: true
   - task: build-slack-message
     config:
@@ -825,6 +836,9 @@ resources:
     uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
 
 - name: build-time
+  type: time
+
+- name: high-critical-cves-processed
   type: time
 
 - name: bosh-stemcells-ci
