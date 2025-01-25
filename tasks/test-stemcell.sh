@@ -9,6 +9,8 @@ BOSH_ENVIRONMENT="$(bosh int director-state/director-creds.yml --path /internal_
 SYSLOG_RELEASE_PATH="$(realpath syslog-release/*.tgz)"
 OS_CONF_RELEASE_PATH="$(realpath os-conf-release/*.tgz)"
 STEMCELL_PATH="$(realpath stemcell/*.tgz)"
+# Quote value since the bosh CLI YAML parses it which results in `0.40` becoming `0.4`
+# shellcheck disable=SC2089
 BOSH_stemcell_version="\"$(realpath stemcell/.resource/version | xargs -n 1 cat)\""
 
 export BOSH_BINARY_PATH
@@ -30,6 +32,7 @@ if bosh int director-state/director-creds.yml --path /jumpbox_ssh > /dev/null 2>
   export BOSH_GW_HOST="${BOSH_ENVIRONMENT}"
 fi
 
-pushd bosh-linux-stemcell-builder/src/github.com/cloudfoundry/stemcell-acceptance-tests
+pushd bosh-linux-stemcell-builder/acceptance-tests
+  # shellcheck disable=SC2154
   go run github.com/onsi/ginkgo/v2/ginkgo --skip-package vendor -r "${package}"
 popd
