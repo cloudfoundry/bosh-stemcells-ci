@@ -94,6 +94,6 @@ fi
 
 # Depends on apt package list being up-to-date, make sure apt-get update is run before this is executed
 sudo apt-get update
-INSTALLED_PACKAGES=$(cat bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu-${OS}*.txt | sort | uniq | sed -e 's/:amd64//g')
+INSTALLED_PACKAGES=$(cat bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu.txt | sort | uniq | sed -e 's/:amd64//g')
 ALL_PACKAGE_VERSIONS_AVAILABLE=true
 PACKAGE_INCLUDED_IN_STEMCELL=false
