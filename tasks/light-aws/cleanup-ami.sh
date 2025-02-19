@@ -28,6 +28,15 @@ ami_destinations="$(aws ec2 describe-regions --output text --query "Regions[?Reg
 for region in $ami_destinations; do
     ami_list="[]"
 
+    if [ "${remove_public_images}" == "true" ]; then
+      results=$(aws ec2 describe-images \
+              --owners self \
+              --output json \
+              --region ${region} \
+              --filters "Name=name,Values=BOSH*" "Name=is-public,Values=true" \
+              --query 'sort_by(Images,&CreationDate)[?CreationDate<`'"$__PASTDUE"'`].{ImageId: ImageId, date:CreationDate, SnapshotId: BlockDeviceMappings[0].Ebs.SnapshotId,Version: Tags[?Key==`name`]|[0].Value}')
+    fi
+
     if [ -n "${os_name}" ]; then
       # 'ami_ids' array should be orderered by creation date
       results=$(aws ec2 describe-images \

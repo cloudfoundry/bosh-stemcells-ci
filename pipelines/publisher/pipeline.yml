@@ -19,6 +19,16 @@ params:
   ami_keep_latest: 5
   os_name: (@= stemcell.os @)
 #@ end
+#@ def cleanup_old_published_light_stemcells(name, prefix, region):
+file: bosh-stemcells-ci/tasks/light-aws/cleanup-ami.yml
+task: cleanup-amis-in-(@= name @)
+params:
+  ami_access_key: ((aws_publish_(@= prefix @)_access_key))
+  ami_secret_key: ((aws_publish_(@= prefix @)_secret_key))
+  ami_region: ((aws_publish_(@= region @)_region))
+  ami_older_than_days: 1095
+  remove_public_images: true
+#@ end
 
 #@ def build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations, efi):
 file: bosh-stemcells-ci/tasks/light-aws/build.yml
@@ -246,6 +256,14 @@ groups:
   #@ end
 
 jobs:
+- name: cleanup-published-aws-light-stemcells-older-than-three-years
+  serial: true
+  plan:
+  - get: every-week-on-monday
+    trigger: true
+  - get: bosh-stemcells-ci
+  - #@ cleanup_old_published_light_stemcells("aws", "us", "us")
+  - #@ cleanup_old_published_light_stemcells("us-goverment", "us-gov", "us-gov")
 #@ for stemcell in data.values.oss:
 - name: cleanup-unpublished-(@= stemcell.os @)-aws-light-stemcells
   serial: true
