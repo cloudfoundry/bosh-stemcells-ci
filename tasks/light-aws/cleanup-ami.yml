@@ -20,3 +20,4 @@ params:
   ami_keep_latest:            "5"  # Number of previous AMI to keep excluding those currently being running
   os_name:                    ""   # e.g ubuntu-jammy
   snapshot_id:                ""   # Snapshot id to delete
+  remove_public_images:       "false"
