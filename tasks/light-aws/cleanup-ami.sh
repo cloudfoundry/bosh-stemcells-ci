@@ -35,6 +35,7 @@ for region in $ami_destinations; do
               --region ${region} \
               --filters "Name=name,Values=BOSH*" "Name=is-public,Values=true" \
               --query 'sort_by(Images,&CreationDate)[?CreationDate<`'"$__PASTDUE"'`].{ImageId: ImageId, date:CreationDate, SnapshotId: BlockDeviceMappings[0].Ebs.SnapshotId,Version: Tags[?Key==`name`]|[0].Value}')
+      ami_list=$(jq -s '.[0] + .[1]' <(echo "${ami_list}") <(echo "${results}"))
     fi
 
     if [ -n "${os_name}" ]; then

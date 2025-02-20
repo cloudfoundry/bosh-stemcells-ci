@@ -251,6 +251,7 @@ groups:
 - name: cleanup-aws-light-stemcells
   jobs:
   - cleanup-light-aws-builder-test-amis
+  - cleanup-published-aws-light-stemcells-older-than-three-years
   #@ for stemcell in data.values.oss:
   - cleanup-unpublished-(@= stemcell.os @)-aws-light-stemcells
   #@ end
