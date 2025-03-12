@@ -70,7 +70,7 @@ function process_usns {
     # list of packages
     echo -e "\n>>>>> $usn_url <<<<<"
 
-    mapfile -t package_version_for_usn < <( curl -s "$usn_url.json" | jq --arg os $OS -r '.release_packages[$os][] | select(.is_source==false) | "\(.name):\(.version)"')
+    mapfile -t package_version_for_usn < <( curl --compressed -s "$usn_url.json" | jq --arg os $OS -r '.release_packages[$os][] | select(.is_source==false) | "\(.name):\(.version)"')
     # Check the BASH docs for details, but wait will wait on the subshell above and exit w/ it exit code.
     wait $! || (echo "Either curl or jq failed while processing USN URL '$usn_url' for OS '$OS'" && exit 1)
     process_packages "${package_version_for_usn[@]}" "$usn_url"
