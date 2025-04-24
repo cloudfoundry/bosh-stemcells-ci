@@ -313,7 +313,7 @@ jobs:
       - task: teardown
         file: bosh-stemcells-ci/tasks/teardown.yml
         attempts: 3
-        timeout: 5m
+        timeout: 15m
   serial: true
 
 - name: test-stemcells-ipv6
@@ -378,7 +378,7 @@ jobs:
       - task: teardown
         file: bosh-stemcells-ci/tasks/teardown.yml
         attempts: 3
-        timeout: 5m
+        timeout: 15m
   serial: true
 
 #@ def build_stemcell(IAAS, HYPERVISOR, FIPS=""):
@@ -520,6 +520,7 @@ jobs:
       - task: teardown
         file: bosh-stemcells-ci/tasks/teardown.yml
         attempts: 3
+        timeout: 15m
 
 - name: aggregate-candidate-stemcells
   serial: true
