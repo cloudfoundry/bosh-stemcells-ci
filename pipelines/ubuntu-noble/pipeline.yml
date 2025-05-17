@@ -699,7 +699,8 @@ resources:
     json_key: ((gcp_json_key))
     bucket: bosh-core-stemcells-candidate
     driver: gcs
-    key: bosh-stemcell/(@= data.values.stemcell_details.branch @)/0.x/0.x-version
+    initial_version: "1.0.0"
+    key: bosh-stemcell/(@= data.values.stemcell_details.branch @)/1.x/1.x-version
 
 - name: os-image-version
   type: semver
@@ -707,8 +708,8 @@ resources:
     json_key: ((gcp_json_key))
     bucket: bosh-core-stemcells-candidate
     driver: gcs
-    initial_version: "0.0.0"
-    key: os-image/(@= data.values.stemcell_details.branch @)/0.x/0.x-version
+    initial_version: "1.0.0"
+    key: os-image/(@= data.values.stemcell_details.branch @)/1.x/1.x-version
 
 - name: bosh-linux-stemcell-builder-push
   type: git
