@@ -3,6 +3,7 @@
 stemcell_details:
   branch: "ubuntu-noble"
   include_iaas: [
+    {iaas: alicloud, hypervisor: kvm},
     {iaas: aws, hypervisor: xen-hvm},
     {iaas: azure, hypervisor: hyperv},
     {iaas: google, hypervisor: kvm},
