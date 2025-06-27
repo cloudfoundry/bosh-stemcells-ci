@@ -293,7 +293,7 @@ jobs:
         file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
-          GCP_ZONE: europe-west2-a
+          GCP_ZONE: europe-north2-a
           GCP_NETWORK_NAME: bosh-concourse
           GCP_SUBNET_NAME: bosh-integration-(@= data.values.stemcell_details.subnet_int @)
           GCP_JSON_KEY: ((gcp_json_key))
@@ -355,7 +355,7 @@ jobs:
         file: bosh-stemcells-ci/tasks/gcp/deploy-director-ipv6.yml
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
-          GCP_ZONE: europe-west2-a
+          GCP_ZONE: europe-north2-a
           GCP_NETWORK_NAME: ipv6-test
           GCP_SUBNET_NAME: bosh-integration-ipv6-(@= data.values.stemcell_details.subnet_int @)
           GCP_JSON_KEY: ((gcp_json_key))
@@ -486,7 +486,7 @@ jobs:
         file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
-          GCP_ZONE: europe-west2-a
+          GCP_ZONE: europe-north2-a
           GCP_PREEMPTIBLE: true
           GCP_NETWORK_NAME: bosh-concourse
           GCP_SUBNET_NAME: bosh-integration-(@= data.values.stemcell_details.subnet_int @)
@@ -501,8 +501,8 @@ jobs:
         params:
           VARS_STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= data.values.stemcell_details.os @)-go_agent
           VARS_NETWORK_DEFAULT: bosh-concourse
-          VARS_AVAILABILITY_ZONE: europe-west2-a
-          VARS_ZONE: europe-west2-a
+          VARS_AVAILABILITY_ZONE: europe-north2-a
+          VARS_ZONE: europe-north2-a
           VARS_PREEMPTIBLE: true
           VARS_SUBNETWORK_DEFAULT: bosh-integration-(@= data.values.stemcell_details.subnet_int @)
           VARS_CIDR_DEFAULT: "10.100.(@= data.values.stemcell_details.subnet_int @).0/24"
