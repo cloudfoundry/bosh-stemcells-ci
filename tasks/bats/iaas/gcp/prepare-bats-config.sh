@@ -34,6 +34,7 @@ properties:
   preemptible: ((PREEMPTIBLE))
   pool_size: 1
   instances: 1
+  machine_type: n4-standard-2
   second_static_ip: ((STATIC_IP_DEFAULT-2))
   ssh_gateway:
     host: "${director_ip}"
