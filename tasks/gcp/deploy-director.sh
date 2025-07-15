@@ -40,7 +40,6 @@ echo ${GCP_JSON_KEY} > gcp_creds.json
 bosh interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/gcp/cpi.yml \
   -o bosh-deployment/jumpbox-user.yml \
-  -o default-vm-type-opsfile.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
   --var-file gcp_credentials_json=gcp_creds.json \
@@ -67,6 +66,7 @@ export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET=`bosh int director-creds.yml --path /admin_password`
 
 bosh -n update-cloud-config bosh-deployment/gcp/cloud-config.yml \
+          --ops-file default-vm-type-opsfile.yml \
           --ops-file bosh-stemcells-ci/ops-files/reserve-ips.yml \
           --ops-file bosh-stemcells-ci/ops-files/disable-ephemeral-ip.yml \
           --vars-file network-variables.yml \
