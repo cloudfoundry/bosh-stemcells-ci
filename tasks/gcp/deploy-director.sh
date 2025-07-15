@@ -11,6 +11,19 @@ project_id: ${GCP_PROJECT_ID}
 zone: ${GCP_ZONE}
 preemptible: ${GCP_PREEMPTIBLE}
 tags: [${TAG}]
+default_vm_type: ${DEFAULT_VM_TYPE}
+EOF
+
+cat > default-vm-type-opsfile.yml <<EOF
+---
+- name: vm_types
+  path: /vm_types/name=default/cloud_properties/machine_type
+  type: replace
+  value: (( default_vm_type ))
+- name: vm_types
+  path: /vm_types/name=large/cloud_properties/machine_type
+  type: replace
+  value: (( default_vm_type ))
 EOF
 
 cat > network-variables.yml <<EOF
@@ -27,6 +40,7 @@ echo ${GCP_JSON_KEY} > gcp_creds.json
 bosh interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/gcp/cpi.yml \
   -o bosh-deployment/jumpbox-user.yml \
+  -o default-vm-type-opsfile.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
   --var-file gcp_credentials_json=gcp_creds.json \
