@@ -302,6 +302,7 @@ jobs:
           INTERNAL_GW: 10.100.(@= data.values.stemcell_details.subnet_int @).1
           RESERVED_RANGE: '10.100.(@= data.values.stemcell_details.subnet_int @).2 - 10.100.(@= data.values.stemcell_details.subnet_int @).9, 10.100.(@= data.values.stemcell_details.subnet_int @).62 - 10.100.(@= data.values.stemcell_details.subnet_int @).254'
           TAG: test-stemcells-ipv4
+          DEFAULT_VM_TYPE: e2-standard-2
       - task: test-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
