@@ -431,6 +431,7 @@ jobs:
           VARS_STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= data.values.stemcell_details.os @)
           VARS_NETWORK_DEFAULT: bosh-concourse
           VARS_AVAILABILITY_ZONE: europe-north2-a
+          VARS_MACHINE_TYPE: e2-standard-2
           VARS_ZONE: europe-north2-a
           VARS_PREEMPTIBLE: true
           VARS_SUBNETWORK_DEFAULT: bosh-integration-(@= data.values.stemcell_details.subnet_int @)
