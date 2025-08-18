@@ -637,13 +637,11 @@ resources:
   type: terraform_type
 
 - name: bosh-aws-cpi-dev-artifacts
+  type: gcs-resource
   source:
-    access_key_id: ((aws_cpi_access_key))
-    secret_access_key: ((aws_cpi_secret_key))
+    versioned_file: bosh-aws-cpi-dev-release.tgz
     bucket: bosh-aws-cpi-pipeline
-    regexp: bosh-aws-cpi-(\d+\.\d+\.\d+)\.tgz
-    region_name: us-east-1
-  type: s3
+    json_key: ((gcp_json_key))
 
 - name: bosh-google-cpi-release
   source:
