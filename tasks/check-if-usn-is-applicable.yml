@@ -11,6 +11,7 @@ inputs:
   - name: bosh-stemcells-ci
   - name: usn-log
   - name: usn
+  - name: usn-gh-json
 
 outputs:
   - name: updated-usn-log
