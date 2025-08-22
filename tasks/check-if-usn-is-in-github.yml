@@ -1,0 +1,21 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: bosh/os-image-stemcell-builder
+    tag: "((image_os_tag))"
+
+inputs:
+  - name: bosh-stemcells-ci
+  - name: usn
+  - name: usn-gh-json
+  - name: unfound-usns
+
+outputs:
+  - name: found-usns
+  - name: updated-unfound-usns
+
+run:
+  path: bosh-stemcells-ci/tasks/check-if-usn-is-in-github.sh
+
