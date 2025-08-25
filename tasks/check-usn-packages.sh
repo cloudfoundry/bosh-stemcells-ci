@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${0}" )" && pwd )"
 
 source "${SCRIPT_DIR}/usn-processing/usn-shared-functions.sh"
 
-process_usns "usn-log-in/usn-log.json"
+process_usns "usn-log-in/usn-log.json" "usn-gh-json/usn"
 
 
 if [ "$ALL_PACKAGE_VERSIONS_AVAILABLE" != true ]

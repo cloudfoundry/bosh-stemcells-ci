@@ -7,18 +7,15 @@ image_resource:
     tag: "((image_os_tag))"
 
 inputs:
-  - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
-  - name: usn-log
   - name: usn
   - name: usn-gh-json
+  - name: unfound-usns
 
 outputs:
-  - name: updated-usn-log
+  - name: found-usns
+  - name: updated-unfound-usns
 
 run:
-  path: bosh-stemcells-ci/tasks/check-if-usn-is-applicable.sh
+  path: bosh-stemcells-ci/tasks/check-if-usn-is-in-github.sh
 
-params:
-  OS:
-  ESM_TOKEN:

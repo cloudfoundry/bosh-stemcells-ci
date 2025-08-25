@@ -60,6 +60,7 @@ function enable_esm {
 
 function process_usns {
   local usn_log_json=$1
+  local usn_gh_path=$2
 
   mapfile -t usn_urls < <(jq -r '.url | select(.|test("USN"))' "$usn_log_json" | sort | uniq)
   # Check the BASH docs for details, but wait will wait on the subshell above and exit w/ it exit code.
@@ -69,11 +70,12 @@ function process_usns {
   do
     # list of packages
     echo -e "\n>>>>> $usn_url <<<<<"
+    usn_id=$( echo $usn_url | cut -d '/' -f6 | cut -d '-' -f2,3)
 
-    mapfile -t package_version_for_usn < <( curl --compressed -s "$usn_url.json" | jq --arg os $OS -r '.release_packages[$os][] | select(.is_source==false) | "\(.name):\(.version)"')
+    mapfile -t package_version_for_usn < <( cat "${usn_gh_path}/${usn_id}.json" | jq --arg os $OS -r '.releases[$os].allbinaries | keys[] as $k | "\($k):\(.[$k].version)"')
     # Check the BASH docs for details, but wait will wait on the subshell above and exit w/ it exit code.
     wait $! || (echo "Either curl or jq failed while processing USN URL '$usn_url' for OS '$OS'" && exit 1)
-    process_packages "${package_version_for_usn[@]}" "$usn_url"
+    process_packages "${package_version_for_usn[@]}"
   done
 }
 

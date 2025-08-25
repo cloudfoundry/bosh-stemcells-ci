@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${0}" )" && pwd )"
 
 source "${SCRIPT_DIR}/usn-processing/usn-shared-functions.sh"
 usn_json="${PWD}/usn/usn.json"
-process_usns "${usn_json}"
+process_usns "${usn_json}" "usn-gh-json/usn"
 
 
 if [ "$PACKAGE_INCLUDED_IN_STEMCELL" == true ]
