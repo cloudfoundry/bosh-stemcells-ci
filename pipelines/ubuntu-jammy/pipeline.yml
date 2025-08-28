@@ -85,13 +85,34 @@ jobs:
     - get: (@= data.values.stemcell_details.os @)-usn
       version: every
       trigger: true
+    - get: (@= data.values.stemcell_details.os @)-usn-gh-json
     - get: usn-log
+    - get: high-critical-unfound-usns
+  - task: check-if-usn-is-in-github
+    file: bosh-stemcells-ci/tasks/check-if-usn-is-in-github.yml
+    image: os-image-stemcell-builder
+    input_mapping:
+      usn: (@= data.values.stemcell_details.os @)-usn
+      usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
+      unfound-usns: high-critical-unfound-usns
+    vars:
+      image_os_tag: (@= data.values.stemcell_details.os @)
+  - put: high-critical-unfound-usns
+    params:
+      file: updated-unfound-usns/usns.json
+      predefined_acl: publicRead
+  - task: verify-check-usn-was-successful
+    image: os-image-stemcell-builder
+    file: bosh-shared-ci/tasks/release/ensure-task-succeeded.yml
+    input_mapping:
+      task-output-folder: found-usns
   - try:
-      task: check-if-usn-is-applicable
-      file: bosh-stemcells-ci/tasks/check-if-usn-is-applicable.yml
+      task: check-if-usns-are-applicable
+      file: bosh-stemcells-ci/tasks/check-if-usns-are-applicable.yml
       image: os-image-stemcell-builder
       input_mapping:
-        usn: (@= data.values.stemcell_details.os @)-usn
+        usns: found-usns
+        usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
       params:
         OS: (@= data.values.stemcell_details.os @)
       vars:
@@ -123,10 +144,14 @@ jobs:
       passed:
         - process-high-critical-cves
       trigger: true
+    - get: (@= data.values.stemcell_details.os @)-usn-gh-json
+      passed:
+        - process-high-critical-cves
   - task: check-usn-packages
     file: bosh-stemcells-ci/tasks/check-usn-packages.yml
     input_mapping:
       usn-log-in: usn-log
+      usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
     params:
       OS: (@= data.values.stemcell_details.os @)
     vars:
@@ -153,12 +178,33 @@ jobs:
       version: every
       trigger: true
     - get: usn-log
+    - get: (@= data.values.stemcell_details.os @)-usn-gh-json
+    - get: low-medium-unfound-usns
+  - task: check-if-usn-is-in-github
+    file: bosh-stemcells-ci/tasks/check-if-usn-is-in-github.yml
+    image: os-image-stemcell-builder
+    input_mapping:
+      usn: (@= data.values.stemcell_details.os @)-usn
+      usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
+      unfound-usns: low-medium-unfound-usns
+    vars:
+      image_os_tag: (@= data.values.stemcell_details.os @)
+  - put: low-medium-unfound-usns
+    params:
+      file: updated-unfound-usns/usns.json
+      predefined_acl: publicRead
+  - task: verify-check-usn-was-successful
+    image: os-image-stemcell-builder
+    file: bosh-shared-ci/tasks/release/ensure-task-succeeded.yml
+    input_mapping:
+      task-output-folder: found-usns
   - try:
-      task: check-if-usn-is-applicable
-      file: bosh-stemcells-ci/tasks/check-if-usn-is-applicable.yml
+      task: check-if-usns-are-applicable
+      file: bosh-stemcells-ci/tasks/check-if-usns-are-applicable.yml
       image: os-image-stemcell-builder
       input_mapping:
-        usn: (@= data.values.stemcell_details.os @)-usn-low-medium
+        usns: found-usns
+        usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
       params:
         OS: (@= data.values.stemcell_details.os @)
       vars:
@@ -815,6 +861,24 @@ resources:
     initial_content_text: ""
     initial_version: '0'
 
+- name: high-critical-unfound-usns
+  type: gcs-resource
+  source:
+    bucket: bosh-stemcell-triggers
+    json_key: ((gcp_json_key))
+    versioned_file: (@= data.values.stemcell_details.branch @)/high-critical-unfound/usns.json
+    initial_content_text: ""
+    initial_version: '0'
+
+- name: low-medium-unfound-usns
+  type: gcs-resource
+  source:
+    bucket: bosh-stemcell-triggers
+    json_key: ((gcp_json_key))
+    versioned_file: (@= data.values.stemcell_details.branch @)/low-medium-unfound/usns.json
+    initial_content_text: ""
+    initial_version: '0'
+
 - name: stemcell-trigger
   type: gcs-resource
   source:
@@ -898,6 +962,13 @@ resources:
     priorities:
     - high
     - critical
+- name: (@= data.values.stemcell_details.os @)-usn-gh-json
+  type: git
+  source:
+    branch: main
+    uri: https://github.com/canonical/ubuntu-security-notices.git
+    paths:
+    - usn
 - name: slack-alert
   type: slack-notification
   source:

@@ -10,6 +10,7 @@ inputs:
   - name: bosh-linux-stemcell-builder
   - name: bosh-stemcells-ci
   - name: usn-log-in
+  - name: usn-gh-json
 
 run:
   path: bosh-stemcells-ci/tasks/check-usn-packages.sh
