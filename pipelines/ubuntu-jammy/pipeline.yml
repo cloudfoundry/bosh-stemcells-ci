@@ -179,7 +179,7 @@ jobs:
     file: bosh-stemcells-ci/tasks/check-if-usn-is-in-github.yml
     image: os-image-stemcell-builder
     input_mapping:
-      usn: (@= data.values.stemcell_details.os @)-usn
+      usn: (@= data.values.stemcell_details.os @)-usn-low-medium
       usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
       unfound-usns: low-medium-unfound-usns
     vars:
