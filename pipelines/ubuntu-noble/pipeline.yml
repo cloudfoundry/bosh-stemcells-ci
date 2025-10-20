@@ -879,6 +879,9 @@ resources:
     priorities:
     - high
     - critical
+    severities:
+    - high
+    - critical
 - name: (@= data.values.stemcell_details.os @)-usn-gh-json
   type: git
   source:
