@@ -42,10 +42,16 @@ jobs:
   public: true
   serial: true
   plan:
+    - get: bosh-stemcells-ci
     - get: bosh-linux-stemcell-builder-in
       trigger: true
       resource: bosh-linux-stemcell-builder-ci
     - get: bosh-os-image-builder-vmware-ovftool
+    - get: syft-github-release
+      trigger: true
+      params:
+        globs:
+          - "no-files-needed"
     - task: copy-ovf
       config:
         platform: linux
@@ -66,9 +72,13 @@ jobs:
         - name: bosh-linux-stemcell-builder-in
         outputs:
         - name: bosh-linux-stemcell-builder
+    - task: build-docker-args
+      file: bosh-stemcells-ci/tasks/build-docker-args.yml
+      image: os-image-stemcell-builder
     - put: os-image-stemcell-builder
       params:
         build: bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder
+        build_args_file: docker-build-args/docker-build-args.json
       get_params:
         skip_download: true
 
@@ -893,6 +903,12 @@ resources:
   type: slack-notification
   source:
     url: ((slack_hook_url))
+
+- name: syft-github-release
+  type: github-release
+  source:
+    owner: anchore
+    repository: syft
 
 - name: os-image-stemcell-builder
   type: docker-image
