@@ -43,6 +43,7 @@ jobs:
   serial: true
   plan:
     - get: bosh-stemcells-ci
+    - get: os-image-stemcell-builder
     - get: bosh-linux-stemcell-builder-in
       trigger: true
       resource: bosh-linux-stemcell-builder-ci
