@@ -95,6 +95,7 @@ jobs:
         - get: (@= data.values.stemcell_details.os @)-usn
           version: every
           trigger: true
+          attempts: 3
         - get: (@= data.values.stemcell_details.os @)-usn-gh-json
         - get: usn-log
         - get: high-critical-unfound-usns
@@ -178,6 +179,7 @@ jobs:
         - get: (@= data.values.stemcell_details.os @)-usn-low-medium
           version: every
           trigger: true
+          attempts: 3
         - get: usn-log
         - get: (@= data.values.stemcell_details.os @)-usn-gh-json
         - get: low-medium-unfound-usns
@@ -580,6 +582,7 @@ jobs:
   plan:
   - get: (@= data.values.stemcell_details.os @)-usn
     trigger: true
+    attempts: 3
   - task: build-slack-message
     config:
       image_resource:
