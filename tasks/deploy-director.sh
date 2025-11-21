@@ -46,6 +46,7 @@ bosh interpolate bosh-deployment/bosh.yml \
   -o bosh-deployment/jumpbox-user.yml \
   -o bosh-deployment/misc/ntp.yml \
   -o bosh-deployment/misc/dns.yml \
+  -o bosh-deployment/misc/source-releases/bosh.yml \
   --vars-store director-creds.yml \
   --vars-file director-vars.yml \
   --vars-file network-variables.yml > director.yml
