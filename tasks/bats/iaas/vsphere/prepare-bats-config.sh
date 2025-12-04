@@ -22,7 +22,7 @@ export BOSH_ALL_PROXY="ssh+socks5://${gateway_username}@${director_ip}:22?privat
 
 export BAT_INFRASTRUCTURE=vsphere
 
-export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos"
+export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage --tag ~skip_centos --tag ~ipv6"
 EOF
 
 export VARS_DATACENTERS="$(bosh int director-state/director.yml --path="/instance_groups/name=bosh/properties/vcenter/datacenters" 2>/dev/null)"
