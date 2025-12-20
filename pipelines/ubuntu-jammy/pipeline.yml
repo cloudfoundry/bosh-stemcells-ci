@@ -96,6 +96,7 @@ jobs:
     - get: (@= data.values.stemcell_details.os @)-usn
       version: every
       trigger: true
+      attempts: 3
     - get: (@= data.values.stemcell_details.os @)-usn-gh-json
     - get: usn-log
     - get: high-critical-unfound-usns
@@ -183,6 +184,7 @@ jobs:
     - get: (@= data.values.stemcell_details.os @)-usn-low-medium
       version: every
       trigger: true
+      attempts: 3
     - get: usn-log
     - get: (@= data.values.stemcell_details.os @)-usn-gh-json
     - get: low-medium-unfound-usns
@@ -647,6 +649,7 @@ jobs:
 - name: notify-of-usn
   plan:
   - get: (@= data.values.stemcell_details.os @)-usn
+    attempts: 3
     passed:
       - process-high-critical-cves
   - get: high-critical-cves-processed
