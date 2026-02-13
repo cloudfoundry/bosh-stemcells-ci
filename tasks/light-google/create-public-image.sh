@@ -32,16 +32,25 @@ image_name=$(echo "$raw_stemcell_filename" | sed -e 's/[^0-9a-zA-Z]/-/g' -e 's/-
 # authenticate with service account
 echo ${GCP_SERVICE_ACCOUNT_KEY} | gcloud auth activate-service-account --key-file - --project ${PROJECT_NAME}
 
-efi_flag=""
-if [ "${EFI}" == "true" ]; then
-  efi_flag="--guest-os-features=UEFI_COMPATIBLE"
+guest_os_features=()
+if [[ "${EFI:-false}" == "true" ]]; then
+  guest_os_features+=("UEFI_COMPATIBLE")
+fi
+if [[ "${GVNIC:-true}" == "true" ]]; then
+  guest_os_features+=("GVNIC")
+fi
+
+guest_os_features_flag=""
+if (( ${#guest_os_features[@]} > 0 )); then
+  printf -v guest_os_features_joined '%s,' "${guest_os_features[@]}"
+  guest_os_features_flag="--guest-os-features=${guest_os_features_joined%,}"
 fi
 
 # create image
-gcloud compute images create ${image_name} \
- --project=${PROJECT_NAME} \
- --source-uri=${raw_stemcell_uri} \
- ${efi_flag} \
+gcloud compute images create "${image_name}" \
+ --project="${PROJECT_NAME}" \
+ --source-uri="${raw_stemcell_uri}" \
+ ${guest_os_features_flag} \
  --storage-location=eu
 
 
