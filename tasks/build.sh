@@ -28,6 +28,13 @@ git clone stemcells-index stemcells-index-output
 function permit_device_control() {
   local devices_mount_info=$(cat /proc/self/cgroup | grep devices)
 
+  if [ -z "$devices_mount_info" ]; then
+    # cgroups v2: the devices controller is managed via eBPF and has no
+    # filesystem interface. Privileged containers already have full device
+    # access, so there is nothing to do here.
+    return 0
+  fi
+
   local devices_subsytems=$(echo $devices_mount_info | cut -d: -f2)
   local devices_subdir=$(echo $devices_mount_info | cut -d: -f3)
 
