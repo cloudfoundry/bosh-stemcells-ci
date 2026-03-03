@@ -9,6 +9,7 @@ source "${my_dir}/utils.sh"
 
 ami_kms_key_id=${ami_kms_key_id:-}
 ami_server_side_encryption=${ami_server_side_encryption:-}
+ami_excluded_destinations=${ami_excluded_destinations:-}
 
 : ${bosh_io_bucket_name:?}
 : ${ami_description:?}
@@ -28,6 +29,11 @@ export AWS_DEFAULT_REGION=$ami_region
 saved_ami_destinations="$( aws ec2 describe-regions \
   --query "Regions[?RegionName != '${ami_region}'][].RegionName" \
   | jq 'sort' -c )"
+
+if [[ -n "${ami_excluded_destinations}" ]]; then
+  saved_ami_destinations="$( echo "$saved_ami_destinations" \
+    | jq --argjson exclude "$ami_excluded_destinations" '. - $exclude' -c )"
+fi
 
 : ${ami_destinations:=$saved_ami_destinations}
 
