@@ -1,9 +1,9 @@
 #@ load("@ytt:data", "data")
 
-#@ def build_light_aws_stemcell_new(name, stemcell_os, stemcell_version, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations, efi):
+#@ def build_light_aws_stemcell_new(name, stemcell_os, stemcell_version, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations, efi, ami_excluded_destinations):
 do:
 - #@ get_aws_light_stemcells(input_stemcell, stemcell_os, stemcell_version, builder_src, tag)
-- #@ build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations, efi)
+- #@ build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations, efi, ami_excluded_destinations)
 #@ end
 
 #@yaml/text-templated-strings
@@ -30,7 +30,7 @@ params:
   remove_public_images: true
 #@ end
 
-#@ def build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations, efi):
+#@ def build_light_aws_stemcell(name, builder_src, input_stemcell, output_stemcell, prefix, region, bucket_prefix, tag, ami_destinations, efi, ami_excluded_destinations):
 file: bosh-stemcells-ci/tasks/light-aws/build.yml
 task: #@ name
 image: light-stemcell-builder-registry-image
@@ -47,6 +47,9 @@ params:
   ami_description: Light Stemcell Builder Prod AMI
   #@ if ami_destinations != "":
   ami_destinations: (@= ami_destinations @)
+  #@ end
+  #@ if ami_excluded_destinations != "":
+  ami_excluded_destinations: (@= ami_excluded_destinations @)
   #@ end
   ami_encrypted: false
   ami_kms_key_id: ""
@@ -358,8 +361,8 @@ jobs:
   - get: light-stemcell-builder-registry-image
   - in_parallel:
     - do:
-    - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "", stemcell.efi)
-    - #@ build_light_aws_stemcell_new("build-us-stemcell", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "", stemcell.efi)
+    - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "", stemcell.efi, "")
+    - #@ build_light_aws_stemcell_new("build-us-stemcell", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "", stemcell.efi, "")
   - file: bosh-stemcells-ci/tasks/light-aws/us-gov-merge-builds.yml
     input_mapping:
       builder-src: us-builder-src

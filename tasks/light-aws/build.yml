@@ -24,6 +24,7 @@ params:
   ami_secret_key:             ""
   ami_bucket_name:            ""
   ami_destinations:           ""
+  ami_excluded_destinations:  ""
   ami_server_side_encryption: ""
   ami_kms_key_id:             ""
   ami_encrypted:              false
