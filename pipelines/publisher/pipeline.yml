@@ -362,7 +362,7 @@ jobs:
   - in_parallel:
     - do:
     - #@ build_light_aws_stemcell_new("build-us-gov-stemcell", stemcell.os, str(stemcell.version), "us-gov-builder-src", "us-gov-input-stemcell", "us-gov-light-stemcell", "us-gov", "us-gov", "us-gov", "", "", stemcell.efi, "")
-    - #@ build_light_aws_stemcell_new("build-us-stemcell", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "", stemcell.efi, "")
+    - #@ build_light_aws_stemcell_new("build-us-stemcell", stemcell.os, str(stemcell.version), "us-builder-src", "us-input-stemcell", "us-light-stemcell", "us", "us", "us", "", "", stemcell.efi, '["me-central-1"]')
   - file: bosh-stemcells-ci/tasks/light-aws/us-gov-merge-builds.yml
     input_mapping:
       builder-src: us-builder-src
