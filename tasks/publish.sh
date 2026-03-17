@@ -2,30 +2,33 @@
 
 set -eu -o pipefail
 
-export VERSION=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
+export VERSION=$( cat "${REPO_PARENT}/version/number" | sed 's/\.0$//;s/\.0$//' )
 
 #
 # merge all stemcell files into a single metalink for publishing
 #
 
-git clone stemcells-index stemcells-index-output
+git clone "${REPO_PARENT}/stemcells-index" "${REPO_PARENT}/stemcells-index-output"
 
-meta4_path=$PWD/stemcells-index-output/$TO_INDEX/$OS_NAME-$OS_VERSION/$VERSION/stemcells.meta4
+meta4_path="${REPO_PARENT}/stemcells-index-output/$TO_INDEX/$OS_NAME-$OS_VERSION/$VERSION/stemcells.meta4"
 
 mkdir -p "$( dirname "$meta4_path" )"
 meta4 create --metalink="$meta4_path"
 
-find stemcells-index-output/$FROM_INDEX/$OS_NAME-$OS_VERSION/$VERSION -name "*.meta4" \
+find "${REPO_PARENT}/stemcells-index-output/$FROM_INDEX/$OS_NAME-$OS_VERSION/$VERSION" -name "*.meta4" \
   | xargs -n1 -- meta4 import-metalink --metalink="$meta4_path"
 
-cd stemcells-index-output
+cd "${REPO_PARENT}/stemcells-index-output"
 
 git add -A
 git config --global user.email "ci@localhost"
 git config --global user.name "CI Bot"
 git commit -m "$COMMIT_PREFIX: $OS_NAME-$OS_VERSION/$VERSION"
 
-cd ..
+cd "${REPO_PARENT}"
 
 #
 # copy s3 objects into the public bucket
@@ -72,6 +75,6 @@ else
   done
 fi
 
-echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > version-tag/tag
+echo "${OS_NAME}-${OS_VERSION}/v${VERSION}" > "${REPO_PARENT}/version-tag/tag"
 
 echo "Done"

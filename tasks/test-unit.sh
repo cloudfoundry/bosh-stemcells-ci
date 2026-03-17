@@ -1,9 +1,12 @@
 #!/bin/bash -ex
 
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
 # we need sudo for our chroot operations in the shellout_types tests
 apt install sudo
 
-pushd bosh-linux-stemcell-builder
+pushd "${REPO_PARENT}/bosh-linux-stemcell-builder"
   bundle install --local
 
   pushd bosh-stemcell

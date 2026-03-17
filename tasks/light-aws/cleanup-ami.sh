@@ -2,6 +2,9 @@
 
 set -e
 
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
 export AWS_ACCESS_KEY_ID=$ami_access_key
 export AWS_SECRET_ACCESS_KEY=$ami_secret_key
 export AWS_DEFAULT_REGION=$ami_region

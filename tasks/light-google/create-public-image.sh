@@ -2,18 +2,21 @@
 
 set -eu
 
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
 : ${PROJECT_NAME:?}
 : ${GCP_SERVICE_ACCOUNT_KEY:?}
 
 
 
 # inputs
-bosh_stemcells_ci="$PWD/bosh-stemcells-ci/tasks/light-google"
-stemcell_dir="$PWD/stemcell"
-uploaded_gcs_dir="$PWD/base-oss-google-ubuntu-stemcell"
+bosh_stemcells_ci="${REPO_ROOT}/tasks/light-google"
+stemcell_dir="${REPO_PARENT}/stemcell"
+uploaded_gcs_dir="${REPO_PARENT}/base-oss-google-ubuntu-stemcell"
 
 # outputs
-light_stemcell_dir="$PWD/light-stemcell"
+light_stemcell_dir="${REPO_PARENT}/light-stemcell"
 
 echo "Creating light stemcell..."
 
@@ -58,8 +61,8 @@ gcloud compute images add-iam-policy-binding ${image_name} \
     --member='allAuthenticatedUsers' \
     --role='roles/compute.imageUser'
 
-mkdir working_dir
-pushd working_dir
+mkdir "${REPO_PARENT}/working_dir"
+pushd "${REPO_PARENT}/working_dir"
 # create final light stemcell
   tar xvf "${original_stemcell}"
 

@@ -2,10 +2,13 @@
 
 set -euo pipefail
 
-build_time="$(cat ./build-time/timestamp)"
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
+build_time="$(cat "${REPO_PARENT}/build-time/timestamp")"
 formatted_build_time="$(date --date "${build_time%.*}" +%Y%m%dT%H%M%SZ)"
 
-pushd bosh-linux-stemcell-builder
+pushd "${REPO_PARENT}/bosh-linux-stemcell-builder"
   echo "${formatted_build_time}" > build_time.txt
   git add -A
   git config --global user.email "ci@localhost"

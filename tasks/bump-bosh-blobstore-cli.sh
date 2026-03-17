@@ -2,20 +2,23 @@
 set -euo pipefail
 set -x
 
-git clone bosh-linux-stemcell-builder bosh-linux-stemcell-builder-out
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-url=$(cat bosh-blobstore-cli/url)
-version=$(cat bosh-blobstore-cli/version)
-sha256sum=$(sha256sum -b bosh-blobstore-cli/*cli* | awk '{print $1}')
+git clone "${REPO_PARENT}/bosh-linux-stemcell-builder" "${REPO_PARENT}/bosh-linux-stemcell-builder-out"
+
+url=$(cat "${REPO_PARENT}/bosh-blobstore-cli/url")
+version=$(cat "${REPO_PARENT}/bosh-blobstore-cli/version")
+sha256sum=$(sha256sum -b "${REPO_PARENT}/bosh-blobstore-cli"/*cli* | awk '{print $1}')
 
 echo "${url}" > \
-  "bosh-linux-stemcell-builder-out/stemcell_builder/stages/blobstore_clis/assets/bosh-blobstore-${BLOBSTORE_TYPE}.url"
+  "${REPO_PARENT}/bosh-linux-stemcell-builder-out/stemcell_builder/stages/blobstore_clis/assets/bosh-blobstore-${BLOBSTORE_TYPE}.url"
 echo "${version}" > \
-  "bosh-linux-stemcell-builder-out/stemcell_builder/stages/blobstore_clis/assets/bosh-blobstore-${BLOBSTORE_TYPE}.version"
+  "${REPO_PARENT}/bosh-linux-stemcell-builder-out/stemcell_builder/stages/blobstore_clis/assets/bosh-blobstore-${BLOBSTORE_TYPE}.version"
 echo "${sha256sum}" > \
-  "bosh-linux-stemcell-builder-out/stemcell_builder/stages/blobstore_clis/assets/bosh-blobstore-${BLOBSTORE_TYPE}.sha256sum"
+  "${REPO_PARENT}/bosh-linux-stemcell-builder-out/stemcell_builder/stages/blobstore_clis/assets/bosh-blobstore-${BLOBSTORE_TYPE}.sha256sum"
 
-pushd bosh-linux-stemcell-builder-out
+pushd "${REPO_PARENT}/bosh-linux-stemcell-builder-out"
   if [ "$(git status --porcelain)" != "" ]; then
     git add -A
     git config --global user.email "ci@localhost"

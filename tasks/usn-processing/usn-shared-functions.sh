@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
 #
 # This script goes through the list of ubuntu security notices (USNs) and makes sure that packages
 # listed in every USN are available in apt repositories for installation.
@@ -96,6 +99,6 @@ fi
 
 # Depends on apt package list being up-to-date, make sure apt-get update is run before this is executed
 sudo apt-get update
-INSTALLED_PACKAGES=$(cat bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu*.txt | sort | uniq | sed -e 's/:amd64//g')
+INSTALLED_PACKAGES=$(cat "${REPO_PARENT}/bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu*.txt" | sort | uniq | sed -e 's/:amd64//g')
 ALL_PACKAGE_VERSIONS_AVAILABLE=true
 PACKAGE_INCLUDED_IN_STEMCELL=false

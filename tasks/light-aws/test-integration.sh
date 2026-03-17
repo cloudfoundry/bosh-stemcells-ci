@@ -2,8 +2,10 @@
 
 set -euo pipefail
 
-my_dir="$( cd $(dirname $0) && pwd )"
-source "${my_dir}/utils.sh"
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
+source "${REPO_ROOT}/tasks/light-aws/utils.sh"
 
 tmp_dir="$(mktemp -d /tmp/stemcell_builder.XXXXXXX)"
 trap '{ rm -rf ${tmp_dir}; }' EXIT
@@ -38,6 +40,6 @@ wget -O ${MACHINE_IMAGE_PATH} http://tinycorelinux.net/7.x/x86_64/archive/7.1/Ti
 
 echo "Running integration tests"
 
-pushd builder-src > /dev/null
+pushd "${REPO_PARENT}/builder-src" > /dev/null
   go run github.com/onsi/ginkgo/v2/ginkgo -v -r integration
 popd

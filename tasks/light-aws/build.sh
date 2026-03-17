@@ -2,10 +2,10 @@
 
 set -e -o pipefail
 
-build_dir=$PWD
-my_dir="$( cd $(dirname $0) && pwd )"
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-source "${my_dir}/utils.sh"
+source "${REPO_ROOT}/tasks/light-aws/utils.sh"
 
 ami_kms_key_id=${ami_kms_key_id:-}
 ami_server_side_encryption=${ami_server_side_encryption:-}
@@ -37,9 +37,9 @@ fi
 
 : ${ami_destinations:=$saved_ami_destinations}
 
-stemcell_path=${PWD}/input-stemcell/*.tgz
-output_path=${PWD}/light-stemcell/
-version=$(cat ${PWD}/input-stemcell/.resource/version)
+stemcell_path=${REPO_PARENT}/input-stemcell/*.tgz
+output_path="${REPO_PARENT}/light-stemcell/"
+version=$(cat "${REPO_PARENT}/input-stemcell/.resource/version")
 
 echo "Checking if light stemcell already exists..."
 
@@ -66,7 +66,7 @@ echo "Building light stemcell..."
 echo "  Starting region: ${ami_region}"
 echo "  Copy regions: ${ami_destinations}"
 
-export CONFIG_PATH=${PWD}/config.json
+export CONFIG_PATH="${REPO_PARENT}/config.json"
 
 cat > $CONFIG_PATH << EOF
 {
@@ -93,13 +93,13 @@ cat > $CONFIG_PATH << EOF
 }
 EOF
 
-extracted_stemcell_dir=${PWD}/extracted-stemcell
+extracted_stemcell_dir="${REPO_PARENT}/extracted-stemcell"
 mkdir -p ${extracted_stemcell_dir}
 tar -C ${extracted_stemcell_dir} -xf ${stemcell_path}
 tar -xf ${extracted_stemcell_dir}/image
 
 # image format can be raw or stream optimized vmdk
-stemcell_image="$(echo ${PWD}/root.*)"
+stemcell_image="$(echo "${REPO_PARENT}"/root.*)"
 stemcell_manifest=${extracted_stemcell_dir}/stemcell.MF
 manifest_contents="$(cat ${stemcell_manifest})"
 
@@ -112,7 +112,7 @@ disk_size_gb=$(mb_to_gb "${BASH_REMATCH[1]}")
 [[ "${manifest_contents}" =~ ${format_regex} ]]
 disk_format="${BASH_REMATCH[1]}"
 
-pushd ${build_dir}/builder-src > /dev/null
+pushd "${REPO_PARENT}/builder-src" > /dev/null
   # Make sure we've closed the manifest file before writing to it
   go run main.go \
     -c $CONFIG_PATH \

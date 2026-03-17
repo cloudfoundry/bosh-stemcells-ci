@@ -2,6 +2,9 @@
 
 set -eu
 
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
 : ${BUCKET_NAME:?}
 : ${STEMCELL_BUCKET_PATH:?} # used to check if current stemcell already exists
 
@@ -21,22 +24,15 @@ stemcell_url() {
   fi
 }
 
-# inputs
-bosh_stemcells_ci="$PWD/bosh-stemcells-ci/tasks/light-google"
-stemcell_dir="$PWD/stemcell"
-
-# outputs
-raw_stemcell_dir="$PWD/raw-stemcell"
-
 echo "Creating light stemcell..."
 
 salt=$(date +%s)
-original_stemcell="$(echo ${stemcell_dir}/*.tgz)"
+original_stemcell="$(echo ${REPO_PARENT}/stemcell/*.tgz)"
 original_stemcell_name="$(basename "${original_stemcell}")"
 raw_stemcell_name="$(basename "${original_stemcell}" .tgz)-raw-$salt.tar.gz"
 light_stemcell_name="light-${original_stemcell_name}"
 
-echo "Using raw stemcell name: $raw_stemcell_name"
+echo "Using raw stemcell name: ${raw_stemcell_name}"
 
 light_stemcell_url="$(stemcell_url)"
 set +e
@@ -48,10 +44,10 @@ if [[ "$?" == "0" ]]; then
 fi
 set -e
 
-mkdir working_dir
-pushd working_dir
+mkdir "${REPO_PARENT}/working_dir"
+pushd "${REPO_PARENT}/working_dir"
   tar xvf "${original_stemcell}"
 
-  raw_stemcell_path="${raw_stemcell_dir}/${raw_stemcell_name}"
+  raw_stemcell_path="${REPO_PARENT}/raw-stemcell/${raw_stemcell_name}"
   mv image "${raw_stemcell_path}"
 popd

@@ -2,13 +2,10 @@
 
 set -e
 
-src_dir="$(cd $(dirname $0) && cd .. && pwd)"
-workspace_dir="$(pwd)"
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-# inputs
-deployment_state="$(cd "${workspace_dir}/deployment-state" && pwd)"
-
-pushd "${deployment_state}" > /dev/null
+pushd "${REPO_PARENT}/deployment-state" > /dev/null
   echo "Destroying skeletal instance..."
 
   set +e

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -ex
 
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
 if [ -n "${AWS_ROLE_ARN}" ]; then
   aws configure --profile creds_account set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
   aws configure --profile creds_account set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
@@ -11,7 +14,7 @@ if [ -n "${AWS_ROLE_ARN}" ]; then
   export AWS_PROFILE=resource_account
 fi
 
-cd candidate-aws-light-stemcell
+cd "${REPO_PARENT}/candidate-aws-light-stemcell"
 tar -xzf *.tgz stemcell.MF
 OS=$( cat stemcell.MF | grep operating_system | cut -f2 -d: | tr -d ' ')
 #IGNORE gov and china stemcells. these are in a different account

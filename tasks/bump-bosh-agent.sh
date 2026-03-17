@@ -1,13 +1,16 @@
 #!/bin/bash -eux
 
-git clone bosh-linux-stemcell-builder bosh-linux-stemcell-builder-out
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-version=$( cat bosh-agent/.resource/version )
+git clone "${REPO_PARENT}/bosh-linux-stemcell-builder" "${REPO_PARENT}/bosh-linux-stemcell-builder-out"
 
-cp bosh-agent/.resource/metalink.meta4 bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/
-cp bosh-agent/.resource/version bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/bosh-agent-version
+version=$( cat "${REPO_PARENT}/bosh-agent/.resource/version" )
 
-pushd bosh-linux-stemcell-builder-out
+cp "${REPO_PARENT}/bosh-agent/.resource/metalink.meta4" "${REPO_PARENT}/bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/"
+cp "${REPO_PARENT}/bosh-agent/.resource/version" "${REPO_PARENT}/bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/bosh-agent-version"
+
+pushd "${REPO_PARENT}/bosh-linux-stemcell-builder-out"
 	if [ "$(git status --porcelain)" != "" ]; then
 		git add -A
 		git config --global user.email "ci@localhost"
