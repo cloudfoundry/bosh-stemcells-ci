@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eu -o pipefail
 
 # rounds up to the nearest GB
 mb_to_gb() {

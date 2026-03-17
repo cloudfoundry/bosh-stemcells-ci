@@ -1,19 +1,18 @@
-#!/bin/bash
-
-set -e
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-export AWS_ACCESS_KEY_ID=$ami_access_key
-export AWS_SECRET_ACCESS_KEY=$ami_secret_key
-export AWS_DEFAULT_REGION=$ami_region
-export AWS_ROLE_ARN=$ami_role_arn
-
 : ${ami_older_than_days:?}
 : ${ami_keep_latest:?}
 
-if [ -n "${AWS_ROLE_ARN}" ]; then
+export AWS_ACCESS_KEY_ID=${ami_access_key}
+export AWS_SECRET_ACCESS_KEY=${ami_secret_key}
+export AWS_DEFAULT_REGION=${ami_region}
+
+if [ -n "${ami_role_arn:-}" ]; then
+  export AWS_ROLE_ARN=${ami_role_arn}
   aws configure --profile creds_account set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
   aws configure --profile creds_account set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
   aws configure --profile resource_account set source_profile "creds_account"
@@ -31,7 +30,7 @@ ami_destinations="$(aws ec2 describe-regions --output text --query "Regions[?Reg
 for region in $ami_destinations; do
     ami_list="[]"
 
-    if [ "${remove_public_images}" == "true" ]; then
+    if [ "${remove_public_images:-}" == "true" ]; then
       results=$(aws ec2 describe-images \
               --owners self \
               --output json \
@@ -41,7 +40,7 @@ for region in $ami_destinations; do
       ami_list=$(jq -s '.[0] + .[1]' <(echo "${ami_list}") <(echo "${results}"))
     fi
 
-    if [ -n "${os_name}" ]; then
+    if [ -n "${os_name:-}" ]; then
       # 'ami_ids' array should be orderered by creation date
       results=$(aws ec2 describe-images \
               --owners self \
@@ -52,7 +51,7 @@ for region in $ami_destinations; do
       ami_list=$(jq -s '.[0] + .[1]' <(echo "${ami_list}") <(echo "${results}"))
     fi
 
-    if [ -n "${snapshot_id}" ]; then
+    if [ -n "${snapshot_id:-}" ]; then
       results=$(aws ec2 describe-images \
               --owners self \
               --output json \
@@ -80,7 +79,7 @@ for region in $ami_destinations; do
         --image-id $(_jq '.ImageId') \
         --region $region
 
-      if [ "${snapshot_id}" != "$(_jq '.SnapshotId')" ]; then
+      if [ "${snapshot_id:-}" != "$(_jq '.SnapshotId')" ]; then
         aws ec2 delete-snapshot \
           --snapshot-id $(_jq '.SnapshotId') \
           --region $region
