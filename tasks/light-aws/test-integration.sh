@@ -4,8 +4,6 @@ set -eu -o pipefail
 REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-source "${REPO_ROOT}/tasks/light-aws/utils.sh"
-
 tmp_dir="$(mktemp -d /tmp/stemcell_builder.XXXXXXX)"
 trap '{ rm -rf ${tmp_dir}; }' EXIT
 

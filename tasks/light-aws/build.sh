@@ -4,8 +4,6 @@ set -eu -o pipefail
 REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-source "${REPO_ROOT}/tasks/light-aws/utils.sh"
-
 ami_kms_key_id=${ami_kms_key_id:-}
 ami_server_side_encryption=${ami_server_side_encryption:-}
 ami_excluded_destinations=${ami_excluded_destinations:-}
@@ -105,6 +103,12 @@ disk_regex="disk: ([0-9]+)"
 format_regex="disk_format: ([a-z]+)"
 
 [[ "${manifest_contents}" =~ ${disk_regex} ]]
+
+mb_to_gb() { # rounds up to the nearest GB
+  mb="$1"
+  echo "$(( (mb+1024-1)/1024 ))"
+}
+
 disk_size_gb=$(mb_to_gb "${BASH_REMATCH[1]}")
 
 [[ "${manifest_contents}" =~ ${format_regex} ]]
