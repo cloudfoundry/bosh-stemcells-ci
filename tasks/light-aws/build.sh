@@ -36,13 +36,12 @@ fi
 
 : ${ami_destinations:=$saved_ami_destinations}
 
-stemcell_path=${REPO_PARENT}/input-stemcell/*.tgz
-output_path="${REPO_PARENT}/light-stemcell/"
+stemcell_path=$(ls "${REPO_PARENT}"/input-stemcell/*.tgz)
 version=$(cat "${REPO_PARENT}/input-stemcell/.resource/version")
 
 echo "Checking if light stemcell already exists..."
 
-original_stemcell_name="$(basename ${stemcell_path})"
+original_stemcell_name="$(basename "${stemcell_path}")"
 light_stemcell_name="light-${original_stemcell_name}"
 
 if [ "${ami_virtualization_type}" = "hvm" ]; then
@@ -128,6 +127,7 @@ popd
 pushd ${extracted_stemcell_dir}
   > image
   # the bosh cli sees the stemcell as invalid if tar contents have leading ./
-  tar -czf ${output_path}/${light_stemcell_name} *
+  tar -czf "${REPO_PARENT}/light-stemcell/${light_stemcell_name}" *
 popd
-tar -tf ${output_path}/${light_stemcell_name}
+
+tar -tf "${REPO_PARENT}/light-stemcell/${light_stemcell_name}"

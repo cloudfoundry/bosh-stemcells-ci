@@ -4,12 +4,10 @@ set -eu -o pipefail
 REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-usn_json="${REPO_PARENT}/usn/usn.json"
-
 # add the new usn to the list of unfound usns
 touch "${REPO_PARENT}/joined-usns"
 cp "${REPO_PARENT}/unfound-usns/usns.json" "${REPO_PARENT}/joined-usns"
-cat "${usn_json}" >> "${REPO_PARENT}/joined-usns"
+cat "${REPO_PARENT}/usn/usn.json" >> "${REPO_PARENT}/joined-usns"
 
 # turn the unfound usns into an array
 mapfile -t UNFOUND_USNS < "${REPO_PARENT}/joined-usns"

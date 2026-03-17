@@ -47,6 +47,5 @@ mkdir "${REPO_PARENT}/working_dir"
 pushd "${REPO_PARENT}/working_dir"
   tar xvf "${original_stemcell}"
 
-  raw_stemcell_path="${REPO_PARENT}/raw-stemcell/${raw_stemcell_name}"
-  mv image "${raw_stemcell_path}"
+  mv image "${REPO_PARENT}/raw-stemcell/${raw_stemcell_name}"
 popd

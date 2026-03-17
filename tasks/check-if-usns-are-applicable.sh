@@ -11,14 +11,13 @@ mapfile -t FOUND_USNS < "${REPO_PARENT}/usns/usns.json"
 for usn in "${FOUND_USNS[@]}"; do
   id=$(echo $usn | jq -r '.url' | cut -d '/' -f6 | cut -d '-' -f2,3)
 
-  usn_json="${REPO_PARENT}/usn.json"
-  echo $usn > $usn_json
-  process_usns "${usn_json}" "${REPO_PARENT}/usn-gh-json/usn"
+  echo $usn > "${REPO_PARENT}/usn.json"
+  process_usns "${REPO_PARENT}/usn.json" "${REPO_PARENT}/usn-gh-json/usn"
 
 
   if [ "$PACKAGE_INCLUDED_IN_STEMCELL" == true ]
   then
-    jq -s --slurpfile new_usn ${usn_json} '. + $new_usn | unique_by(.url) | .[]' \
+    jq -s --slurpfile new_usn "${REPO_PARENT}/usn.json" '. + $new_usn | unique_by(.url) | .[]' \
       >> "${REPO_PARENT}/updated-usn-log/usn-log.json" < "${REPO_PARENT}/usn-log/usn-log.json"
     packages_included_in_stemcell=true
   else

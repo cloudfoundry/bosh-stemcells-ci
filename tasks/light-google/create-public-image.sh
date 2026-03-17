@@ -7,27 +7,17 @@ REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 : ${PROJECT_NAME:?}
 : ${GCP_SERVICE_ACCOUNT_KEY:?}
 
-
-
-# inputs
-bosh_stemcells_ci="${REPO_ROOT}/tasks/light-google"
-stemcell_dir="${REPO_PARENT}/stemcell"
-uploaded_gcs_dir="${REPO_PARENT}/base-oss-google-ubuntu-stemcell"
-
-# outputs
-light_stemcell_dir="${REPO_PARENT}/light-stemcell"
-
 echo "Creating light stemcell..."
 
 set -e
-original_stemcell="$(echo ${stemcell_dir}/*.tgz)"
+original_stemcell="$(echo "${REPO_PARENT}"/stemcell/*.tgz)"
 original_stemcell_name="$(basename "${original_stemcell}")"
 light_stemcell_name="light-${original_stemcell_name}"
 
-raw_stemcell="$(echo ${uploaded_gcs_dir}/*.gz)"
+raw_stemcell="$(echo "${REPO_PARENT}"/base-oss-google-ubuntu-stemcell/*.gz)"
 raw_stemcell_filename="$(basename "${raw_stemcell}")"
 
-raw_stemcell_uri="$(cat "${uploaded_gcs_dir}/url")"
+raw_stemcell_uri="$(cat "${REPO_PARENT}/base-oss-google-ubuntu-stemcell/url")"
 
 image_name=$(echo "$raw_stemcell_filename" | sed -e 's/[^0-9a-zA-Z]/-/g' -e 's/-tar-gz$//' -e 's/-go-agent-raw//' -e 's/^bosh-//')
 
@@ -71,12 +61,11 @@ pushd "${REPO_PARENT}/working_dir"
   cp stemcell.MF /tmp/stemcell.MF.tmp
 
   bosh int \
-    -o "${bosh_stemcells_ci}/assets/public-image-stemcell-ops.yml" \
+    -o "${REPO_ROOT}/tasks/light-google/assets/public-image-stemcell-ops.yml" \
     -v "packaged_image_stemcell_sha1=$packaged_image_stemcell_sha1" \
     -v 'stemcell_formats=["google-light"]' \
     -v "image_url=https://www.googleapis.com/compute/v1/projects/${PROJECT_NAME}/global/images/${image_name}" \
     /tmp/stemcell.MF.tmp > stemcell.MF
 
-  light_stemcell_path="${light_stemcell_dir}/${light_stemcell_name}"
-  tar czvf "${light_stemcell_path}" *
+  tar czvf "${REPO_PARENT}/light-stemcell/${light_stemcell_name}" *
 popd

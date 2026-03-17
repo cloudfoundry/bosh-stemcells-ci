@@ -19,7 +19,6 @@ check_param OS_NAME
 check_param OS_VERSION
 AGENT_SUFFIX="${AGENT_SUFFIX--go_agent}"
 
-export TASK_DIR="${REPO_PARENT}"
 export CANDIDATE_BUILD_NUMBER=$( cat "${REPO_PARENT}/version/number" | sed 's/\.0$//;s/\.0$//' )
 
 git clone "${REPO_PARENT}/stemcells-index" "${REPO_PARENT}/stemcells-index-output"
@@ -70,8 +69,8 @@ chown -R ubuntu:ubuntu "${REPO_PARENT}/bosh-linux-stemcell-builder"
 chown -R ubuntu:ubuntu /mnt
 
 OS_IMAGE=""
-mkdir -p "${TASK_DIR}/os-image-tarball"
-if [[ -n "$(ls -A "${TASK_DIR}/os-image-tarball/")" ]]; then
+mkdir -p "${REPO_PARENT}/os-image-tarball"
+if [[ -n "$(ls -A "${REPO_PARENT}/os-image-tarball/")" ]]; then
 	OS_IMAGE="$(readlink -f "${REPO_PARENT}/os-image-tarball"/*.tgz)"
 fi
 
@@ -107,7 +106,7 @@ SUDO
 #
 
 stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION${AGENT_SUFFIX}"
-meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR${AGENT_SUFFIX}.meta4
+meta4_path="${REPO_PARENT}/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR${AGENT_SUFFIX}.meta4"
 
 echo $CANDIDATE_BUILD_NUMBER > "${REPO_PARENT}/candidate-build-number/number"
 mkdir -p "$( dirname "$meta4_path" )"
