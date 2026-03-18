@@ -4,6 +4,12 @@ set -eu -o pipefail
 REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
+
 if [ -n "${AWS_ROLE_ARN:-}" ]; then
   aws configure --profile creds_account set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
   aws configure --profile creds_account set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"

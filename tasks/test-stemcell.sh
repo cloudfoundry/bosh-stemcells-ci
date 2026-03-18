@@ -4,6 +4,12 @@ set -eu -o pipefail
 REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
+
 BOSH_BINARY_PATH=$(realpath "$(which bosh)")
 BOSH_CA_CERT="$(bosh int "${REPO_PARENT}/director-state/director-creds.yml" --path /director_ssl/ca)"
 BOSH_CLIENT_SECRET="$(bosh int "${REPO_PARENT}/director-state/director-creds.yml" --path /admin_password)"
