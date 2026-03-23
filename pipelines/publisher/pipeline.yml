@@ -556,15 +556,15 @@ resource_types:
   source:
     repository: dpb587/metalink-repository-resource
     tag: latest
-  type: docker-image
+  type: registry-image
 - name: terraform_type
   source:
     repository: ljfranklin/terraform-resource
-  type: docker-image
+  type: registry-image
 - name: gcs-resource
   source:
     repository: frodenas/gcs-resource
-  type: docker-image
+  type: registry-image
 
 resources:
 - name: every-week-on-monday
