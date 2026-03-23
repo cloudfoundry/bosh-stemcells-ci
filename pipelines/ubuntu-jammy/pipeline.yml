@@ -45,6 +45,7 @@ jobs:
   plan:
     - get: bosh-stemcells-ci
     - get: os-image-stemcell-builder
+    - get: main-ruby-go-docker-image
     - get: bosh-linux-stemcell-builder-in
       trigger: true
       resource: bosh-linux-stemcell-builder-ci
@@ -55,13 +56,9 @@ jobs:
         globs:
           - "no-files-needed"
     - task: copy-ovf
+      image: main-ruby-go-docker-image
       config:
         platform: linux
-        image_resource:
-          type: docker-image
-          source:
-            repository: bosh/integration
-            tag: main
         run:
           path: /bin/bash
           args:
@@ -141,6 +138,8 @@ jobs:
   plan:
   - in_parallel:
     - get: bosh-stemcells-ci
+    - get: os-image-stemcell-builder
+    - get: main-ruby-go-docker-image
     - get: bosh-linux-stemcell-builder
       resource: bosh-linux-stemcell-builder
     - get: usn-log
@@ -155,6 +154,7 @@ jobs:
         - process-high-critical-cves
   - task: check-usn-packages
     file: bosh-stemcells-ci/tasks/check-usn-packages.yml
+    image: os-image-stemcell-builder
     input_mapping:
       usn-log-in: usn-log
       usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
@@ -164,6 +164,7 @@ jobs:
       image_os_tag: (@= data.values.stemcell_details.os @)
   - task: write-message
     file: bosh-stemcells-ci/tasks/write-bump-message.yml
+    image: main-ruby-go-docker-image
     params:
       MESSAGE_PREFIX: CVE Trigger
   - put: stemcell-trigger
@@ -225,6 +226,7 @@ jobs:
   plan:
   - put: build-time
   - get: bosh-stemcells-ci
+  - get: os-image-stemcell-builder
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder
     trigger: true
@@ -237,6 +239,7 @@ jobs:
     trigger: true
   - task: build
     file: bosh-stemcells-ci/tasks/os-images/build.yml
+    image: os-image-stemcell-builder
     params:
       OPERATING_SYSTEM_NAME: ubuntu
       OPERATING_SYSTEM_VERSION: (@= data.values.stemcell_details.os @)
@@ -261,6 +264,7 @@ jobs:
 - name: test-unit
   plan:
   - get: bosh-stemcells-ci
+  - get: main-ruby-go-docker-image
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder
     trigger: true
@@ -276,6 +280,7 @@ jobs:
     - build-os-image
   - task: test-unit
     file: bosh-stemcells-ci/tasks/test-unit.yml
+    image: main-ruby-go-docker-image
     privileged: true
   serial: true
 
@@ -316,6 +321,7 @@ jobs:
         resource: version
         trigger: true
       - get: bosh-stemcells-ci
+      - get: main-ruby-go-docker-image
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder
       - get: bosh-deployment
@@ -338,6 +344,7 @@ jobs:
     - do:
       - task: deploy-director
         file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
+        image: main-ruby-go-docker-image
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
           GCP_ZONE: europe-north2-a
@@ -353,6 +360,7 @@ jobs:
       - task: test-stemcell
         attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
+        image: main-ruby-go-docker-image
         params:
           BOSH_os_name: (@= data.values.stemcell_details.os_name @)
           package: ipv4director
@@ -360,6 +368,7 @@ jobs:
       do:
       - task: teardown
         file: bosh-stemcells-ci/tasks/teardown.yml
+        image: main-ruby-go-docker-image
         attempts: 3
         timeout: 15m
   serial: true
@@ -379,6 +388,7 @@ jobs:
         resource: version
         trigger: true
       - get: bosh-stemcells-ci
+      - get: main-ruby-go-docker-image
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder
       - get: bosh-deployment
@@ -401,6 +411,7 @@ jobs:
     - do:
       - task: deploy-director-ipv6
         file: bosh-stemcells-ci/tasks/gcp/deploy-director-ipv6.yml
+        image: main-ruby-go-docker-image
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
           GCP_ZONE: europe-north2-a
@@ -418,6 +429,7 @@ jobs:
       - task: test-stemcell-ipv6
         attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
+        image: main-ruby-go-docker-image
         params:
           BOSH_os_name: (@= data.values.stemcell_details.os_name @)
           package: ipv6director
@@ -425,6 +437,7 @@ jobs:
       do:
       - task: teardown
         file: bosh-stemcells-ci/tasks/teardown.yml
+        image: main-ruby-go-docker-image
         attempts: 3
         timeout: 15m
   serial: true
@@ -439,6 +452,7 @@ jobs:
       resource: version
       trigger: true
     - get: bosh-stemcells-ci
+    - get: os-image-stemcell-builder
     - get: build-time
       passed:
       - build-stemcell
@@ -455,6 +469,7 @@ jobs:
   - task: create-stemcell
     attempts: 3
     file: bosh-stemcells-ci/tasks/build.yml
+    image: os-image-stemcell-builder
     params:
       HYPERVISOR: #@ HYPERVISOR
       IAAS: #@ IAAS
@@ -532,6 +547,7 @@ jobs:
     - do:
       - task: deploy-director
         file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
+        image: main-ruby-go-docker-image
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
           GCP_ZONE: europe-north2-a
@@ -546,6 +562,7 @@ jobs:
           TAG: test-stemcells-bats
       - task: prepare-bats
         file: bosh-stemcells-ci/tasks/bats/iaas/gcp/prepare-bats-config.yml
+        image: main-ruby-go-docker-image
         params:
           VARS_STEMCELL_NAME: bosh-google-kvm-ubuntu-(@= data.values.stemcell_details.os @)-go_agent
           VARS_NETWORK_DEFAULT: bosh-concourse
@@ -568,6 +585,7 @@ jobs:
       do:
       - task: teardown
         file: bosh-stemcells-ci/tasks/teardown.yml
+        image: main-ruby-go-docker-image
         attempts: 3
         timeout: 15m
 
@@ -582,6 +600,7 @@ jobs:
       resource: version
       trigger: true
     - get: bosh-stemcells-ci
+    - get: main-ruby-go-docker-image
     - get: bosh-linux-stemcell-builder
       passed:
       - bats
@@ -598,6 +617,7 @@ jobs:
     image: os-image-stemcell-builder
   - task: copy-fips-artifacts
     file: bosh-stemcells-ci/tasks/publish.yml
+    image: main-ruby-go-docker-image
     params:
       AWS_ACCESS_KEY_ID: ((hmac_accesskey))
       AWS_SECRET_ACCESS_KEY: ((hmac_secret))
@@ -616,6 +636,7 @@ jobs:
       S3_API_ENDPOINT: storage.googleapis.com
   - task: copy-artifacts
     file: bosh-stemcells-ci/tasks/publish.yml
+    image: main-ruby-go-docker-image
     params:
       AWS_ACCESS_KEY_ID: ((hmac_accesskey))
       AWS_SECRET_ACCESS_KEY: ((hmac_secret))
@@ -649,17 +670,14 @@ jobs:
   - get: (@= data.values.stemcell_details.os @)-usn
     passed:
       - process-high-critical-cves
+  - get: main-ruby-go-docker-image
   - get: high-critical-cves-processed
     passed:
       - process-high-critical-cves
     trigger: true
   - task: build-slack-message
+    image: main-ruby-go-docker-image
     config:
-      image_resource:
-        source:
-          repository: bosh/integration
-          tag: main
-        type: docker-image
       inputs:
       - name: (@= data.values.stemcell_details.os @)-usn
       outputs:
@@ -705,10 +723,12 @@ jobs:
     resource: bosh-agent
     trigger: true
   - get: bosh-stemcells-ci
+  - get: main-ruby-go-docker-image
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder
   - task: bump
     file: bosh-stemcells-ci/tasks/bump-bosh-agent.yml
+    image: main-ruby-go-docker-image
   - put: bosh-linux-stemcell-builder-push
     params:
       rebase: true
@@ -721,10 +741,12 @@ jobs:
     resource:  bosh-blobstore-(@= blobstore_type @)
     trigger: true
   - get: bosh-stemcells-ci
+  - get: main-ruby-go-docker-image
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder
   - task: bump-bosh-blobstore-cli
     file: bosh-stemcells-ci/tasks/bump-bosh-blobstore-cli.yml
+    image: main-ruby-go-docker-image
     params:
       BLOBSTORE_TYPE: (@= blobstore_type @)
   - put: bosh-linux-stemcell-builder-push
@@ -922,7 +944,7 @@ resources:
     uri: https://github.com/cloudfoundry/bosh-acceptance-tests.git
 
 - name: main-ruby-go-docker-image
-  type: docker-image
+  type: registry-image
   source:
     repository: bosh/integration
     tag: main
