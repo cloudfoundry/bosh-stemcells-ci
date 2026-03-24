@@ -349,6 +349,7 @@ jobs:
         params:
           GCP_PROJECT_ID: ((gcp_project_id))
           GCP_ZONE: europe-north2-a
+          GCP_PREEMPTIBLE: true
           GCP_NETWORK_NAME: bosh-concourse
           GCP_SUBNET_NAME: bosh-integration-(@= data.values.stemcell_details.subnet_int @)
           GCP_JSON_KEY: ((gcp_json_key))
