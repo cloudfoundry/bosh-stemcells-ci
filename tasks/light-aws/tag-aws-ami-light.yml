@@ -1,8 +1,5 @@
 ---
 platform: linux
-image_resource:
-  type: docker-image
-  source: {repository: bosh/bosh-ecosystem-concourse}
 
 inputs:
 - name: candidate-aws-light-stemcell
