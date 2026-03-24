@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
+set -eu -o pipefail
 
-set -e
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-source director-state/director.env
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
-pushd stemcell
+source "${REPO_PARENT}/director-state/director.env"
+
+pushd "${REPO_PARENT}/stemcell"
   time bosh -n upload-stemcell *.tgz
 popd
 

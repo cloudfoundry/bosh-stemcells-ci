@@ -1,13 +1,23 @@
-#!/bin/bash -eux
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-git clone bosh-linux-stemcell-builder bosh-linux-stemcell-builder-out
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-version=$( cat bosh-agent/.resource/version )
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
-cp bosh-agent/.resource/metalink.meta4 bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/
-cp bosh-agent/.resource/version bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/bosh-agent-version
+git clone "${REPO_PARENT}/bosh-linux-stemcell-builder" "${REPO_PARENT}/bosh-linux-stemcell-builder-out"
 
-pushd bosh-linux-stemcell-builder-out
+version=$( cat "${REPO_PARENT}/bosh-agent/.resource/version" )
+
+cp "${REPO_PARENT}/bosh-agent/.resource/metalink.meta4" "${REPO_PARENT}/bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/"
+cp "${REPO_PARENT}/bosh-agent/.resource/version" "${REPO_PARENT}/bosh-linux-stemcell-builder-out/stemcell_builder/stages/bosh_go_agent/assets/bosh-agent-version"
+
+pushd "${REPO_PARENT}/bosh-linux-stemcell-builder-out"
 	if [ "$(git status --porcelain)" != "" ]; then
 		git add -A
 		git config --global user.email "ci@localhost"

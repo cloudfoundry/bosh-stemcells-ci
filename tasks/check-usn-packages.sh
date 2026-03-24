@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
+set -eu -o pipefail
 
-set -euo pipefail
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-SCRIPT_DIR="$( cd "$( dirname "${0}" )" && pwd )"
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
-source "${SCRIPT_DIR}/usn-processing/usn-shared-functions.sh"
+source "${REPO_ROOT}/tasks/usn-processing/usn-shared-functions.sh"
 
-process_usns "usn-log-in/usn-log.json" "usn-gh-json/usn"
+process_usns "${REPO_PARENT}/usn-log-in/usn-log.json" "${REPO_PARENT}/usn-gh-json/usn"
 
 
 if [ "$ALL_PACKAGE_VERSIONS_AVAILABLE" != true ]

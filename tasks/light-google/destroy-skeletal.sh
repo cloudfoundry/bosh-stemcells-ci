@@ -1,14 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-set -e
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-src_dir="$(cd $(dirname $0) && cd .. && pwd)"
-workspace_dir="$(pwd)"
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
-# inputs
-deployment_state="$(cd "${workspace_dir}/deployment-state" && pwd)"
-
-pushd "${deployment_state}" > /dev/null
+pushd "${REPO_PARENT}/deployment-state" > /dev/null
   echo "Destroying skeletal instance..."
 
   set +e

@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
+set -eu -o pipefail
 
-set -euo pipefail
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
 #
 # This script goes through the list of ubuntu security notices (USNs) and makes sure that packages
@@ -96,6 +104,6 @@ fi
 
 # Depends on apt package list being up-to-date, make sure apt-get update is run before this is executed
 sudo apt-get update
-INSTALLED_PACKAGES=$(cat bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu*.txt | sort | uniq | sed -e 's/:amd64//g')
+INSTALLED_PACKAGES=$(cat "${REPO_PARENT}/bosh-linux-stemcell-builder/bosh-stemcell/spec/assets/dpkg-list-ubuntu*.txt" | sort | uniq | sed -e 's/:amd64//g')
 ALL_PACKAGE_VERSIONS_AVAILABLE=true
 PACKAGE_INCLUDED_IN_STEMCELL=false

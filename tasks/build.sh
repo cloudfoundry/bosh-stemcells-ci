@@ -1,6 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-set -eu
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
+
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
 function check_param() {
   local name=$1
@@ -17,10 +25,9 @@ check_param OS_NAME
 check_param OS_VERSION
 AGENT_SUFFIX="${AGENT_SUFFIX--go_agent}"
 
-export TASK_DIR=$PWD
-export CANDIDATE_BUILD_NUMBER=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
+export CANDIDATE_BUILD_NUMBER=$( cat "${REPO_PARENT}/version/number" | sed 's/\.0$//;s/\.0$//' )
 
-git clone stemcells-index stemcells-index-output
+git clone "${REPO_PARENT}/stemcells-index" "${REPO_PARENT}/stemcells-index-output"
 
 # This is copied from https://github.com/concourse/concourse/blob/3c070db8231294e4fd51b5e5c95700c7c8519a27/jobs/baggageclaim/templates/baggageclaim_ctl.erb#L23-L54
 # helps the /dev/mapper/control issue and lets us actually do scary things with the /dev mounts
@@ -64,20 +71,20 @@ for i in $(seq 0 64); do
   fi
 done
 
-chown -R ubuntu:ubuntu bosh-linux-stemcell-builder
+chown -R ubuntu:ubuntu "${REPO_PARENT}/bosh-linux-stemcell-builder"
 chown -R ubuntu:ubuntu /mnt
 
 OS_IMAGE=""
-mkdir -p "${TASK_DIR}/os-image-tarball"
-if [[ -n "$(ls -A "${TASK_DIR}/os-image-tarball/")" ]]; then
-	OS_IMAGE="$(readlink -f os-image-tarball/*.tgz)"
+mkdir -p "${REPO_PARENT}/os-image-tarball"
+if [[ -n "$(ls -A "${REPO_PARENT}/os-image-tarball/")" ]]; then
+	OS_IMAGE="$(readlink -f "${REPO_PARENT}/os-image-tarball"/*.tgz)"
 fi
 
 sudo chmod u+s $(which sudo)
 sudo --preserve-env --set-home --user ubuntu -- /bin/bash --login -i <<SUDO
   set -e
 
-  cd bosh-linux-stemcell-builder
+  cd "${REPO_PARENT}/bosh-linux-stemcell-builder"
 case $OS_VERSION
 in
 # Because of the difference in build environments between Xenial and other Ubuntu stemcell lines (currently only Jammy)
@@ -105,32 +112,32 @@ SUDO
 #
 
 stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION${AGENT_SUFFIX}"
-meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR${AGENT_SUFFIX}.meta4
+meta4_path="${REPO_PARENT}/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR${AGENT_SUFFIX}.meta4"
 
-echo $CANDIDATE_BUILD_NUMBER > candidate-build-number/number
+echo $CANDIDATE_BUILD_NUMBER > "${REPO_PARENT}/candidate-build-number/number"
 mkdir -p "$( dirname "$meta4_path" )"
 rm -f "$meta4_path"
 meta4 create --metalink="$meta4_path"
 
-if [ -e bosh-linux-stemcell-builder/tmp/*-raw.tgz ] ; then
+if [ -e "${REPO_PARENT}/bosh-linux-stemcell-builder/tmp"/*-raw.tgz ] ; then
   # openstack currently publishes raw files
   raw_stemcell_filename="${stemcell_name}-raw.tgz"
-  mv bosh-linux-stemcell-builder/tmp/*-raw.tgz "stemcell/${raw_stemcell_filename}"
+  mv "${REPO_PARENT}/bosh-linux-stemcell-builder/tmp"/*-raw.tgz "${REPO_PARENT}/stemcell/${raw_stemcell_filename}"
 
-  meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "stemcell/${raw_stemcell_filename}"
+  meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "${REPO_PARENT}/stemcell/${raw_stemcell_filename}"
   meta4 file-set-url --metalink="$meta4_path" --file="${raw_stemcell_filename}" "https://${S3_API_ENDPOINT}/${STEMCELL_BUCKET}/${IAAS}/${raw_stemcell_filename}"
 fi
 
 stemcell_filename="${stemcell_name}.tgz"
-mv "bosh-linux-stemcell-builder/tmp/${stemcell_filename}" "stemcell/${stemcell_filename}"
+mv "${REPO_PARENT}/bosh-linux-stemcell-builder/tmp/${stemcell_filename}" "${REPO_PARENT}/stemcell/${stemcell_filename}"
 
-meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "stemcell/${stemcell_filename}"
+meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "${REPO_PARENT}/stemcell/${stemcell_filename}"
 meta4 file-set-url --metalink="$meta4_path" --file="${stemcell_filename}" "https://${S3_API_ENDPOINT}/${STEMCELL_BUCKET}/${IAAS}/${stemcell_filename}"
 
 # just in case we need to debug/verify the live results
 cat "$meta4_path"
 
-cd stemcells-index-output
+cd "${REPO_PARENT}/stemcells-index-output"
 
 git add -A
 git config --global user.email "ci@localhost"

@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
+set -eu -o pipefail
 
-set -e -o pipefail
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-build_dir=$PWD
-my_dir="$( cd $(dirname $0) && pwd )"
-
-source "${my_dir}/utils.sh"
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
 ami_kms_key_id=${ami_kms_key_id:-}
 ami_server_side_encryption=${ami_server_side_encryption:-}
@@ -37,13 +40,12 @@ fi
 
 : ${ami_destinations:=$saved_ami_destinations}
 
-stemcell_path=${PWD}/input-stemcell/*.tgz
-output_path=${PWD}/light-stemcell/
-version=$(cat ${PWD}/input-stemcell/.resource/version)
+stemcell_path=$(ls "${REPO_PARENT}"/input-stemcell/*.tgz)
+version=$(cat "${REPO_PARENT}/input-stemcell/.resource/version")
 
 echo "Checking if light stemcell already exists..."
 
-original_stemcell_name="$(basename ${stemcell_path})"
+original_stemcell_name="$(basename "${stemcell_path}")"
 light_stemcell_name="light-${original_stemcell_name}"
 
 if [ "${ami_virtualization_type}" = "hvm" ]; then
@@ -66,7 +68,7 @@ echo "Building light stemcell..."
 echo "  Starting region: ${ami_region}"
 echo "  Copy regions: ${ami_destinations}"
 
-export CONFIG_PATH=${PWD}/config.json
+export CONFIG_PATH="${REPO_PARENT}/config.json"
 
 cat > $CONFIG_PATH << EOF
 {
@@ -93,13 +95,13 @@ cat > $CONFIG_PATH << EOF
 }
 EOF
 
-extracted_stemcell_dir=${PWD}/extracted-stemcell
+extracted_stemcell_dir="${REPO_PARENT}/extracted-stemcell"
 mkdir -p ${extracted_stemcell_dir}
 tar -C ${extracted_stemcell_dir} -xf ${stemcell_path}
 tar -xf ${extracted_stemcell_dir}/image
 
 # image format can be raw or stream optimized vmdk
-stemcell_image="$(echo ${PWD}/root.*)"
+stemcell_image="$(echo "${REPO_PARENT}"/root.*)"
 stemcell_manifest=${extracted_stemcell_dir}/stemcell.MF
 manifest_contents="$(cat ${stemcell_manifest})"
 
@@ -107,12 +109,18 @@ disk_regex="disk: ([0-9]+)"
 format_regex="disk_format: ([a-z]+)"
 
 [[ "${manifest_contents}" =~ ${disk_regex} ]]
+
+mb_to_gb() { # rounds up to the nearest GB
+  mb="$1"
+  echo "$(( (mb+1024-1)/1024 ))"
+}
+
 disk_size_gb=$(mb_to_gb "${BASH_REMATCH[1]}")
 
 [[ "${manifest_contents}" =~ ${format_regex} ]]
 disk_format="${BASH_REMATCH[1]}"
 
-pushd ${build_dir}/builder-src > /dev/null
+pushd "${REPO_PARENT}/builder-src" > /dev/null
   # Make sure we've closed the manifest file before writing to it
   go run main.go \
     -c $CONFIG_PATH \
@@ -129,6 +137,7 @@ popd
 pushd ${extracted_stemcell_dir}
   > image
   # the bosh cli sees the stemcell as invalid if tar contents have leading ./
-  tar -czf ${output_path}/${light_stemcell_name} *
+  tar -czf "${REPO_PARENT}/light-stemcell/${light_stemcell_name}" *
 popd
-tar -tf ${output_path}/${light_stemcell_name}
+
+tar -tf "${REPO_PARENT}/light-stemcell/${light_stemcell_name}"

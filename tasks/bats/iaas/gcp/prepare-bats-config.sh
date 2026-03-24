@@ -1,15 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-set -e
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../../../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-manifest_path() { bosh int director-state/director.yml --path="$1" ; }
-creds_path() { bosh int director-state/director-creds.yml --path="$1" ; }
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
+
+manifest_path() { bosh int "${REPO_PARENT}/director-state/director.yml" --path="$1" ; }
+creds_path() { bosh int "${REPO_PARENT}/director-state/director-creds.yml" --path="$1" ; }
 
 director_ip=$( manifest_path /instance_groups/name=bosh/networks/name=default/static_ips/0 )
 gateway_username=$( manifest_path "/instance_groups/0/jobs/name=user_add/properties/users/0/name" )
 ssh_private_key=$( creds_path /jumpbox_ssh/private_key | sed 's/$/\\n/' | tr -d '\n' )
 
-cat > bats-config/bats.env <<EOF
+cat > "${REPO_PARENT}/bats-config/bats.env" <<EOF
 export BOSH_ENVIRONMENT="${director_ip}"
 export BOSH_CLIENT="admin"
 export BOSH_CLIENT_SECRET="$( creds_path /admin_password )"
@@ -25,7 +33,7 @@ export BAT_INFRASTRUCTURE=gcp
 export BAT_RSPEC_FLAGS="--tag ~vip_networking --tag ~multiple_manual_networks --tag ~root_partition --tag ~raw_ephemeral_storage"
 EOF
 
-cat > interpolate.yml <<EOF
+cat > "${REPO_PARENT}/interpolate.yml" <<EOF
 ---
 cpi: google
 properties:
@@ -62,5 +70,5 @@ EOF
 
 bosh interpolate \
  --vars-env VARS \
- interpolate.yml \
- > bats-config/bats-config.yml
+ "${REPO_PARENT}/interpolate.yml" \
+ > "${REPO_PARENT}/bats-config/bats-config.yml"

@@ -1,10 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-set -eu
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+REPO_PARENT="$( cd "${REPO_ROOT}/.." && pwd )"
 
-TASK_DIR=$PWD
+if [[ -n "${DEBUG:-}" ]]; then
+  set -x
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
+fi
 
-cd bosh-linux-stemcell-builder
+cd "${REPO_PARENT}/bosh-linux-stemcell-builder"
 
 function check_param() {
   local name=$1
@@ -17,10 +23,10 @@ function check_param() {
 check_param OPERATING_SYSTEM_NAME
 check_param OPERATING_SYSTEM_VERSION
 
-OS_IMAGE_NAME=$OPERATING_SYSTEM_NAME-$OPERATING_SYSTEM_VERSION
-OS_IMAGE=$TASK_DIR/os-image/$OS_IMAGE_NAME.tgz
-if [ -f "${TASK_DIR}/build-time/timestamp" ]; then
-  build_time="$(cat "${TASK_DIR}/build-time/timestamp")"
+OS_IMAGE_NAME=${OPERATING_SYSTEM_NAME}-${OPERATING_SYSTEM_VERSION}
+OS_IMAGE=${REPO_PARENT}/os-image/${OS_IMAGE_NAME}.tgz
+if [ -f "${REPO_PARENT}/build-time/timestamp" ]; then
+  build_time="$(cat "${REPO_PARENT}/build-time/timestamp")"
   export BUILD_TIME="$(date --date "${build_time%.*}" +%Y%m%dT%H%M%SZ)"
 fi
 
