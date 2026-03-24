@@ -949,7 +949,7 @@ resources:
     uri: https://github.com/cloudfoundry/bosh-acceptance-tests.git
 
 - name: bosh-integration-image
-  type: docker-image
+  type: registry-image
   source:
     repository: ghcr.io/cloudfoundry/bosh/integration
     tag: main
@@ -1013,7 +1013,7 @@ resources:
     repository: syft
 
 - name: os-image-stemcell-builder
-  type: docker-image
+  type: registry-image
   source:
     repository: bosh/os-image-stemcell-builder
     tag: (@= data.values.stemcell_details.os @)
