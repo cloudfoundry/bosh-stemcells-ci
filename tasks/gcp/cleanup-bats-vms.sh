@@ -12,8 +12,7 @@ echo "${GCP_JSON_KEY}" | gcloud auth activate-service-account --key-file - --pro
 echo "Looking for leftover VMs on subnet '${GCP_SUBNET_NAME}' with tag '${TAG}' in zone '${GCP_ZONE}'..."
 
 vms=$(gcloud compute instances list \
-  --filter="networkInterfaces.subnetwork:${GCP_SUBNET_NAME} AND tags.items=${TAG}" \
-  --zones="${GCP_ZONE}" \
+  --filter="zone:${GCP_ZONE} AND networkInterfaces.subnetwork:${GCP_SUBNET_NAME} AND tags.items=${TAG}" \
   --format="value(name)")
 
 if [[ -z "${vms}" ]]; then
