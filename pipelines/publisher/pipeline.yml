@@ -176,6 +176,7 @@ do:
     generate_random_name: true
     terraform_source: bosh-cpi-src/ci/assets/terraform
 - file: bosh-cpi-certification-concourse-tasks/shared/tasks/prepare-director.yml
+  image: bosh-integration-registry-image
   input_mapping:
     stemcell: light-stemcell
   params:
@@ -188,6 +189,7 @@ do:
       -o pipelines/shared/assets/ops/remove-provider-cert.yml
   task: prepare-director
 - file: bosh-cpi-certification-concourse-tasks/shared/tasks/deploy-director.yml
+  image: bosh-integration-registry-image
   input_mapping:
     stemcell: light-stemcell
   task: deploy-director
@@ -199,16 +201,18 @@ do:
   task: run-stemcell-upload-tests
 ensure:
   do:
-  - file: bosh-cpi-certification-concourse-tasks/shared/tasks/teardown.yml
-    task: teardown
-  - file: bosh-cpi-src/ci/tasks/ensure-terminated.yml
+  - task: teardown
+    file: bosh-cpi-certification-concourse-tasks/shared/tasks/teardown.yml
+    image: bosh-integration-registry-image
+  - task: ensure-terminated
+    file: bosh-cpi-src/ci/tasks/ensure-terminated.yml
+    image: bosh-integration-registry-image
     input_mapping:
       bosh-aws-cpi-release: bosh-cpi-src
     params:
       AWS_ACCESS_KEY_ID: ((aws_publish_us_access_key))
       AWS_SECRET_ACCESS_KEY: ((aws_publish_us_secret_key))
       AWS_DEFAULT_REGION: ((aws_publish_us_region))
-    task: ensure-terminated
   - put: environment
     resource: light-aws-environment
     get_params:
@@ -864,9 +868,10 @@ resources:
 - name: bosh-integration-registry-image
   type: registry-image
   source:
-    repository: bosh/integration
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
+    repository: ghcr.io/cloudfoundry/bosh/integration
+    tag: main
+    username: ((github_read_write_packages.username))
+    password: ((github_read_write_packages.password))
 
 - name: light-stemcell-builder-registry-image
   type: registry-image
