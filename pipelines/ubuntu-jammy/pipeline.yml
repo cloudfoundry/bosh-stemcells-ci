@@ -357,7 +357,7 @@ jobs:
           INTERNAL_CIDR: 10.100.(@= data.values.stemcell_details.subnet_int @).0/24
           INTERNAL_GW: 10.100.(@= data.values.stemcell_details.subnet_int @).1
           RESERVED_RANGE: '10.100.(@= data.values.stemcell_details.subnet_int @).2 - 10.100.(@= data.values.stemcell_details.subnet_int @).9, 10.100.(@= data.values.stemcell_details.subnet_int @).62 - 10.100.(@= data.values.stemcell_details.subnet_int @).254'
-          TAG: test-stemcells-ipv4-(@= data.values.stemcell_details.os @)
+          TAG: test-stemcells-ipv4
           DEFAULT_VM_TYPE: e2-standard-2
       - task: test-stemcell
         attempts: 3
@@ -427,7 +427,7 @@ jobs:
           SECOND_INTERNAL_CIDR: fd20:ecb:bcac:4000:0:0:0:0/64
           SECOND_INTERNAL_GW: fd20:ecb:bcac:4000::1
           SECOND_INTERNAL_IP: fd20:ecb:bcac:4000::10
-          TAG: test-stemcells-ipv6-(@= data.values.stemcell_details.os @)
+          TAG: test-stemcells-ipv6
       - task: test-stemcell-ipv6
         attempts: 3
         file: bosh-stemcells-ci/tasks/test-stemcell.yml
@@ -556,7 +556,7 @@ jobs:
           GCP_PROJECT_ID: ((gcp_project_id))
           GCP_ZONE: europe-north2-a
           GCP_SUBNET_NAME: bosh-integration-(@= data.values.stemcell_details.subnet_int @)
-          TAG: test-stemcells-bats-(@= data.values.stemcell_details.os @)
+          TAG: test-stemcells-bats
       - task: deploy-director
         file: bosh-stemcells-ci/tasks/gcp/deploy-director.yml
         image: bosh-integration-image
@@ -571,7 +571,7 @@ jobs:
           INTERNAL_CIDR: 10.100.(@= data.values.stemcell_details.subnet_int @).0/24
           INTERNAL_GW: 10.100.(@= data.values.stemcell_details.subnet_int @).1
           RESERVED_RANGE: '10.100.(@= data.values.stemcell_details.subnet_int @).2 - 10.100.(@= data.values.stemcell_details.subnet_int @).63, 10.100.(@= data.values.stemcell_details.subnet_int @).126 - 10.100.(@= data.values.stemcell_details.subnet_int @).254'
-          TAG: test-stemcells-bats-(@= data.values.stemcell_details.os @)
+          TAG: test-stemcells-bats
       - task: prepare-bats
         file: bosh-stemcells-ci/tasks/bats/iaas/gcp/prepare-bats-config.yml
         image: bosh-integration-image
@@ -589,7 +589,7 @@ jobs:
           VARS_STATIC_IP_DEFAULT: 10.100.(@= data.values.stemcell_details.subnet_int @).130
           VARS_STATIC_IP_DEFAULT-2: 10.100.(@= data.values.stemcell_details.subnet_int @).132
           VARS_GATEWAY_DEFAULT: 10.100.(@= data.values.stemcell_details.subnet_int @).1
-          VARS_TAG: test-stemcells-bats-(@= data.values.stemcell_details.os @)
+          VARS_TAG: test-stemcells-bats
       - task: run-bats
         file: bats/ci/tasks/run-bats.yml
         image: bosh-integration-image
