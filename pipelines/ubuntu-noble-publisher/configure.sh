@@ -10,9 +10,9 @@ until "$FLY" -t "${CONCOURSE_TARGET:-stemcell}" status;do
 done
 
 pipeline_config=$(mktemp)
-ytt -f "$(dirname $0)" > $pipeline_config
+ytt -f "$(dirname "${0}")" > "${pipeline_config}"
 
 "$FLY" -t "${CONCOURSE_TARGET:-stemcell}" set-pipeline \
   --team=stemcell \
-  -p stemcells-publisher \
-  -c $pipeline_config
+  -p ubuntu-noble-publisher \
+  -c "${pipeline_config}"
