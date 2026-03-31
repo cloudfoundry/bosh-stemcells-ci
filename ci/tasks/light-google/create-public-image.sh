@@ -67,7 +67,7 @@ pushd "${REPO_PARENT}/working_dir"
   cp stemcell.MF /tmp/stemcell.MF.tmp
 
   bosh int \
-    -o "${REPO_ROOT}/tasks/light-google/assets/public-image-stemcell-ops.yml" \
+    -o "${REPO_ROOT}/ci/tasks/light-google/assets/public-image-stemcell-ops.yml" \
     -v "packaged_image_stemcell_sha1=$packaged_image_stemcell_sha1" \
     -v 'stemcell_formats=["google-light"]' \
     -v "image_url=https://www.googleapis.com/compute/v1/projects/${PROJECT_NAME}/global/images/${image_name}" \

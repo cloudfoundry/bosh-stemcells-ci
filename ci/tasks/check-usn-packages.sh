@@ -10,7 +10,7 @@ if [[ -n "${DEBUG:-}" ]]; then
   export BOSH_LOG_PATH="${BOSH_LOG_PATH:-${REPO_PARENT}/bosh-debug.log}"
 fi
 
-source "${REPO_ROOT}/tasks/usn-processing/usn-shared-functions.sh"
+source "${REPO_ROOT}/ci/tasks/usn-processing/usn-shared-functions.sh"
 
 process_usns "${REPO_PARENT}/usn-log-in/usn-log.json" "${REPO_PARENT}/usn-gh-json/usn"
 
