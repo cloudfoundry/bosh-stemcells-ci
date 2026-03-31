@@ -44,7 +44,7 @@ jobs:
   serial: true
   plan:
     - get: bosh-stemcells-ci
-    - get: os-image-stemcell-builder
+    - get: os-image-stemcell-builder-registry-image
     - get: bosh-integration-image
     - get: bosh-linux-stemcell-builder-in
       trigger: true
@@ -73,8 +73,9 @@ jobs:
         - name: bosh-linux-stemcell-builder
     - task: build-docker-args
       file: bosh-stemcells-ci/ci/tasks/build-docker-args.yml
-      image: os-image-stemcell-builder
-    - put: os-image-stemcell-builder
+      image: os-image-stemcell-builder-registry-image #! TODO: image should be stock ubuntu
+    - put: os-image-stemcell-builder-docker-image
+      no_get: true
       params:
         build: bosh-linux-stemcell-builder/ci/docker/os-image-stemcell-builder
         build_args_file: docker-build-args/docker-build-args.json
@@ -87,7 +88,7 @@ jobs:
     - in_parallel:
       - get: bosh-stemcells-ci
       - get: bosh-shared-ci
-      - get: os-image-stemcell-builder
+      - get: os-image-stemcell-builder-registry-image
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder
       - get: (@= data.values.stemcell_details.os @)-usn
@@ -98,7 +99,7 @@ jobs:
       - get: high-critical-unfound-usns
     - task: check-if-usn-is-in-github
       file: bosh-stemcells-ci/ci/tasks/check-if-usn-is-in-github.yml
-      image: os-image-stemcell-builder
+      image: os-image-stemcell-builder-registry-image
       input_mapping:
         usn: (@= data.values.stemcell_details.os @)-usn
         usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
@@ -112,7 +113,7 @@ jobs:
     - try:
         task: check-if-usns-are-applicable
         file: bosh-stemcells-ci/ci/tasks/check-if-usns-are-applicable.yml
-        image: os-image-stemcell-builder
+        image: os-image-stemcell-builder-registry-image
         input_mapping:
           usns: found-usns
           usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
@@ -129,7 +130,7 @@ jobs:
                 predefined_acl: publicRead
             - put: high-critical-cves-processed
     - task: verify-check-usn-was-successful
-      image: os-image-stemcell-builder
+      image: os-image-stemcell-builder-registry-image
       file: bosh-shared-ci/ci/tasks/release/ensure-task-succeeded.yml
       input_mapping:
         task-output-folder: updated-usn-log
@@ -138,7 +139,7 @@ jobs:
   plan:
     - in_parallel:
       - get: bosh-stemcells-ci
-      - get: os-image-stemcell-builder
+      - get: os-image-stemcell-builder-registry-image
       - get: bosh-integration-image
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder
@@ -155,7 +156,7 @@ jobs:
           - process-high-critical-cves
     - task: check-usn-packages
       file: bosh-stemcells-ci/ci/tasks/check-usn-packages.yml
-      image: os-image-stemcell-builder
+      image: os-image-stemcell-builder-registry-image
       input_mapping:
         usn-log-in: usn-log
         usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
@@ -179,7 +180,7 @@ jobs:
     - in_parallel:
       - get: bosh-stemcells-ci
       - get: bosh-shared-ci
-      - get: os-image-stemcell-builder
+      - get: os-image-stemcell-builder-registry-image
       - get: bosh-linux-stemcell-builder
         resource: bosh-linux-stemcell-builder
       - get: (@= data.values.stemcell_details.os @)-usn-low-medium
@@ -190,7 +191,7 @@ jobs:
       - get: low-medium-unfound-usns
     - task: check-if-usn-is-in-github
       file: bosh-stemcells-ci/ci/tasks/check-if-usn-is-in-github.yml
-      image: os-image-stemcell-builder
+      image: os-image-stemcell-builder-registry-image
       input_mapping:
         usn: (@= data.values.stemcell_details.os @)-usn-low-medium
         usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
@@ -204,7 +205,7 @@ jobs:
     - try:
         task: check-if-usns-are-applicable
         file: bosh-stemcells-ci/ci/tasks/check-if-usns-are-applicable.yml
-        image: os-image-stemcell-builder
+        image: os-image-stemcell-builder-registry-image
         input_mapping:
           usns: found-usns
           usn-gh-json: (@= data.values.stemcell_details.os @)-usn-gh-json
@@ -218,7 +219,7 @@ jobs:
             file: updated-usn-log/usn-log.json
             predefined_acl: publicRead
     - task: verify-check-usn-was-successful
-      image: os-image-stemcell-builder
+      image: os-image-stemcell-builder-registry-image
       file: bosh-shared-ci/ci/tasks/release/ensure-task-succeeded.yml
       input_mapping:
         task-output-folder: updated-usn-log
@@ -227,7 +228,7 @@ jobs:
   plan:
   - put: build-time
   - get: bosh-stemcells-ci
-  - get: os-image-stemcell-builder
+  - get: os-image-stemcell-builder-registry-image
   - get: bosh-linux-stemcell-builder
     resource: bosh-linux-stemcell-builder
     trigger: true
@@ -240,7 +241,7 @@ jobs:
     trigger: true
   - task: build
     file: bosh-stemcells-ci/ci/tasks/os-images/build.yml
-    image: os-image-stemcell-builder
+    image: os-image-stemcell-builder-registry-image
     params:
       OPERATING_SYSTEM_NAME: ubuntu
       OPERATING_SYSTEM_VERSION: (@= data.values.stemcell_details.os @)
@@ -454,7 +455,7 @@ jobs:
       resource: version
       trigger: true
     - get: bosh-stemcells-ci
-    - get: os-image-stemcell-builder
+    - get: os-image-stemcell-builder-registry-image
     - get: build-time
       passed:
       - build-stemcell
@@ -471,7 +472,7 @@ jobs:
   - task: create-stemcell
     attempts: 3
     file: bosh-stemcells-ci/ci/tasks/build.yml
-    image: os-image-stemcell-builder
+    image: os-image-stemcell-builder-registry-image
     params:
       HYPERVISOR: #@ HYPERVISOR
       IAAS: #@ IAAS
@@ -623,10 +624,10 @@ jobs:
       - test-stemcells-ipv4
       - bats
       trigger: true
-    - get: os-image-stemcell-builder
+    - get: os-image-stemcell-builder-registry-image
   - task: commit-build-time
     file: bosh-stemcells-ci/ci/tasks/commit-build-time.yml
-    image: os-image-stemcell-builder
+    image: os-image-stemcell-builder-registry-image
   #@ if len(data.values.stemcell_details.include_fips_iaas) > 0:
   - task: copy-fips-artifacts
     file: bosh-stemcells-ci/ci/tasks/publish.yml
@@ -1022,8 +1023,16 @@ resources:
     owner: anchore
     repository: syft
 
-- name: os-image-stemcell-builder
+- name: os-image-stemcell-builder-registry-image
   type: registry-image
+  source:
+    repository: bosh/os-image-stemcell-builder
+    tag: (@= data.values.stemcell_details.os @)
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
+
+- name: os-image-stemcell-builder-docker-image
+  type: docker-image
   source:
     repository: bosh/os-image-stemcell-builder
     tag: (@= data.values.stemcell_details.os @)
