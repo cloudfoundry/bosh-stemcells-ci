@@ -35,7 +35,7 @@ pushd "${REPO_PARENT}/deployment-state" > /dev/null
     -v ssh_private_key="bosh.pem" \
     -l "${REPO_PARENT}/terraform/metadata" \
     --vars-store=./skeletal-deployment-vars.yml \
-    "${REPO_ROOT}/tasks/light-google/skeletal-deployment.yml" > ./skeletal-deployment.yml
+    "${REPO_ROOT}/ci/tasks/light-google/skeletal-deployment.yml" > ./skeletal-deployment.yml
 
   bosh -n create-env ./skeletal-deployment.yml
 popd > /dev/null
