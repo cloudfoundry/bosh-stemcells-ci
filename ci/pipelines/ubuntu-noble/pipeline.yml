@@ -1023,7 +1023,7 @@ resources:
     repository: syft
 
 - name: os-image-stemcell-builder
-  type: registry-image
+  type: docker-image
   source:
     repository: bosh/os-image-stemcell-builder
     tag: (@= data.values.stemcell_details.os @)
